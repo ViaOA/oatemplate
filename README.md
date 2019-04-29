@@ -1,2 +1,4 @@
-# oatemplate
-OATemplate project used by OABuilder code generation
+oatemplate
+==========
+
+Template project used by OABuilder to generate a new project.

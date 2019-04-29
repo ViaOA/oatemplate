@@ -1,0 +1,36 @@
+<%@page trimDirectiveWhitespaces="true"%>
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@page language="java" errorPage="oaerror.jsp"%>
+<%@page import="java.io.*,java.util.*, java.awt.*"%>
+<%@page import="java.util.logging.*"%>
+
+<%@page import="com.viaoa.object.*,com.viaoa.hub.*,com.viaoa.util.*,com.viaoa.jsp.*,com.viaoa.ds.*,com.viaoa.ds.jdbc.*,com.viaoa.jfc.image.*, com.viaoa.process.*"%>
+
+<%@page import="com.template.model.oa.*,com.template.model.oa.propertypath.*, com.template.model.oa.search.*"%>
+<%@page import="com.template.model.*,com.template.model.search.*"%>
+<%@page import="com.template.jsp.oa.*, com.template.jsp.*"%>
+<%@page import="com.template.delegate.*"%>
+
+<%-- OAJSP hierarchy: System/Application/Session/Form --%>
+<jsp:useBean id="oasystem" scope="application" class="com.viaoa.jsp.OASystem" />
+
+<%!static Logger LOG = Logger.getLogger("oajsp");%>
+
+
+<%
+    String applicationId = "template";
+    OAApplication oaapplication = oasystem.getApplication(applicationId, application);
+    OASession oasession = oaapplication.getSession(session);
+    OAForm form = null;
+
+    oasession.setResponse(response);
+    oasession.setRequest(request);
+%>
+
+
+<%
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private"); // HTTP 1.1.
+    response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+    response.setDateHeader("Expires", 0); // Proxies.
+    // response.setHeader("P3P","CP='IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT'");
+%>

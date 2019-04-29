@@ -1,0 +1,6 @@
+Created-By: OABuilder
+Class-Path: template.jar oa.jar jh.jar
+Main-Class: com.template.control.StartupController
+Application-Name: Template
+Permissions: all-permissions
+Codebase: *

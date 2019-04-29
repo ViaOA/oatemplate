@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="enUS">
+
+<head>
+<meta charset="utf-8">
+<meta name="author" content="xxx">
+<meta name="description" content="xxx">
+<meta name="generator" content="xxx">
+<meta name="keywords" content="abc,xyz,etc">
+<meta name="application-name" content="xxx">
+<meta name="robots" content="index,follow">
+<meta name="publisher" content="xxx">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- 
+<meta http-equiv="refresh" content="5">
+ -->
+<meta http-equiv="Expires" content="Tue, 20 Aug 1996 14:25:27 GMT">
+<meta http-equiv="Content-Language" content="en-us"/>   
+<meta http-equiv="Pragma" CONTENT="no-cache">
+
+<link rel="shortcut icon" type="image/x-icon" href="image/favicon.ico"/>
+
+<!-- form css insert -->
+<%=form.getCssInsert()%>
+<!-- example
+<link rel="stylesheet" href="vendor/bootstrap-3.3.7/css/bootstrap.min.css">
+ -->
+
+
+<!-- form js insert -->
+<%=form.getJsInsert()%>
+<!-- example
+<script src="vendor/jquery-3.1.1/jquery.min.js"></script>
+-->
+
+
+
+
+
+
+
+ 
+
+   
+   
