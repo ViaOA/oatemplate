@@ -1964,7 +1964,7 @@ public class AppUserLoginJfcBase implements OAModelJfcInterface {
         TestDelegate td = new TestDelegate();
         td.createSampleData(null);
         
-        com.viaoa.context.OAContext.addContextHub(null, ModelDelegate.getLocalAppUserHub());
+        com.viaoa.context.OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
         AppUserLoginJfc ui = new AppUserLoginJfc() {
             @Override
             protected AppUserLoginSearchJfc getSearchJfc() {

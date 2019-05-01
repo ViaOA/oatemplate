@@ -175,7 +175,7 @@ public abstract class ClientController {
         sw0.execute();
 
         LOG.fine("Initiale OAContext");
-        OAContext.addContextHub(null, ModelDelegate.getLocalAppUserHub());
+        OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
         
         setLookAndFeel(null);
         

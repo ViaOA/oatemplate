@@ -180,11 +180,8 @@ public abstract class ServerController {
         }
         ModelDelegate.setLocalAppUser(user);
 
-        /* does not need to be set on the server
-        LOG.config("Initializing OAAuth ... as admin user");
-        OAContext.addContextHub(null, ModelDelegate.getLocalAppUserHub());
-        */
-        
+        LOG.config("Initializing OAContext ... as admin user");
+        OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
         
         // initialize serverRoot, ModelDelegate
         ModelDelegate.initialize(serverRoot, null);

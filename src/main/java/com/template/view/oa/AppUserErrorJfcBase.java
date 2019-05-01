@@ -1642,7 +1642,7 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         TestDelegate td = new TestDelegate();
         td.createSampleData(null);
         
-        com.viaoa.context.OAContext.addContextHub(null, ModelDelegate.getLocalAppUserHub());
+        com.viaoa.context.OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
         AppUserErrorJfc ui = new AppUserErrorJfc() {
             @Override
             protected AppUserErrorSearchJfc getSearchJfc() {
