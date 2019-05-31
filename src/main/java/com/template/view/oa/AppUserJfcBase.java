@@ -1368,7 +1368,7 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         gc.fill = gc.NONE;
         gc.gridwidth = 1;
     
-        lbl = new JLabel("Admin:");
+        lbl = new JLabel("Super Admin:");
         gc.anchor = gc.WEST;
         panel.add(lbl, gc);
         gc.anchor = gc.NORTHWEST;

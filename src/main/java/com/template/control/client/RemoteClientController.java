@@ -238,13 +238,15 @@ public abstract class RemoteClientController {
         for (int i=0;;i++) {
             String fn = (String) ois.readObject();
             if (fn.length() == 0) break;
+            fn = fn + ".jar";
+            
             if (bUsePrefix) fn = "vx" + fn;
             if (i > 0) {
                 fn = "lib/" + fn;
                 newJars = OAString.append(newJars, fn, ";");
             }
 
-            File file = new File(fn+".jar");
+            File file = new File(fn);
             if (file.exists()) file.delete();
             file.createNewFile();
             
