@@ -267,7 +267,7 @@ public abstract class RemoteClientController {
             s = "app.runtime=";
             int pos2 = config.indexOf(s);
             if (pos2 >= 0) {
-                config = config.substring(0, pos1) + newJars + "\n" + config.substring(pos2);
+                config = config.substring(0, pos1) + newJars + OAFile.NL + config.substring(pos2);
                 OAFile.writeTextFile(appName + ".cfg", config);
             }
         }
