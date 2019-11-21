@@ -122,7 +122,7 @@ public abstract class ServerFrame extends JFrame implements ActionListener {
 	
     public AppServerJfc getAppServerJfc() {
         if (jfcAppServer != null) return jfcAppServer;
-        final Hub<AppServer> hub = ModelDelegate.getAppServers().createSharedHub();
+        final Hub<AppServer> hub = ModelDelegate.getCreateOneAppServer().createSharedHub();
         hub.setPos(0);
         hub.addHubListener(new HubListenerAdapter () {
             @Override

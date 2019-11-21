@@ -39,107 +39,106 @@ public abstract class LoginController {
     }
     
     public LoginDialog getLoginDialog() {
-        if (dlgLogin == null) {
-            dlgLogin = new LoginDialog(frmParent) {
-                public void onOk() {
-                    startLoginProcess();
-        
-                    // Void is the return type, Point is the publish/process type
-                    SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
-                        long ts;
-                        String error;
-                        AppUserLogin userLogin;
-                        @Override
-                        protected Void doInBackground() throws Exception {
-                            ts = System.currentTimeMillis();
-                            error = connectToServer();
-                            if (error == null) {
-                                this.userLogin = loginUser();
-                            }
-                            if (error == null && this.userLogin != null) {
-                                SwingUtilities.invokeAndWait(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        getLoginDialog().getProgressBar().setIndeterminate(false);
-                                        getLoginDialog().getStatusLabel().setText("loading frame ...");
-                                        getProgressBar().setString("connected to server");
-                                    }
-                                });
-                            }
-                            return null;
+        if (dlgLogin != null) return dlgLogin;
+        dlgLogin = new LoginDialog(frmParent) {
+            public void onOk() {
+                startLoginProcess();
+    
+                // Void is the return type, Point is the publish/process type
+                SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                    long ts;
+                    String error;
+                    AppUserLogin userLogin;
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        ts = System.currentTimeMillis();
+                        error = connectToServer();
+                        if (error == null) {
+                            this.userLogin = loginUser();
                         }
-                        @Override
-                        protected void done() {
-                            if (error != null) {
-                                endLoginProcess();
-                                JOptionPane.showMessageDialog(getLoginDialog(),"Error connecting to server\n"+error, "Login Failed", JOptionPane.ERROR_MESSAGE);
-                            }
-                            else if (this.userLogin == null) {
-                                endLoginProcess();
-                                JOptionPane.showMessageDialog(getLoginDialog(), "Invalid Login",  Resource.getRunTimeName(),JOptionPane.ERROR_MESSAGE);
-                            }
-                            else {
-                                LoginController.this.userLogin = this.userLogin;
-                                beforeEndingLoginProcess();
-                                endLoginProcess();
-                                ts = System.currentTimeMillis() - ts;
-                                if (ts < 700) {
-                                    try {
-                                        Thread.sleep(700 - ts);
-                                    }
-                                    catch (Exception e) {
-                                    }
+                        if (error == null && this.userLogin != null) {
+                            SwingUtilities.invokeAndWait(new Runnable() {
+                                @Override
+                                public void run() {
+                                    getLoginDialog().getProgressBar().setIndeterminate(false);
+                                    getLoginDialog().getStatusLabel().setText("loading frame ...");
+                                    getProgressBar().setString("connected to server");
                                 }
-                                getLoginDialog().setVisible(false);
-                                LoginController.this.setUserLogin(this.userLogin);
-                                String userId = getLoginDialog().getUserTextField().getText(); 
-                                String location = getLoginDialog().getLocationTextField().getText(); 
-                                LoginController.this.onLogin(userId, location);
-                            }
+                            });
                         }
-                    };
-                    sw.execute();
-                }
-                public void onExit() {
-                    LoginController.this.onExit();
-                }
-            };
-
-            
-            dlgLogin.setTitle(Resource.getRunTimeName() + " Login");
-            String s = Resource.getValue(Resource.APP_Server);
-            if (s == null) s = "";
-            dlgLogin.getServerTextField().setText(s);
-            s = Resource.getValue(Resource.INI_User);
-            if (s == null || s.length() == 0) s = System.getProperty("user.name");
-            dlgLogin.getUserTextField().setText(s);
-            
-            if (s.length() > 0) dlgLogin.getPasswordTextField().requestFocusInWindow();
-            else dlgLogin.getUserTextField().requestFocusInWindow();
-            
-            s = Resource.getValue(Resource.INI_Password);
-            if (!OAString.isEmpty(s)) {
-                try {
-                    s = OAEncryption.decrypt(s);
-                } 
-                catch (Exception e) {
-                    LOG.log(Level.WARNING, "could not decrypt, value="+s, e);
-                }
+                        return null;
+                    }
+                    @Override
+                    protected void done() {
+                        if (error != null) {
+                            endLoginProcess();
+                            JOptionPane.showMessageDialog(getLoginDialog(),"Error connecting to server\n"+error, "Login Failed", JOptionPane.ERROR_MESSAGE);
+                        }
+                        else if (this.userLogin == null) {
+                            endLoginProcess();
+                            JOptionPane.showMessageDialog(getLoginDialog(), "Invalid Login",  Resource.getRunTimeName(),JOptionPane.ERROR_MESSAGE);
+                        }
+                        else {
+                            LoginController.this.userLogin = this.userLogin;
+                            beforeEndingLoginProcess();
+                            endLoginProcess();
+                            ts = System.currentTimeMillis() - ts;
+                            if (ts < 700) {
+                                try {
+                                    Thread.sleep(700 - ts);
+                                }
+                                catch (Exception e) {
+                                }
+                            }
+                            getLoginDialog().setVisible(false);
+                            LoginController.this.setUserLogin(this.userLogin);
+                            String userId = getLoginDialog().getUserTextField().getText(); 
+                            String location = getLoginDialog().getLocationTextField().getText(); 
+                            LoginController.this.onLogin(userId, location);
+                        }
+                    }
+                };
+                sw.execute();
             }
-
-            if (s == null) s = "";
-            dlgLogin.getPasswordTextField().setText(s);
-            s = Resource.getValue(Resource.INI_Location);
-            if (s == null || s.length() == 0) s = System.getProperty("user.name") +" computer";
-            dlgLogin.getLocationTextField().setText(s);
-
-            if (controlHelp != null) {
-                controlHelp.setHelpButton(dlgLogin.getHelpCommand(), HelpController.PAGE_Index);
-                controlHelp.enableHelpKey(dlgLogin.getRootPane(), HelpController.PAGE_Index);
+            public void onExit() {
+                LoginController.this.onExit();
             }
-            else {
-                dlgLogin.getHelpCommand().setEnabled(false);
+        };
+
+        
+        dlgLogin.setTitle(Resource.getRunTimeName() + " Login");
+        String s = Resource.getValue(Resource.APP_Server);
+        if (s == null) s = "";
+        dlgLogin.getServerTextField().setText(s);
+        s = Resource.getValue(Resource.INI_User);
+        if (s == null || s.length() == 0) s = System.getProperty("user.name");
+        dlgLogin.getUserTextField().setText(s);
+        
+        if (s.length() > 0) dlgLogin.getPasswordTextField().requestFocusInWindow();
+        else dlgLogin.getUserTextField().requestFocusInWindow();
+        
+        s = Resource.getValue(Resource.INI_Password);
+        if (!OAString.isEmpty(s)) {
+            try {
+                s = OAEncryption.decrypt(s);
+            } 
+            catch (Exception e) {
+                LOG.log(Level.WARNING, "could not decrypt, value="+s, e);
             }
+        }
+
+        if (s == null) s = "";
+        dlgLogin.getPasswordTextField().setText(s);
+        s = Resource.getValue(Resource.INI_Location);
+        if (s == null || s.length() == 0) s = System.getProperty("user.name") +" computer";
+        dlgLogin.getLocationTextField().setText(s);
+
+        if (controlHelp != null) {
+            controlHelp.setHelpButton(dlgLogin.getHelpCommand(), HelpController.PAGE_Index);
+            controlHelp.enableHelpKey(dlgLogin.getRootPane(), HelpController.PAGE_Index);
+        }
+        else {
+            dlgLogin.getHelpCommand().setEnabled(false);
         }
         return dlgLogin;
     }

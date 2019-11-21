@@ -93,6 +93,7 @@ public abstract class RemoteServerController {
     public void start() throws Exception {
         String msg = Resource.getValue(Resource.APP_ApplicationName);
         msg += ", version="+Resource.getValue(Resource.APP_Version);
+        msg += ", release="+Resource.getValue(Resource.APP_Release);
         msg += ", started=" + (new OADateTime());
         getSyncServer().setInvalidConnectionMessage(msg);
         getSyncServer().start();

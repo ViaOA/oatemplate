@@ -137,7 +137,7 @@ public class Util {
         enumx = Resource.getBundleProperties().keys();
         for ( ;enumx.hasMoreElements();) {
             String key = (String) enumx.nextElement();
-            vec.addElement(key + " = " + convertValue(Resource.getValue(key)));
+            vec.addElement(key + " = " + convertValue(key, Resource.getValue(key)));
         }
         Collections.sort(vec);
         vecAll.addAll(vec);
@@ -147,7 +147,7 @@ public class Util {
         enumx = Resource.getRuntimeProperties().keys();
         for ( ;enumx.hasMoreElements();) {
             String key = (String) enumx.nextElement();
-            vec.addElement(key + " = " + convertValue(Resource.getValue(key)));
+            vec.addElement(key + " = " + convertValue(key, Resource.getValue(key)));
         }
         Collections.sort(vec);
         vecAll.addAll(vec);
@@ -157,7 +157,7 @@ public class Util {
         enumx = Resource.getServerProperties().keys();
         for ( ;enumx.hasMoreElements();) {
             String key = (String) enumx.nextElement();
-            vec.addElement(key + " = " + convertValue(Resource.getValue(key)));
+            vec.addElement(key + " = " + convertValue(key, Resource.getValue(key)));
         }
         Collections.sort(vec);
         vecAll.addAll(vec);
@@ -167,7 +167,7 @@ public class Util {
         enumx = Resource.getClientProperties().keys();
         for ( ;enumx.hasMoreElements();) {
             String key = (String) enumx.nextElement();
-            vec.addElement(key + " = " + convertValue(Resource.getValue(key)));
+            vec.addElement(key + " = " + convertValue(key, Resource.getValue(key)));
         }
         Collections.sort(vec);
         vecAll.addAll(vec);
@@ -186,9 +186,12 @@ public class Util {
         return vecAll;
     }
 
-    protected static String convertValue(String val) {
-        if (val == null) return "";
-        if (val.toLowerCase().indexOf("password") >= 0) val = "password";
+    protected static String convertValue(String key, String val) {
+        if (key == null || val == null) return "";
+        key = key.toLowerCase();
+        if (key.indexOf("password") >= 0) val = "********";
+        else if (key.indexOf("pw") >= 0) val = "*****";
+        else if (key.indexOf("secret") >= 0) val = "*****";
         return  val;
     }
     

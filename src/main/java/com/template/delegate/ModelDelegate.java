@@ -30,7 +30,7 @@ public class ModelDelegate {
 
     /*$$Start: ModelDelegate1 $$*/
     // lookups, preselects
-    private static final Hub<AppServer> hubAppServers = new Hub<AppServer>(AppServer.class);
+    private static final Hub<AppServer> hubCreateOneAppServer = new Hub<AppServer>(AppServer.class);
     private static final Hub<AppUser> hubAppUsers = new Hub<AppUser>(AppUser.class);
     // filters
     // UI containers
@@ -44,7 +44,7 @@ public class ModelDelegate {
 
         /*$$Start: ModelDelegate2 $$*/
         // lookups, preselects
-        setSharedHub(getAppServers(), rootServer.getAppServers());
+        setSharedHub(getCreateOneAppServer(), rootServer.getCreateOneAppServer());
         setSharedHub(getAppUsers(), rootServer.getAppUsers());
         // filters
         // UI containers
@@ -96,8 +96,11 @@ public class ModelDelegate {
     }
     
     /*$$Start: ModelDelegate3 $$*/
-    public static Hub<AppServer> getAppServers() {
-        return hubAppServers;
+    public static Hub<AppServer> getCreateOneAppServer() {
+        return hubCreateOneAppServer;
+    }
+    public static AppServer getAppServer() {
+        return getCreateOneAppServer().getAt(0);
     }
     public static Hub<AppUser> getAppUsers() {
         return hubAppUsers;

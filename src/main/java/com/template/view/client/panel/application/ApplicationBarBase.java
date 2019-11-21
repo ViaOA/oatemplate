@@ -51,7 +51,7 @@ public class ApplicationBarBase {
         OATreeTitleNode ttNode;
     
         // AppServers - App Servers
-        Hub<AppServer> hubAppServer = ModelDelegate.getAppServers().createSharedHub();
+        Hub<AppServer> hubAppServer = ModelDelegate.getCreateOneAppServer().createSharedHub();
         AppServerJfc jfcAppServer = new AppServerJfc(hubAppServer) {
             JPanel panx;
             @Override

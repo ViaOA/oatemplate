@@ -100,6 +100,7 @@ public abstract class ClientController {
         try {
             for (;;) {
                 if (ssi.shouldExit) break;
+                if (ssi.exception != null) break;
                 if (ssi.swingWorker == null) {
                     Thread.sleep(100);
                 }
@@ -202,11 +203,12 @@ public abstract class ClientController {
         ssi.serverRelease = OAConv.toInt(RemoteDelegate.getRemoteApp().getRelease());
         if (ssi.release != ssi.serverRelease) {
             try {
-                String s = "Loading new version "+ssi.serverRelease+", (Current: "+ssi.release+")";
+                String version = RemoteDelegate.getRemoteApp().getResourceValue(Resource.APP_Version);
+                String s = "Loading new version "+ version + ", release: " +ssi.serverRelease+", (current: "+ssi.release+")";
                 LOG.config(s);
                 setProcessing(true, s);
         
-                getRemoteClientController().onUpdateSoftwareForWindows();
+                getRemoteClientController().onUpdateSoftwareForWindows(version, ssi.serverRelease);
                 
                 // Thread.sleep(4500); // allow jws time to load new
                 setProcessing(false);
@@ -374,7 +376,6 @@ public abstract class ClientController {
                     int connectionId = OASync.getSyncClient().getClientInfo().getConnectionId();
                     RemoteDelegate.getRemoteApp().writeToClientLogFile(connectionId, list);
                     if (++errorCount == 3) callExit();
-                    break;
                 }
                 else errorCount = 0;
             }

@@ -219,7 +219,7 @@ public class AppServerSearchJfc {
         final JPanel pan = new JPanel(new BorderLayout(0,0));
         pan.setBorder(new EmptyBorder(5,5,5,5));
     
-        final AppServerModel model = new AppServerModel(ModelDelegate.getAppServers().createSharedHub());
+        final AppServerModel model = new AppServerModel(ModelDelegate.getCreateOneAppServer().createSharedHub());
         if (bMultiSelect) {
             model.setAllowMultiSelect(true);
             model.getMultiSelectHub().setSharedHub(getModel().getMultiSelectHub());

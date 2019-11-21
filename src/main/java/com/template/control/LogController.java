@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.*;
+import java.util.logging.Formatter;
 
 import com.template.resource.*;
 import com.viaoa.util.*;
@@ -350,8 +351,34 @@ public class LogController {
     			fileHandler = new FileHandler(fileName, 5 * 1024 * 1024, 5, true) {
                     volatile FileHandler handler;   // replacement handler when date changes
                     volatile long msNextDateChange; // next date change
+                    long msLast;
+                    int threadIdLast;
+                    String sourceLast;
+                    int cntThrottle;
                     @Override
                     public synchronized void publish(LogRecord record) {
+                        if (record.getLevel().intValue() >= Level.WARNING.intValue()) {
+                            String source = record.getSourceMethodName();
+                            int tid = record.getThreadID();
+                            long ms = System.currentTimeMillis();
+                            
+                            boolean bMatch = (tid == threadIdLast) && (source == null || source.equals(sourceLast));
+                            boolean bIgnore = bMatch && (msLast + 100 > ms);
+                            
+                            msLast = ms;
+                            threadIdLast = tid;
+                            sourceLast = source;
+
+                            if (bIgnore) {
+                                cntThrottle++;
+                                return;  // ignore
+                            }
+                            if (bMatch) {
+                                String msg = record.getMessage();
+                                record.setMessage(msg += " - note: throttled");
+                            }
+                        }
+
                         if (msNextDateChange == 0) {
                             msNextDateChange = ((new OADate()).addDays(1).getTime());  // next day                            
                         }
@@ -371,8 +398,34 @@ public class LogController {
     		    fileHandler = new FileHandler(fileName, true) {
     		        volatile FileHandler handler;   // replacement handler when date changes
     		        volatile long msNextDateChange; // next date change
+                    long msLast;
+                    int threadIdLast;
+                    String sourceLast;
+                    int cntThrottle;
                     @Override
                     public synchronized void publish(LogRecord record) {
+                        if (record.getLevel().intValue() >= Level.WARNING.intValue()) {
+                            String source = record.getSourceMethodName();
+                            int tid = record.getThreadID();
+                            long ms = System.currentTimeMillis();
+                            
+                            boolean bMatch = (tid == threadIdLast) && (source == null || source.equals(sourceLast));
+                            boolean bIgnore = bMatch && (msLast + 100 > ms);
+                            
+                            msLast = ms;
+                            threadIdLast = tid;
+                            sourceLast = source;
+
+                            if (bIgnore) {
+                                cntThrottle++;
+                                return;  // ignore
+                            }
+                            if (bMatch) {
+                                String msg = record.getMessage();
+                                record.setMessage(msg += " - note: throttled");
+                            }
+                        }
+
                         if (msNextDateChange == 0) {
                             msNextDateChange = ((new OADate()).addDays(1).getTime());  // next day                            
                         }
@@ -414,9 +467,10 @@ public class LogController {
 	
 
 	public void removeOldLogFiles(int regularDays, int errorDays) {
-		OADate today = new OADate();
-		OADate dateExpire = (OADate) today.addDays(-regularDays);
+	    final OADate today = new OADate();
+		final OADate dateExpire = (OADate) today.addDays(-regularDays);
 		// OADate dateError = (OADate) today.addDays(-errorDays);
+        final OADate yesterday = (OADate) (new OADate()).addDays(-1);
 
         String s = Resource.getLogsDirectory();
 		s = OAString.convertFileName(s);
@@ -438,21 +492,22 @@ public class LogController {
 	            File f = new File(s);
 
                 OADateTime dtFile = new OADateTime(f.lastModified());
-                OADateTime yesterday = (new OADateTime()).addDays(-1);
 
 	            boolean bDelete = false;
 	            if (f.length() == 0) {
-	                if (dtFile.before(yesterday)) bDelete = true;
+	                bDelete = dtFile.before(yesterday);
 	            }
                 if (!bDelete && fn.toLowerCase().indexOf(".lck") > 0) {
-                    if (dtFile.before(yesterday)) bDelete = true;
+                    bDelete = dtFile.before(yesterday);
                 }
                 else {
-                    if (dtFile.after(dateExpire)) continue;  // hold on for dateExpire amount of days
+                    bDelete =  dtFile.before(dateExpire); 
                 }
 	
-				LOG.fine("delete log file "+fn);
-	            f.delete();
+                if (bDelete) {
+                    LOG.fine("delete log file "+fn);
+                    f.delete();
+                }
 			}
             catch (Exception e) {
             }
@@ -753,6 +808,70 @@ public class LogController {
         return pwFast;
     }
 
+    
+
+    /**
+     * Create a custom one-line formatter.
+     */
+    protected Formatter createFormatter() {
+        java.util.logging.Formatter formatter = new Formatter() {
+            @Override
+            public String format(LogRecord record) {
+                String line = LogController.this.format(record);
+                return line;
+            }
+        }; 
+        return formatter;
+    }
+    
+    protected String format(LogRecord record) {
+        //usage:  fileHandler.setFormatter(createFormatter());
+
+        // 2019-10-06 00:39:53,716 DEBUG [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool: HikariPool-1 - Before cleanup stats (total=5, active=0, idle=5, waiting=0)
+        
+        OADateTime dt = new OADateTime(record.getMillis());
+        
+        Thread thread = Thread.currentThread();
+
+        String mname = record.getSourceClassName();
+        if (OAString.isEmpty(mname)) mname = record.getLoggerName();
+        int dcnt = OAString.dcount(mname, ".");
+        String mname2 = "";
+        for (int i=0; i<dcnt; i++) {
+            String s = OAString.field(mname, ".", i+1);
+            if (i < 3) s = s.charAt(0)+"";
+            if (i > 0) mname2 += ".";
+            mname2 += s;
+        }
+        
+        String s = record.getSourceMethodName();
+        if (OAString.isNotEmpty(s)) {
+            mname += "." + s;
+        }
+        
+        Throwable t = record.getThrown();
+        String sException;
+        if (t == null) sException = "";
+        else {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            pw.println();
+            t.printStackTrace(pw);
+            pw.close();
+            sException = pw.toString();
+        }
+        
+        String line = String.format("%s %s [%s] %s: %s%s\n", 
+            dt.toString("yyyy-MM-dd HH:mm:ss,SSS"),
+            record.getLevel().getName(),
+            thread.getName(),
+            mname2,
+            record.getMessage(),
+            sException
+        );
+        
+        return line;
+    }
 
 
 }

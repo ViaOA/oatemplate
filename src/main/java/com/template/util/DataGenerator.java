@@ -196,7 +196,7 @@ public class DataGenerator {
         x = 5 + ((int) (Math.random()*20));
         for (int i=0; i<x; i++) {
             AppServer appServer = createAppServer();
-            ModelDelegate.getAppServers().add(appServer);
+            ModelDelegate.getCreateOneAppServer().add(appServer);
         }
         x = 5 + ((int) (Math.random()*20));
         for (int i=0; i<x; i++) {
@@ -208,7 +208,7 @@ public class DataGenerator {
          
         // Now prepopulate new objects
         // lookups
-        for (AppServer appServer : ModelDelegate.getAppServers()) {
+        for (AppServer appServer : ModelDelegate.getCreateOneAppServer()) {
             prepopulate(appServer);
         }
         for (AppUser appUser : ModelDelegate.getAppUsers()) {
@@ -219,7 +219,7 @@ public class DataGenerator {
         
         // Now populate new objects
         // lookups
-        for (AppServer appServer : ModelDelegate.getAppServers()) {
+        for (AppServer appServer : ModelDelegate.getCreateOneAppServer()) {
             populate(appServer);
         }
         for (AppUser appUser : ModelDelegate.getAppUsers()) {

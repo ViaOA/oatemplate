@@ -56,7 +56,7 @@ public abstract class RemoteClientController {
     public void start(String serverName, int port) throws Exception {
     	this.serverName = serverName;
     	this.port = port;
-        LOG.config("creating DataSourceClient");
+        LOG.config("creating RemoteClientController");
 
         // Create OADataSource to be used by OASyncClient
         final OADataSourceClient dsClient = new OADataSourceClient() {
@@ -219,7 +219,7 @@ public abstract class RemoteClientController {
         }
 	}
 
-    protected void onUpdateSoftwareForWindows() throws Exception {
+	protected void onUpdateSoftwareForWindows(String serverVersion, int serverRelease) throws Exception {
         // see: RemoteServerController.updateClientSoftware
         final Socket socket = getSyncClient().getRemoteMultiplexerClient().getMultiplexerClient().createSocket("getJars");
         final InputStream is = socket.getInputStream();

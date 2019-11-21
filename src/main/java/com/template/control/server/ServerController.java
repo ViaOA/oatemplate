@@ -60,7 +60,7 @@ public abstract class ServerController {
     
     private boolean bRunAsService;
     private JFrame frmDummy;
-	private boolean bClosed;
+	private volatile boolean bClosed;
 	private final Object LOCKSave = new Object();
     private final Object LOCKGetUser = new Object();
 
@@ -197,12 +197,8 @@ public abstract class ServerController {
 		getObjectController().start();
 
 		
-        AppServer appServer = ModelDelegate.getAppServers().getAt(0);
-        if (appServer == null) {
-            appServer = new AppServer();
-            ModelDelegate.getAppServers().add(appServer);
-        }
-        else appServer.setStarted(null);
+        AppServer appServer = ModelDelegate.getAppServer();
+        appServer.setStarted(null);
         appServer.setCreated(new OADateTime());
         appServer.setRelease(""+Resource.getInt(Resource.APP_Release));
 		
@@ -236,7 +232,7 @@ public abstract class ServerController {
         getConnectionController().setUserLogin(0, userLogin);
         
 
-        LOG.config("SpellCheck Controller");
+        LOG.fine("SpellCheck Controller");
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -260,7 +256,6 @@ public abstract class ServerController {
         t.setPriority(Thread.MIN_PRIORITY);
         t.start();
 
-        LOG.config("Resource.SpellChecker set"); 
         Resource.setSpellChecker(getSpellChecker());
         
 		// Thread to save data every 5 minutes
@@ -294,8 +289,27 @@ public abstract class ServerController {
         };
         ExecutorServiceDelegate.submit(r);
         ScheduledExecutorServiceDelegate.scheduleEvery(r, new OATime(0, 30, 0)); // run at 12:30am
+
+        LOG.config("adding ShutdownHook to call close");
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                try {
+                    if (!bClosed) {
+                        LOG.fine("calling ShutdownHook");
+                        ServerController.this.close();
+                    }
+                }
+                catch (Exception e) {
+                    LOG.log(Level.WARNING, "Exception in shutDownHook", e);
+                }
+            }
+        });
+        
         
         appServer.setStarted(new OADateTime());
+        
+        
         
         return true;
 	}
@@ -698,7 +712,7 @@ public abstract class ServerController {
         
         String s = Resource.getValue(Resource.APP_NewWordsFileName);
         try {
-            LOG.fine("Saving spellcheck new words data");
+            LOG.finer("Saving spellcheck new words data");
             getSpellCheckController().saveNewWordsTextFile(s);
         }
         catch (Throwable e) {
@@ -729,6 +743,7 @@ public abstract class ServerController {
         LOG.config("Saving data to database");
         synchronized (LOCKSave) {
             // wait for saveData to end
+            LOG.config("Saved data to database");
         }
 
         if (controlObject != null) {

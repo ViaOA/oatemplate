@@ -105,9 +105,11 @@ public class StartupController {
         String verMini = Resource.getValue(Resource.APP_JDKVersion);
         String verCurrent = System.getProperty("java.runtime.version"); // was: java.version
         System.out.println("JDK version=" + verCurrent);
+        /*
         if (!verifyJavaVersion(verMini, verCurrent)) {
             onStartupError(Resource.MSG_InvalidJVM, new Object[] { verCurrent, verMini }, null);
         }
+        */
 
         if (Resource.getBoolean(Resource.INI_Debug)) {
             OAObject.setDebugMode(true);

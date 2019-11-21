@@ -1,6 +1,7 @@
 package com.template.resource;
 
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.InputStream;
 import java.net.URL;
@@ -51,7 +52,8 @@ public class Resource {
     private static OAProperties propsSystem;   
     private static OAProperties propsServer; 	
     private static OAProperties propsClient; 	
-    private static OAProperties propsBundle;   
+    private static OAProperties propsEnvironment;
+    private static OAProperties propsBundle;
     private static OAProperties propsWebserver;    
     private static ResourceBundle resourceBundle;
 
@@ -86,6 +88,7 @@ public class Resource {
     public static final String APP_LogsDirectory     = "LogsDirectory";
     public static final String APP_TempDirectory     = "TempDirectory";
 
+    public static final String APP_Env               = "Env";     
     public static final String APP_HostName          = "HostName";  // this computer    
     public static final String APP_HostIPAddress     = "HostIPAddress";  // this computer    
 	public static final String APP_Server            = "Server";  // actual server host    
@@ -314,7 +317,9 @@ public class Resource {
         String s = getValue(name, null, null);
         return s != null;
     }
-	
+
+    private static final String EncryptPrefix = "b64E";
+    
 	/**
 	 * Case-insensitive way to get name/value.  
 	 * Checks  runtime args, system properties, client.ini, server.ini, values.properties
@@ -322,6 +327,14 @@ public class Resource {
     protected static String getValue(String name, Object[] args, String defaultValue) {
         String value = _getValue(name, args, defaultValue);
         if (value != null) {
+            if (value.startsWith(EncryptPrefix)) {
+                try {
+                    value = OAEncryption.decrypt(value.substring(EncryptPrefix.length()));
+                }
+                catch (Exception e) {
+                    LOG.log(Level.WARNING, "error while calling decrypt for "+name+", value="+value+", will return value", e);
+                }
+            }            
             value = value.trim();
             if (args != null && args.length > 0) {
                 value = MessageFormat.format(value, args);
@@ -331,6 +344,21 @@ public class Resource {
             value = defaultValue;
         }
         return value;
+    }
+    
+    /**
+     * Utility method to create encrypted value for use by Resource.class, that can then be used as a value in properties/ini name/value file.
+     */
+    public static String getEncryptedValue(String value)  {
+        if (value == null) return value;
+        try {
+            value = OAEncryption.encrypt(value);
+        }
+        catch (Exception e) {
+            LOG.log(Level.WARNING, "error while calling encrypt value="+value+", will return value", e);
+            return value;
+        }
+        return EncryptPrefix+value;
     }
     
     private static String _getValue(String name, Object[] args, String defaultValue) {
@@ -355,14 +383,20 @@ public class Resource {
             value = getClientProperties().getString(name);
             if (value != null) return value;
         }
-        
-        value = getBundleProperties().getString(name);
-        if (value != null) return value;
 
+        if (!name.equalsIgnoreCase(APP_Env)) {
+            value = getEnvironementProperties().getString(name);
+            if (value != null) return value;
+            
+            value = getBundleProperties().getString(name);
+            if (value != null) return value;
+        }
+        
         return value;
     }   
 
-    
+
+        
 	/**
 	 * load server.ini
 	 */
@@ -454,6 +488,7 @@ public class Resource {
                 value = "true";
             }
             getRuntimeProperties().put(name, value);
+            LOG.config("args["+i+"] name="+name+", value="+value);
         }
         resetLocale();
     }
@@ -520,6 +555,41 @@ public class Resource {
             }
         }
         return resourceBundle;
+    }
+    
+    
+    private static boolean bEnvironmentProperties;
+    public static OAProperties getEnvironementProperties() {
+        if (bEnvironmentProperties && propsEnvironment != null ) return propsEnvironment;
+        if (propsEnvironment == null) propsEnvironment = new OAProperties();
+
+        String env = getValue(APP_Env); 
+        if (OAString.isEmpty(env)) return propsEnvironment;
+
+        bEnvironmentProperties = true;
+
+        String fname = Resource.class.getName();
+        int x = fname.lastIndexOf('.');
+        if (x >= 0) fname = fname.substring(0, x);
+        fname = fname.replace('.', '/');
+        fname += "/"+env.toLowerCase()+"-values.properties";
+        
+        fname = fname.substring(0, fname.lastIndexOf('.'));
+        fname = fname.replace('/', '.');
+        ResourceBundle rb = null;
+        try {
+            rb = ResourceBundle.getBundle(fname);
+        }
+        catch (Throwable t) {
+            LOG.log(Level.WARNING, "error while loading environment resouce bundle, env="+env, t);
+        }
+        if (rb != null) {
+            for (String key : rb.keySet()) {
+                String value = rb.getString(key);
+                propsEnvironment.put(key, value);
+            }
+        }
+        return propsEnvironment;
     }
     
     
@@ -810,5 +880,9 @@ public class Resource {
             };
         }
         return spellCheckerInternal;
+    }
+    public static void main(String[] args) {
+        String s = Resource.getEncryptedValue("Enter Password here");
+        s = null;
     }
 }

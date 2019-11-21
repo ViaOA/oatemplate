@@ -159,7 +159,7 @@ public class JettyController {
         
         String hostName = Resource.getValue(Resource.APP_JettyServer);
         if (OAString.isEmpty(hostName)) {
-            hostName = Resource.getValue(Resource.APP_HostName);
+            // hostName = Resource.getValue(Resource.APP_HostName);
         }
         LOG.fine("Jetty server: " + hostName);
 
@@ -178,7 +178,7 @@ public class JettyController {
         ServerConnector httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
         httpConnector.setPort(port);
         httpConnector.setIdleTimeout(30 * 1000);
-        httpConnector.setHost(hostName);
+        if (OAString.isNotEmpty(hostName)) httpConnector.setHost(hostName);
         server.addConnector(httpConnector);
         
         // SSL Connector

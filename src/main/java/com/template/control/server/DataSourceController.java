@@ -104,6 +104,7 @@ public class DataSourceController {
         }
 
         dsObjectCache = new OADataSourceObjectCache(); // for non-DB objects
+        dsObjectCache.setAssignIdOnCreate(true);
 
         
         if (!OAString.isEmpty(cacheFileName)) {
@@ -171,8 +172,8 @@ public class DataSourceController {
                 try {
                     alExecutorService.add(msg);
                     if (isUsingDatabase()) {
-                        select(serverRoot.getAppServers(), "", null);
-                        serverRoot.getAppServers().loadAllData();
+                        select(serverRoot.getCreateOneAppServer(), "", null);
+                        serverRoot.getCreateOneAppServer().loadAllData();
                     }
                 }
                 catch (Exception e) {
@@ -272,7 +273,7 @@ public class DataSourceController {
 	        f1.mkdir();
 	    }
 
-        LOG.config("Saving data to file temp.bin, will rename when done");
+        LOG.fine("Saving data to file temp.bin, will rename when done");
 	    
         File fileTemp = new File(OAString.convertFileName(dirName + "/temp.bin"));
         _writeSerializeToFile(fileTemp);
@@ -323,7 +324,7 @@ public class DataSourceController {
         }
         
         fileTemp.renameTo(dataFile);
-        LOG.config("Saved data to file " + dataFile);
+        LOG.fine("Saved data to file " + dataFile);
 	}
 	
 	protected void _writeSerializeToFile(File fileTemp) throws Exception {

@@ -64,7 +64,7 @@ public class ServerRoot extends OAObject {
     /*$$Start: ServerRoot3 $$*/
     // lookups, preselects, autoCreated
     @OAMany(toClass = AppServer.class, cascadeSave = true)
-    public Hub<AppServer> getAppServers() {
+    public Hub<AppServer> getCreateOneAppServer() {
         if (hubAppServers == null) {
             hubAppServers = (Hub<AppServer>) super.getHub(P_AppServers);
         }

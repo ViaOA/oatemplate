@@ -596,7 +596,7 @@ public class AppServerJfcBase implements OAModelJfcInterface {
         tnode = new OATreeTitleNode(getModel().getPluralDisplayName());
         tnode.setIcon(AppServerJfc.getTitleIcon());
         tree.add(tnode);
-        node = new OATreeNode(AppServerJfc.PP_Display, ModelDelegate.getAppServers().createSharedHub(), getHub()) {
+        node = new OATreeNode(AppServerJfc.PP_Display, ModelDelegate.getCreateOneAppServer().createSharedHub(), getHub()) {
             @Override
             public void onDoubleClick(Object obj, MouseEvent e) {
                 AppServerJfcBase.this.onDoubleClickTreeNode();
@@ -1675,7 +1675,7 @@ public class AppServerJfcBase implements OAModelJfcInterface {
         td.createSampleData(null);
         
         com.viaoa.context.OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
-        AppServerJfc ui = new AppServerJfc(ModelDelegate.getAppServers().createSharedHub()) {
+        AppServerJfc ui = new AppServerJfc(ModelDelegate.getCreateOneAppServer().createSharedHub()) {
             @Override
             protected AppServerSearchJfc getSearchJfc() {
                 if (this.jfcSearch == null) {
