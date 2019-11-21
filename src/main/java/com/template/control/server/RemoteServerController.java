@@ -121,7 +121,7 @@ public abstract class RemoteServerController {
     }
 
     protected void runUpdateClientSoftware() throws Exception {
-        ServerSocket ss = getSyncServer().getMultiplexerServer().createServerSocket("getJars");
+        ServerSocket ss = getSyncServer().getMultiplexerServer().createServerSocket("getJarFile");
         for ( ;; ) {
             final Socket socket = ss.accept();
             new Thread(new Runnable() {
@@ -131,52 +131,69 @@ public abstract class RemoteServerController {
                     }
                     catch (Exception e) {
                         // TODO: handle exception
-                        LOG.log(Level.WARNING, "updateClientSoftware exception", e);
+                        LOG.log(Level.WARNING, "getJarFile exception", e);
                     }
                 }
             }, "UpdateClientSoftwareSocket").start();
         }
     }
-    
+
     protected void updateClientSoftware(Socket socket) throws Exception {
         // see ClientController.onUpdateSoftwareForWindows
-        // send app jar first
-        String s = Resource.getValue(Resource.APP_JarFileName);
-        if (s.toLowerCase().endsWith(".jar")) s = s.substring(0, s.length()-4);
-        String[] fnames = (s +", oa-core, oa-jfc, itext, jh").split(", ");
+        String fn = Resource.getValue(Resource.APP_JarFileName);
+        if (fn.toLowerCase().endsWith(".jar")) fn = fn.substring(0, fn.length()-4);
+        
+        // CUSTOM  needs to match vendorapi-1.0.7
+        fn += "-" + Resource.getValue(Resource.APP_Version);
+
         final byte[] bs = new byte[8196];
 
         final BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
         final ObjectOutputStream oos = new ObjectOutputStream(bos);
+
+        int x = Resource.getInt(Resource.APP_Release);
+        oos.writeInt(x);
         
-        for (String fn : fnames) {
-            LOG.fine("sending file to client, fn="+fn+", clientId="+((VirtualSocket) socket).getConnectionId());
-            File f = new File("lib");
-            File[] files = f.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    if (name.toLowerCase().indexOf(fn.toLowerCase()) == 0) return true;
-                    return false;
-                }
-            });
-            if (files == null || files.length == 0) continue;
-            
-            oos.writeObject(fn);
-            
-            final InputStream is = new FileInputStream(files[0]);
-            final BufferedInputStream bis = new BufferedInputStream(is);
-        
-            for (int i=0;;i++) {
-                int x = bis.read(bs, 0, bs.length);
-                oos.writeInt(Math.max(x, 0));
-                if (x <= 0) break;
-                oos.write(bs, 0, x);
-            }
-            is.close();
-        }
-        oos.writeObject(""); // end of fileNames
+        String s = Resource.getValue(Resource.APP_Version);
+        oos.writeObject(s);
         oos.flush();
-        socket.getInputStream().read();
+        
+        x = socket.getInputStream().read();  // wait for resposne
+        if (x == 0) {
+            return;
+        }
+        
+        LOG.fine("sending file to client, fn="+fn+", clientId="+((VirtualSocket) socket).getConnectionId());
+        
+        final String fname = fn;
+        File f = new File(".");
+        File[] files = f.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                if (name.toLowerCase().indexOf(fname.toLowerCase()) == 0) return true;
+                return false;
+            }
+        });
+        if (files == null || files.length == 0) {
+            throw new Exception("file not found, name="+fname);  //qqqqqqqqqqqqq need to write error qqqqqqqqqqqqqq
+        }
+        
+        oos.writeObject(fname);
+        oos.flush();
+        
+        final InputStream is = new FileInputStream(files[0]);
+        final BufferedInputStream bis = new BufferedInputStream(is);
+    
+        for (int i=0;;i++) {
+            x = bis.read(bs, 0, bs.length);
+            oos.writeInt(Math.max(x, 0));
+            if (x <= 0) break;
+            oos.write(bs, 0, x);
+        }
+        is.close();
+
+        oos.flush();
+        socket.getInputStream().read();  // wait for resposne
     }
     
     

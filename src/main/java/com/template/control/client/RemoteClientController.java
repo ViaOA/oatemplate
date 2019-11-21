@@ -4,8 +4,11 @@ import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
@@ -219,61 +222,91 @@ public abstract class RemoteClientController {
         }
 	}
 
-	protected void onUpdateSoftwareForWindows(String serverVersion, int serverRelease) throws Exception {
-        // see: RemoteServerController.updateClientSoftware
-        final Socket socket = getSyncClient().getRemoteMultiplexerClient().getMultiplexerClient().createSocket("getJars");
-        final InputStream is = socket.getInputStream();
-        final BufferedInputStream bis = new BufferedInputStream(is);
-        final ObjectInputStream ois = new ObjectInputStream(bis);
-        final byte[] bs = new byte[8196];
-        
-        // the javapackager creates a *.cfg file that needs to be changed for the new jar files
-        String appName = Resource.getValue(Resource.APP_ApplicationName);
-        String config = OAFile.readTextFile(appName + ".cfg", 2048);
-        final boolean bUsePrefix = config.indexOf("app.mainjar=vx") < 0;
-        if (bUsePrefix) config = OAString.convert(config, "app.mainjar=", "app.mainjar=vx");
-        else config = OAString.convert(config, "app.mainjar=vx", "app.mainjar=");
-        
-        String newJars = "";
-        for (int i=0;;i++) {
-            String fn = (String) ois.readObject();
-            if (fn.length() == 0) break;
-            fn = fn + ".jar";
-            
-            if (bUsePrefix) fn = "vx" + fn;
-            if (i > 0) {
-                fn = "lib/" + fn;
-                newJars = OAString.append(newJars, fn, ";");
-            }
+    /**
+     * Get new uber jar from server and update the config file.
+     */
+    protected void onUpdateSoftwareForWindows(String serverVersion, int serverRelease) throws Exception {
+        String s = "Server version "+serverVersion+" (release: "+serverRelease+"), current release="+Resource.getValue(Resource.APP_Release);
+        LOG.fine("");
+        if (serverRelease < 201911182) {
+            s = "Server version "+serverVersion+" (release: "+serverRelease+") does not support automated updates";
+            s += ",\nserver will need to be updated before this program can run";
+            throw new Exception(s);
+        }
 
-            File file = new File(fn);
+        // see if we already have the version-release
+        String fnMatch = serverVersion + "-" + serverRelease + ".jar";
+        
+        File f = new File(".");
+        File[] files = f.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(fnMatch);
+            }
+        });
+        
+        
+        String fileName = null;
+        if (files != null && files.length == 1) {
+            fileName = files[0].getName();
+        }
+        else {
+            // see: RemoteServerController.updateClientSoftware
+            final Socket socket = getSyncClient().getRemoteMultiplexerClient().getMultiplexerClient().createSocket("getJarFile");
+            final InputStream is = socket.getInputStream();
+            final BufferedInputStream bis = new BufferedInputStream(is);
+            final ObjectInputStream ois = new ObjectInputStream(bis);
+            final byte[] bs = new byte[8196];
+            
+            fileName = (String) ois.readObject();
+            fileName = fileName + "-" + serverRelease + ".jar";
+            
+            File file = new File(fileName);
             if (file.exists()) file.delete();
             file.createNewFile();
             
-            OutputStream os = new FileOutputStream(file);
+            OutputStream fos = new FileOutputStream(file);
             for (;;) {
                 int x = ois.readInt();
                 if (x <= 0) break;
                 ois.readFully(bs, 0, x);
-                os.write(bs, 0, x);
+                fos.write(bs, 0, x);
             }
-            os.close();
-        }
-
-        String s = "app.classpath=";
-        int pos1 = config.indexOf(s);
-        if (pos1 >= 0) {
-            pos1 += s.length();
-            s = "app.runtime=";
-            int pos2 = config.indexOf(s);
-            if (pos2 >= 0) {
-                config = config.substring(0, pos1) + newJars + OAFile.NL + config.substring(pos2);
-                OAFile.writeTextFile(appName + ".cfg", config);
-            }
-        }
+            fos.close();
+            
+            socket.getOutputStream().write(77); // done
+            socket.close();
+        }        
         
-        socket.getOutputStream().write(77); // done
-        socket.close();
+        // the javapackager creates a *.cfg file that needs to be changed for the new jar file
+        f = new File(".");
+        files = f.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".cfg");
+            }
+        });
+        if (files == null || files.length == 0) throw new Exception("cant find *.cfg file to set app.mainjar="+fileName);
+        LOG.fine("setting "+files[0].getName()+" app.mainjar="+fileName);
+        
+        BufferedReader reader = new BufferedReader(new FileReader(files[0]));
+        StringBuffer sb = new StringBuffer(2048);
+        for (;;) {
+            String line = reader.readLine();
+            if (line == null) break;
+            
+            if (line.toLowerCase().indexOf("app.mainjar") >= 0) {
+                line = "app.mainjar="+fileName;
+            }
+            else if (line.toLowerCase().indexOf("app.version") >= 0) {
+                line = "app.version="+serverVersion;
+            }
+            
+            sb.append(line);
+            sb.append(OAString.NL);
+        }
+        reader.close();
+        OAFile.writeTextFile(files[0], sb.toString());
     }
 
 	protected abstract void onDisconnect(Exception e);
