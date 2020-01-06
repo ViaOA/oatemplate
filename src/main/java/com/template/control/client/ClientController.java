@@ -512,8 +512,8 @@ public abstract class ClientController {
 		if (controlLogin == null) {
 			controlLogin = new LoginController(getFrame(), getHelpController()) {
 				@Override
-				protected boolean onConnectToServer(String server) throws Exception {
-                    boolean bResult = ClientController.this.connectServer(server);
+				protected boolean onConnectToServer(String server, int port) throws Exception {
+                    boolean bResult = ClientController.this.connectServer(server, port);
 		            return bResult;
 				}
 				@Override
@@ -528,7 +528,8 @@ public abstract class ClientController {
 					ci.setLocation(location);
 			        int release = OAConv.toInt(Resource.getValue(Resource.APP_Release));
 					ci.setVersion(""+release);
-                    OASync.getRemoteSession().update(ci);
+                    RemoteSessionInterface sess = OASync.getRemoteSession();
+                    if (sess != null) sess.update(ci);
 				}
 				@Override
 				protected void setUserLogin(final AppUserLogin userLogin) {
@@ -669,11 +670,13 @@ public abstract class ClientController {
         ClientController.this.callExit();
 	}	
 	
-    private boolean connectServer(String serverName) throws Exception {
+    private boolean connectServer(String serverName, int port) throws Exception {
     	try {
-            int port = Registry.REGISTRY_PORT;
-            String s = Resource.getValue(Resource.APP_ServerPort);
-            if (s != null && OAString.isNumber(s)) port = OAConv.toInt(s);
+            if (port < 1) {
+                port = Registry.REGISTRY_PORT;
+                String s = Resource.getValue(Resource.APP_ServerPort);
+                if (s != null && OAString.isNumber(s)) port = OAConv.toInt(s);
+            }
 
             // see if it is already connected
             if (getRemoteClientController().isConnected()) {

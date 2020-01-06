@@ -341,6 +341,7 @@ public class DataSourceController {
         OAObjectSerializer wrap;
         
         wrap = new OAObjectSerializer(serverRoot, false, true);
+        wrap.setIncludeBlobs(true);
         // wrap.setExcludedReferences(new Class[] {DeliveryDate.class});
         oos.writeObject(wrap);
 

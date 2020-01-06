@@ -110,6 +110,11 @@ public abstract class LoginController {
         String s = Resource.getValue(Resource.APP_Server);
         if (s == null) s = "";
         dlgLogin.getServerTextField().setText(s);
+        
+        s = Resource.getValue(Resource.APP_ServerPort);
+        if (s == null) s = "";
+        dlgLogin.getPortTextField().setText(s);
+        
         s = Resource.getValue(Resource.INI_User);
         if (s == null || s.length() == 0) s = System.getProperty("user.name");
         dlgLogin.getUserTextField().setText(s);
@@ -197,11 +202,14 @@ public abstract class LoginController {
     }
     
     protected String connectToServer() {
-        String server = getLoginDialog().getServerTextField().getText(); 
+        String server = getLoginDialog().getServerTextField().getText();
+        String s = getLoginDialog().getPortTextField().getText();
+        int port = 0;
+        if (s != null && OAString.isNumber(s)) port = OAConv.toInt(s); 
             
         String msg = null;
         try {
-            if (!onConnectToServer(server)) return "Could not connect to server";
+            if (!onConnectToServer(server, port)) return "Could not connect to server";
         }
         catch (Exception e) {
             LOG.log(Level.CONFIG, "Exception connecting to server", e);
@@ -223,14 +231,23 @@ public abstract class LoginController {
             Resource.setValue(Resource.TYPE_Client, Resource.APP_Server, server);
         }
         
-        String userId = getLoginDialog().getUserTextField().getText(); 
-        s = Resource.getValue(Resource.INI_User);
-        if (userId != null && (s == null || !userId.equals(s))) {
-            Resource.setValue(Resource.TYPE_Client, Resource.INI_User, userId);
+        String port = getLoginDialog().getPortTextField().getText();
+        s = Resource.getValue(Resource.APP_ServerPort);
+        if (port != null && (s == null || !port.equals(s))) {
+            Resource.setValue(Resource.TYPE_Client, Resource.APP_ServerPort, port);
         }
         
+        
+        String userId = getLoginDialog().getUserTextField().getText(); 
         String password = getLoginDialog().getPasswordTextField().getText(); 
-        if (OAConv.toBoolean(Resource.getValue(Resource.INI_StorePassword))) {
+
+        if (Resource.getBoolean(Resource.INI_StoreLogin) || Resource.getBoolean(Resource.INI_StorePassword)) {
+            s = Resource.getValue(Resource.INI_User);
+            if (userId != null && (s == null || !userId.equals(s))) {
+                Resource.setValue(Resource.TYPE_Client, Resource.INI_User, userId);
+            }
+        }
+        if (Resource.getBoolean(Resource.INI_StorePassword)) {
             String passwordx;
             try {
                 passwordx = OAEncryption.encrypt(password);
@@ -256,7 +273,7 @@ public abstract class LoginController {
         return userLogin;
     }
     
-    protected abstract boolean onConnectToServer(String server) throws Exception;
+    protected abstract boolean onConnectToServer(String server, int port) throws Exception;
     protected abstract void onExit();
     protected abstract void onLogin(String user, String location);
     protected abstract void setUserLogin(AppUserLogin user);

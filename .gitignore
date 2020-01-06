@@ -3,7 +3,8 @@
 *.war
 *.ear
 bin/
-runtime/*
+/runtime
+/logs
 /dist
 /libraries.zip
 /target/
@@ -11,3 +12,5 @@ runtime/*
 /package/lib/*
 *.jar
 *.exe
+dependency-reduced-pom.xml
+/model/backup/

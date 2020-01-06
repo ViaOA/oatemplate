@@ -143,27 +143,21 @@ public abstract class RemoteServerController {
         String fn = Resource.getValue(Resource.APP_JarFileName);
         if (fn.toLowerCase().endsWith(".jar")) fn = fn.substring(0, fn.length()-4);
         
-        // CUSTOM  needs to match vendorapi-1.0.7
+        // needs to match appname-1.0.7
         fn += "-" + Resource.getValue(Resource.APP_Version);
 
         final byte[] bs = new byte[8196];
 
-        final BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
-        final ObjectOutputStream oos = new ObjectOutputStream(bos);
+        final ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 
+        oos.writeInt(0); // this api version
+        
         int x = Resource.getInt(Resource.APP_Release);
         oos.writeInt(x);
         
         String s = Resource.getValue(Resource.APP_Version);
-        oos.writeObject(s);
+        oos.writeUTF(s);
         oos.flush();
-        
-        x = socket.getInputStream().read();  // wait for resposne
-        if (x == 0) {
-            return;
-        }
-        
-        LOG.fine("sending file to client, fn="+fn+", clientId="+((VirtualSocket) socket).getConnectionId());
         
         final String fname = fn;
         File f = new File(".");
@@ -175,11 +169,19 @@ public abstract class RemoteServerController {
             }
         });
         if (files == null || files.length == 0) {
-            throw new Exception("file not found, name="+fname);  //qqqqqqqqqqqqq need to write error qqqqqqqqqqqqqq
+            throw new Exception("file not found, name="+fname);
+        }
+
+        oos.writeUTF(files[0].getName());
+        oos.writeLong(files[0].length());
+        oos.flush();
+
+        x = socket.getInputStream().read();  // wait for response
+        if (x == 0) {
+            return;
         }
         
-        oos.writeObject(fname);
-        oos.flush();
+        LOG.fine("sending file to client, fn="+fn+", clientId="+((VirtualSocket) socket).getConnectionId());
         
         final InputStream is = new FileInputStream(files[0]);
         final BufferedInputStream bis = new BufferedInputStream(is);
@@ -193,7 +195,7 @@ public abstract class RemoteServerController {
         is.close();
 
         oos.flush();
-        socket.getInputStream().read();  // wait for resposne
+        socket.getInputStream().read();  // wait for response
     }
     
     

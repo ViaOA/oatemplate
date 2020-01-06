@@ -98,6 +98,10 @@ public class StartupController {
         System.out.println("Root Directory=" + rootDir);
         System.out.println("Version=" + Resource.getValue(Resource.APP_Version));
         System.out.println("Release=" + Resource.getValue(Resource.APP_Release));
+        System.out.println("ServerPort=" + Resource.getValue(Resource.APP_ServerPort));
+        System.out.println("JettyPort=" + Resource.getValue(Resource.APP_JettyPort));
+        System.out.println("JettySSLPort=" + Resource.getValue(Resource.APP_JettySSLPort));
+        System.out.println("JettyDirectory=" + Resource.getValue(Resource.APP_JettyDirectory));
 
         if (bUsesSwing) getSplashWindow().setVisible(true);
 

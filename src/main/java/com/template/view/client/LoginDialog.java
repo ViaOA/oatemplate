@@ -10,7 +10,7 @@ import com.viaoa.jfc.*;
 
 public abstract class LoginDialog extends JDialog {
 
-	private JTextField txtUser, txtServer, txtLocation;
+	private JTextField txtUser, txtServer, txtPort, txtLocation;
 	private JPasswordField txtPassword;
 	private JButton cmdHelp;
     private JProgressBar progressBar;
@@ -98,13 +98,19 @@ public abstract class LoginDialog extends JDialog {
         gc.gridwidth = 1;
 
         // Server
-        jlbl = new JLabel("Server Name:");
+        jlbl = new JLabel("Server:");
         pan.add(jlbl,gc);
         
         gc.gridwidth = GridBagConstraints.REMAINDER; 
         pan.add(getServerTextField(), gc);
         gc.gridwidth = 1;
 
+        jlbl = new JLabel("Port:");
+        pan.add(jlbl,gc);
+        gc.gridwidth = GridBagConstraints.REMAINDER; 
+        pan.add(getPortTextField(), gc);
+        gc.gridwidth = 1;
+        
         // Location
         jlbl = new JLabel("Your Location:");
         pan.add(jlbl,gc);
@@ -165,6 +171,10 @@ public abstract class LoginDialog extends JDialog {
     public JTextField getServerTextField() {
         if (txtServer == null) txtServer = new JTextField(12);
         return txtServer;
+    }
+    public JTextField getPortTextField() {
+        if (txtPort == null) txtPort = new JTextField(5);
+        return txtPort;
     }
     public JTextField getLocationTextField() {
         if (txtLocation == null) txtLocation = new JTextField(12);

@@ -1,5 +1,6 @@
 package com.template.control.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -250,6 +251,9 @@ public class JettyController {
 
         String dirName = Resource.getValue(Resource.APP_JettyDirectory);
         dirName = OAFile.convertFileName(dirName);
+        File file = new File(dirName);
+        dirName = file.getAbsolutePath();
+
         String welcomePage = Resource.getValue(Resource.APP_WelcomePage);
         if (OAString.isEmpty(welcomePage)) welcomePage = "index.html";
 

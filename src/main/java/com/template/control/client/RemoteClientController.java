@@ -227,7 +227,7 @@ public abstract class RemoteClientController {
      */
     protected void onUpdateSoftwareForWindows(String serverVersion, int serverRelease) throws Exception {
         String s = "Server version "+serverVersion+" (release: "+serverRelease+"), current release="+Resource.getValue(Resource.APP_Release);
-        LOG.fine("");
+        LOG.fine(s);
         if (serverRelease < 201911182) {
             s = "Server version "+serverVersion+" (release: "+serverRelease+") does not support automated updates";
             s += ",\nserver will need to be updated before this program can run";
@@ -253,13 +253,16 @@ public abstract class RemoteClientController {
         else {
             // see: RemoteServerController.updateClientSoftware
             final Socket socket = getSyncClient().getRemoteMultiplexerClient().getMultiplexerClient().createSocket("getJarFile");
-            final InputStream is = socket.getInputStream();
-            final BufferedInputStream bis = new BufferedInputStream(is);
-            final ObjectInputStream ois = new ObjectInputStream(bis);
+            final ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
             final byte[] bs = new byte[8196];
+
+            ois.readInt();  // this api version
+            ois.readInt();  // release
+            ois.readUTF(); // version
+            fileName = ois.readUTF();
+            long fileLength = ois.readLong();
             
-            fileName = (String) ois.readObject();
-            fileName = fileName + "-" + serverRelease + ".jar";
+            socket.getOutputStream().write(1);  // continue
             
             File file = new File(fileName);
             if (file.exists()) file.delete();
@@ -274,7 +277,8 @@ public abstract class RemoteClientController {
             }
             fos.close();
             
-            socket.getOutputStream().write(77); // done
+            socket.getOutputStream().write(1); // done
+            socket.getOutputStream().flush();
             socket.close();
         }        
         
