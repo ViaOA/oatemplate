@@ -3,7 +3,7 @@ package com.template.view;
 import java.awt.*;
 import javax.swing.*;
 
-import com.sun.awt.AWTUtilities;
+// import com.sun.awt.AWTUtilities;
 import com.template.resource.*;
 
 public class SplashWindow extends JWindow {
@@ -15,7 +15,7 @@ public class SplashWindow extends JWindow {
         setCursor(new Cursor(Cursor.WAIT_CURSOR));
     
         // http://today.java.net/pub/a/today/2008/03/18/translucent-and-shaped-swing-windows.html
-        AWTUtilities.setWindowOpaque(this, false);
+        // AWTUtilities.setWindowOpaque(this, false);
         // this.setAlwaysOnTop(true);
     }
 

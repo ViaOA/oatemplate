@@ -234,57 +234,41 @@ public abstract class RemoteClientController {
             throw new Exception(s);
         }
 
-        // see if we already have the version-release
-        String fnMatch = serverVersion + "-" + serverRelease + ".jar";
-        
-        File f = new File(".");
-        File[] files = f.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(fnMatch);
-            }
-        });
-        
-        
-        String fileName = null;
-        if (files != null && files.length == 1) {
-            fileName = files[0].getName();
-        }
-        else {
-            // see: RemoteServerController.updateClientSoftware
-            final Socket socket = getSyncClient().getRemoteMultiplexerClient().getMultiplexerClient().createSocket("getJarFile");
-            final ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-            final byte[] bs = new byte[8196];
+        final String rootDir = Resource.getRootDirectory();
 
-            ois.readInt();  // this api version
-            ois.readInt();  // release
-            ois.readUTF(); // version
-            fileName = ois.readUTF();
-            long fileLength = ois.readLong();
-            
-            socket.getOutputStream().write(1);  // continue
-            
-            File file = new File(fileName);
-            if (file.exists()) file.delete();
-            file.createNewFile();
-            
-            OutputStream fos = new FileOutputStream(file);
-            for (;;) {
-                int x = ois.readInt();
-                if (x <= 0) break;
-                ois.readFully(bs, 0, x);
-                fos.write(bs, 0, x);
-            }
-            fos.close();
-            
-            socket.getOutputStream().write(1); // done
-            socket.getOutputStream().flush();
-            socket.close();
-        }        
+        // see: RemoteServerController.updateClientSoftware
+        final Socket socket = getSyncClient().getRemoteMultiplexerClient().getMultiplexerClient().createSocket("getJarFile");
+        final ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+        final byte[] bs = new byte[8196];
+
+        ois.readInt();  // this api version
+        ois.readInt();  // release
+        ois.readUTF(); // version
+        final String fileName = ois.readUTF();
+        long fileLength = ois.readLong();
         
-        // the javapackager creates a *.cfg file that needs to be changed for the new jar file
-        f = new File(".");
-        files = f.listFiles(new FilenameFilter() {
+        socket.getOutputStream().write(1);  // continue
+
+        File file = new File(OAFile.convertFileName(rootDir + "/" + fileName));
+        if (file.exists()) file.delete();
+        file.createNewFile();
+        
+        OutputStream fos = new FileOutputStream(file);
+        for (;;) {
+            int x = ois.readInt();
+            if (x <= 0) break;
+            ois.readFully(bs, 0, x);
+            fos.write(bs, 0, x);
+        }
+        fos.close();
+        
+        socket.getOutputStream().write(1); // done
+        socket.getOutputStream().flush();
+        socket.close();
+        
+        // the jpackage creates a *.cfg file that needs to be changed for the new jar file
+        File f = new File(rootDir);
+        File[] files = f.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return name.toLowerCase().endsWith(".cfg");
@@ -300,7 +284,12 @@ public abstract class RemoteClientController {
             if (line == null) break;
             
             if (line.toLowerCase().indexOf("app.mainjar") >= 0) {
-                line = "app.mainjar="+fileName;
+                // app.mainjar=$ROOTDIR\app\oabuilder.jar
+                line = "app.mainjar=$ROOTDIR\\"+rootDir+"\\"+fileName;
+            }
+            else if (line.toLowerCase().indexOf("app.classpath") >= 0) {
+                // app.classpath=$ROOTDIR\app\oabuilder.jar
+                line = "app.classpath=$ROOTDIR\\"+rootDir+"\\"+fileName;
             }
             else if (line.toLowerCase().indexOf("app.version") >= 0) {
                 line = "app.version="+serverVersion;
