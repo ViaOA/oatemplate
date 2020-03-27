@@ -1,4 +1,4 @@
 oatemplate
 ==========
 
-Template project used by OABuilder to generate a new project.
+OATemplate project created by OABuilder.
