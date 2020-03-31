@@ -1,4 +1,17 @@
 
+
+20200331    
+    https://builds.apache.org/job/Derby-docs/lastSuccessfulBuild/artifact/trunk/out/ref/rrefattribcollation.html
+
+    ij> connect 'jdbc:derby:database;create=true;territory=en_US;collation=TERRITORY_BASED:SECONDARY';
+
+
+
+    ij> connect 'jdbc:derby:databaseNEW;createFrom=database;territory=en_US;collation=TERRITORY_BASED:SECONDARY';
+
+
+
+
 20180813 
     database collation for = and like operators
         http://db.apache.org/derby/docs/10.4/devguide/cdevcollation.html
