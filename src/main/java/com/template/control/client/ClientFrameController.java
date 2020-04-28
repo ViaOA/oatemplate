@@ -1,4 +1,3 @@
-// Copied from OATemplate project by OABuilder 02/13/19 10:11 AM
 package com.template.control.client;
 
 import java.awt.Cursor;
@@ -45,6 +44,7 @@ import com.template.model.oa.AppUserLogin;
 import com.template.resource.Resource;
 import com.template.view.client.ClientFrame;
 /*$$Start: ClientFrameController.customize0 $$*/
+/*$$End: ClientFrameController.customize0 $$*/
 import com.template.view.client.panel.application.ApplicationPanel;
 import com.viaoa.jfc.OAJfcUtil;
 import com.viaoa.jfc.control.OAJfcController;

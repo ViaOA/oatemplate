@@ -8,14 +8,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import com.template.control.single.SingleController;
-import com.template.model.oa.AppServer;
-import com.template.model.oa.AppUser;
-import com.template.model.oa.AppUserError;
-import com.template.model.oa.AppUserLogin;
-import com.template.model.oa.cs.ClientRoot;
-import com.template.model.oa.cs.ServerRoot;
-import com.viaoa.hub.Hub;
-import com.viaoa.hub.HubAODelegate;
+import com.template.model.oa.*;
+import com.template.model.oa.cs.*;
+import com.viaoa.hub.*;
 
 /**
  * This is used to access all of the Root level Hubs. This is so that they will not have to be passed into and through the models. After

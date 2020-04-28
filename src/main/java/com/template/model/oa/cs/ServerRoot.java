@@ -1,18 +1,11 @@
 // Copied from OATemplate project by OABuilder 07/01/16 07:41 AM
 package com.template.model.oa.cs;
 
-import com.template.model.oa.AppServer;
-import com.template.model.oa.AppUser;
-import com.template.model.oa.AppUserError;
-import com.template.model.oa.AppUserLogin;
-import com.template.model.oa.propertypath.AppUserPP;
-import com.viaoa.annotation.OAClass;
-import com.viaoa.annotation.OAId;
-import com.viaoa.annotation.OAMany;
-import com.viaoa.annotation.OAProperty;
-import com.viaoa.hub.Hub;
-import com.viaoa.hub.HubMerger;
-import com.viaoa.object.OAObject;
+import com.template.model.oa.*;
+import com.template.model.oa.propertypath.*;
+import com.viaoa.annotation.*;
+import com.viaoa.hub.*;
+import com.viaoa.object.*;
 
 /**
  * Root Object that is automatically updated between the Server and Clients. ServerController will do the selects for these objects. Model
