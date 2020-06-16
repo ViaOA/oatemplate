@@ -9,6 +9,7 @@ import java.awt.print.Paper;
 import java.awt.print.Printable;
 import java.io.File;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,8 +67,12 @@ public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
 
     private OAJfcController jfcController;
     
-    public ApplicationReport(Hub<F> hub, String name, boolean bAutoRefresh) {
-        super.setHub(hub);
+    private Hub<F> hubOriginal;
+    
+    public ApplicationReport(final Hub<F> hub, String name, boolean bAutoRefresh) {
+        this.hubOriginal = hub;
+        Hub hubx = hub.createSharedHub();
+        super.setHub(hubx);
         this.name = name;
         this.bAutoRefresh = bAutoRefresh;
         init();
@@ -110,7 +115,10 @@ public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
         OAHTMLTextPane html = new OAHTMLTextPane();
         html.setSpellChecker(Resource.getSpellChecker());
         html.setPreferredSize(10, 4);
-        html.setEditable(false);
+        
+        // qqqq        
+        // html.setEditable(false);
+        
         // html.setImageLoader(getClass(), "/com/cdi/report");
         setDetailTextPane(html);
         
@@ -120,6 +128,13 @@ public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
         loadPageFormat(getPageFormat());
         getPrintController().setPageFormat(getPageFormat());
         loadDefaultHtmlFiles();
+        
+        hubOriginal.onChangeAO( event -> {
+            if (isOnHold()) return;
+            else getHub().setAO(hubOriginal.getAO());
+        });
+        
+        getHub().setAO(hubOriginal.getAO());
         
         if (bAutoRefresh && getHub() != null) {        
             refreshDetail();
@@ -161,7 +176,7 @@ public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
         double h2 = Resource.getDouble(PrefixName+name+"_Height");
         if (w2 == 0.0) w2 = w - (x * 2);
         if (h2 == 0.0) h2 = h - (y * 2);
-        paper.setImageableArea(x,y,w,h);
+        paper.setImageableArea(x, y, w2, h2);
         pageFormat.setPaper(paper);
             
         String s = Resource.getValue(PrefixName+name+"_Orientation");
@@ -276,6 +291,26 @@ public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
                     ApplicationReport.this.savePageFormat();
                 }
             }
+            @Override
+            protected void beforePreview() {
+                setOnHold(true);
+                super.beforePreview();
+            }
+            @Override
+            protected void afterPreview() {
+                setOnHold(false);
+                super.afterPreview();
+            }
+            @Override
+            protected void beforePrint() {
+                setOnHold(true);
+                super.beforePrint();
+            }
+            @Override
+            protected void afterPrint() {
+                setOnHold(false);
+                super.afterPrint();
+            }
         };
         controlPrint.setPrintable(this);
         return controlPrint;
@@ -372,7 +407,28 @@ public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
         return cmdPdf;
     }
 
+    private final AtomicInteger aiOnHold = new AtomicInteger();
+    /**
+     * Called while report is outputting, so that changes (ex: active object) can wait.
+     */
+    protected void setOnHold(boolean b) {
+        if (!b) {
+            if (aiOnHold.decrementAndGet() == 0) {
+                getHub().setAO(hubOriginal.getAO());
+            }
+        }
+        else aiOnHold.incrementAndGet();
+    }
+    public boolean isOnHold() {
+        return aiOnHold.get() > 0;
+    }
+    
     public void onSaveAsPdf() {
+        setOnHold(true);
+        _onSaveAsPdf();
+    }
+    
+    protected void _onSaveAsPdf() {
         /*qqqqqq
         final User user = hub.getAO();
         if (user == null) return;
@@ -388,6 +444,7 @@ public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
             file.createNewFile();
         }
         catch (Exception e) {
+            setOnHold(false);
             String s = "";
             for (int i=0; i<fileName.length(); i++) {
                 char ch = fileName.charAt(i);
@@ -423,6 +480,14 @@ public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
            
             @Override
             protected void done() {
+                try {
+                    _done();
+                }
+                finally {
+                    setOnHold(false);
+                }
+            }
+            protected void _done() {
                 setStatus("");
                 setProcessing(false);
                 if (!bValid) {
@@ -463,8 +528,19 @@ public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
         return controlPdf;
     }
 
+    private long msLastReload;
     @Override
     public void refreshDetail() {
+        if (isOnHold()) return;
+        if (getDetailTemplate().getHasParseError()) {
+            long ms = System.currentTimeMillis();
+            if (msLastReload == 0 || msLastReload+5000 < ms) {
+                loadDefaultHtmlFiles();
+                msLastReload = ms;
+            }
+        }
+        getDetailTemplate().stopProcessing();
+
         F oaObj = getHub().getAO();
         setObject(oaObj);
         super.refreshDetail();
@@ -473,7 +549,7 @@ public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
     public void setEnabled(boolean b) {
         boolean bHold = bEnabled;
         bEnabled = b;
-        if (b && !bHold) {
+        if (b && !bHold && !isOnHold()) {
             if (jfcController == null || jfcController.isVisibleOnScreen()) {
                 refreshDetail();
             }
