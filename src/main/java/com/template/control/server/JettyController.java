@@ -68,9 +68,11 @@ import com.template.control.LogController;
 import com.template.resource.Resource;
 import com.template.servlet.HelloServlet;
 import com.template.webservice.server.*;
+import com.viaoa.servlet.HealthCheckServlet;
 import com.viaoa.servlet.ImageServlet;
 import com.viaoa.servlet.JNLPServlet;
 import com.viaoa.servlet.JsonServlet;
+import com.viaoa.servlet.OARestServlet;
 import com.viaoa.servlet.PdfServlet;
 import com.viaoa.servlet.SecurityServlet;
 import com.viaoa.util.OAFile;
@@ -105,6 +107,8 @@ public class JettyController {
     private boolean bAlwaysUseHttps;
     private int portHttp, portHttps;
     private HashLoginService loginService;
+
+    private OARestServlet servletRest;
 
     /**
      * Create a new Jetty controller. To start Jetty, call init(..), and then start()
@@ -332,7 +336,8 @@ public class JettyController {
         servletContextHandler.addServlet(new ServletHolder(servletHello), "/servlet/hello");
 
         // Image Servlet
-        ImageServlet servletImage = new ImageServlet("com.template.model.oa", null, null);
+        final String packageName = Resource.getValue(Resource.APP_ClassPath) + ".model.oa";
+        ImageServlet servletImage = new ImageServlet(packageName, null, null);
         servletContextHandler.addServlet(new ServletHolder(servletImage), "/servlet/img");
 
         // JSP support
@@ -354,12 +359,20 @@ public class JettyController {
         jsp.setInitParameter("saveByteCode", "true");
         // see: http://wiki.eclipse.org/Jetty/Howto/Configure_JSP
 
+        // HealthCheck Servlet
+        HealthCheckServlet servletHealthCheck = new HealthCheckServlet();
+        servletContextHandler.addServlet(new ServletHolder(servletHealthCheck), "/servlet/healthcheck");
+        
+        // OARest Servlet
+        this.servletRest = new OARestServlet(packageName);
+        servletContextHandler.addServlet(new ServletHolder(servletRest), "/servlet/oarest/*");
+        
         // Json Servlet
-        JsonServlet servletJson = new JsonServlet("com.template.model.oa");
+        JsonServlet servletJson = new JsonServlet(packageName);
         servletContextHandler.addServlet(new ServletHolder(servletJson), "/servlet/json");
 
         // Pdf Servlet
-        PdfServlet servletPdf = new PdfServlet("com.template.model.oa", null, null);
+        PdfServlet servletPdf = new PdfServlet(packageName, null, null);
         servletContextHandler.addServlet(new ServletHolder(servletPdf), "/servlet/pdf");
 
         // Security Servlet (test)
@@ -625,6 +638,10 @@ public class JettyController {
         server.start();
     }
 
+    public void join() throws Exception {
+        server.join();
+    }
+    
     /**
      * Called for each page that is accessed, to be able to redirect.
      */
@@ -753,6 +770,11 @@ public class JettyController {
         }
     }    
     
+    public OARestServlet getRestServlet() {
+        return servletRest;
+    }
+
+    
     /**
      * Testing: // to access "webcontent" directory http://localhost:8081/test.html
      * http://localhost:8081/test.jsp http://localhost:8081/servlet/hello?name=test
@@ -779,6 +801,7 @@ public class JettyController {
         System.out.println("==============================================");
         System.out.println("JETTY webserver started on ports " + jc.portHttp + " and " + jc.portHttps + "");
         System.out.println("==============================================");
+        jc.join();
     }
 }
 
