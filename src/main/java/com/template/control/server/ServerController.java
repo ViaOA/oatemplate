@@ -35,6 +35,8 @@ import com.template.remote.RemoteFileInterface;
 import com.template.remote.RemoteSpellCheckInterface;
 import com.template.resource.Resource;
 import com.viaoa.context.OAContext;
+import com.viaoa.context.OAUserAccess;
+import com.viaoa.filter.OAUserAccessFilter;
 import com.viaoa.hub.Hub;
 import com.viaoa.jfc.text.spellcheck.SpellChecker;
 import com.viaoa.object.OACascade;
@@ -52,7 +54,7 @@ import com.viaoa.util.OATime;
 
 /**
  * Starts up server controllers.
- * 
+ *
  * @author VVia
  */
 public abstract class ServerController {
@@ -66,6 +68,7 @@ public abstract class ServerController {
 	private ServerFrameController controlServerFrame;
 	private ServerSpellCheckController controlServerSpellCheck;
 	private JettyController controlJetty;
+	private OAUserAccessFilter filterUserAccess;
 	private ConnectionController controlConnection;
 	private SpellChecker spellChecker;
 
@@ -77,7 +80,7 @@ public abstract class ServerController {
 	private RemoteSpellCheckInterface remoteSpellCheck;
 	private RemoteAppInterface remoteServer;
 
-	// remote clients 
+	// remote clients
 	/*$$Start: ServerController.remoteClient1 $$*/
 	/*$$End: ServerController.remoteClient1 $$*/
 
@@ -132,7 +135,7 @@ public abstract class ServerController {
 		CronDelegate.setCronProcessor(cp);
 		CronDelegate.getCronProcessor().start();
 
-		// DataSource 
+		// DataSource
 		boolean bCheckForDatasourceCorruption = Resource.getBoolean(Resource.DB_CheckForCorruption, true);
 
 		// set up so that a DB failure will cause the next start to call isDatabaseCorrupted
@@ -293,7 +296,7 @@ public abstract class ServerController {
 		int port = Resource.getInt(Resource.APP_JettyPort, 8080);
 		int portSSL = Resource.getInt(Resource.APP_JettySSLPort, 0);
 		LOG.config("Jetty port=" + port + ", sslPort=" + portSSL);
-		getJettyController().init(port, portSSL);
+		getJettyController().init(port, portSSL, getJettyUserAccessFilter());
 		getJettyController().start();
 
 		// remove old log files
@@ -354,6 +357,34 @@ public abstract class ServerController {
 		return controlJetty;
 	}
 
+	public OAUserAccessFilter getJettyUserAccessFilter() {
+		if (filterUserAccess != null) {
+			return filterUserAccess;
+		}
+		filterUserAccess = new OAUserAccessFilter() {
+			@Override
+			protected OAObject getWebUser(String userId, String password) {
+				// customize this to allow other types of users, ex: Employee, Customer
+				AppUser user = _getUser(-1, userId, password, "", "");
+				return user;
+			}
+
+			@Override
+			protected OAObject getContextUser(OAObject webUser) {
+				// customize this to return the context user that is defined in the OABuilder model, ex: AppUser that would be used for webUser
+				return webUser;
+			}
+
+			@Override
+			protected OAUserAccess getContextUserAccess(OAObject webUser, OAObject contextUser) {
+				// customize this to allow for user access
+				return null;
+			}
+		};
+		filterUserAccess.setAuthType(OAUserAccessFilter.AuthType.HttpBasic);
+		return filterUserAccess;
+	}
+
 	class LoaderThread extends Thread {
 		int id;
 		OACascade cascade;
@@ -388,7 +419,7 @@ public abstract class ServerController {
 			for (int i=0; i<cntThread; i++) {
 			    threads[i] = new LoaderThread(i, cascade);
 			}
-			
+
 			int cnt = 0;
 			for (Program prog : serverRoot.getPrograms()) {
 			    threads[cnt++ % cntThread].al.add(prog);

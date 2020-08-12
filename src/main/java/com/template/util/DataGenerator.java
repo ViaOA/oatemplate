@@ -8,7 +8,7 @@ import com.template.model.oa.AppServer;
 import com.template.model.oa.AppUser;
 import com.template.model.oa.AppUserError;
 import com.template.model.oa.AppUserLogin;
-import com.viaoa.ds.OASelect;
+import com.viaoa.datasource.OASelect;
 import com.viaoa.hub.Hub;
 import com.viaoa.object.OALinkInfo;
 import com.viaoa.object.OAObject;

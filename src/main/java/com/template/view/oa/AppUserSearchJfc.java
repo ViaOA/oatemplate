@@ -15,6 +15,7 @@ import javax.swing.border.*;
 import javax.swing.text.*;
 
 import com.viaoa.object.*;
+import com.viaoa.datasource.*;
 import com.viaoa.hub.*;
 import com.viaoa.jfc.*;
 import com.viaoa.jfc.OAButton.*;
@@ -23,8 +24,6 @@ import com.viaoa.image.*;
 import com.viaoa.jfc.text.*;
 import com.viaoa.jfc.table.*;
 import com.viaoa.util.*;
-import com.viaoa.ds.*;
-
 import com.template.delegate.*;
 import com.template.delegate.oa.*;
 import com.template.model.*;

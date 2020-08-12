@@ -5,10 +5,9 @@ import java.util.logging.*;
 
 import com.viaoa.object.*;
 import com.viaoa.annotation.*;
+import com.viaoa.datasource.*;
 import com.viaoa.hub.*;
 import com.viaoa.util.*;
-import com.viaoa.ds.*;
-
 import com.template.model.*;
 import com.template.model.oa.*;
 import com.template.model.oa.propertypath.*;

@@ -2,7 +2,7 @@ package com.template.control.testserver;
 
 import com.template.datasource.DataSource;
 import com.template.resource.Resource;
-import com.viaoa.ds.objectcache.OADataSourceObjectCache;
+import com.viaoa.datasource.objectcache.OADataSourceObjectCache;
 
 /**
  * barebones test server, with only db connection.

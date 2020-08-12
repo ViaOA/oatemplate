@@ -10,7 +10,7 @@ import com.template.delegate.*;
 import com.template.model.oa.*;
 import com.template.model.oa.cs.*;
 import com.template.remote.RemoteAppInterface;
-import com.viaoa.comm.multiplexer.MultiplexerClient;
+import com.viaoa.comm.multiplexer.OAMultiplexerClient;
 import com.viaoa.object.OAObject;
 import com.viaoa.sync.OASync;
 import com.viaoa.util.*;

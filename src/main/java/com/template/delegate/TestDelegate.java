@@ -2,7 +2,7 @@ package com.template.delegate;
 
 import com.template.model.*;
 import com.template.util.DataGenerator;
-import com.viaoa.ds.objectcache.OADataSourceObjectCache;
+import com.viaoa.datasource.objectcache.OADataSourceObjectCache;
 import com.viaoa.hub.Hub;
 import com.viaoa.hub.HubEvent;
 import com.viaoa.hub.HubListenerAdapter;

@@ -32,8 +32,8 @@ import com.template.control.HelpController;
 import com.template.delegate.JfcDelegate;
 import com.template.resource.Resource;
 import com.template.view.server.ServerFrame;
-import com.viaoa.ds.OADataSource;
-import com.viaoa.ds.jdbc.OADataSourceJDBC;
+import com.viaoa.datasource.OADataSource;
+import com.viaoa.datasource.jdbc.OADataSourceJDBC;
 import com.viaoa.jfc.*;
 import com.viaoa.object.OAObjectCacheDelegate;
 

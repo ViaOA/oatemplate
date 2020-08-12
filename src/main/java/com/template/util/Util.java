@@ -22,14 +22,14 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 
 import com.template.resource.Resource;
-import com.viaoa.comm.multiplexer.MultiplexerClient;
-import com.viaoa.comm.multiplexer.MultiplexerServer;
-import com.viaoa.ds.OADataSource;
-import com.viaoa.ds.jdbc.OADataSourceJDBC;
+import com.viaoa.comm.multiplexer.OAMultiplexerClient;
+import com.viaoa.comm.multiplexer.OAMultiplexerServer;
+import com.viaoa.datasource.OADataSource;
+import com.viaoa.datasource.jdbc.OADataSourceJDBC;
 import com.viaoa.object.OAObjectCacheDelegate;
 import com.viaoa.object.OAObjectInfo;
-import com.viaoa.remote.multiplexer.RemoteMultiplexerClient;
-import com.viaoa.remote.multiplexer.RemoteMultiplexerServer;
+import com.viaoa.remote.multiplexer.OARemoteMultiplexerClient;
+import com.viaoa.remote.multiplexer.OARemoteMultiplexerServer;
 import com.viaoa.sync.OASyncClient;
 import com.viaoa.sync.OASyncDelegate;
 import com.viaoa.sync.OASyncServer;
@@ -101,11 +101,11 @@ public class Util {
 		OASyncClient sc = OASyncDelegate.getSyncClient();
 		if (sc != null) {
 			vecAll.addElement("OASync Client ======================");
-			RemoteMultiplexerClient rmc = sc.getRemoteMultiplexerClient();
+			OARemoteMultiplexerClient rmc = sc.getRemoteMultiplexerClient();
 			vecAll.addElement(" remote methods called: " + String.format("%,d", rmc.getMethodCallCount(), "#,###"));
 			vecAll.addElement("   received: " + String.format("%,d", rmc.getReceivedMethodCount(), "#,###"));
 
-			MultiplexerClient mc = rmc.getMultiplexerClient();
+			OAMultiplexerClient mc = rmc.getMultiplexerClient();
 			vecAll.addElement(" vsockets live: " + String.format("%,d", mc.getLiveSocketCount(), "#,###"));
 			vecAll.addElement("   created: " + String.format("%,d", mc.getCreatedSocketCount(), "#,###"));
 			vecAll.addElement(" read count: " + String.format("%,d", mc.getReadCount(), "#,###"));
@@ -119,13 +119,13 @@ public class Util {
 		if (ss != null) {
 			vecAll.addElement("OASync Server ======================");
 
-			RemoteMultiplexerServer rms = ss.getRemoteMultiplexerServer();
+			OARemoteMultiplexerServer rms = ss.getRemoteMultiplexerServer();
 			vecAll.addElement(" remote methods called: " + String.format("%,d", rms.getMethodCallCount(), "#,###"));
 			vecAll.addElement("   received: " + String.format("%,d", rms.getReceivedMethodCount(), "#,###"));
 
 			vecAll.addElement(" queue position: " + String.format("%,d", rms.getQueueHeadPos(), "#,###"));
 
-			MultiplexerServer ms = rms.getMultiplexerServer();
+			OAMultiplexerServer ms = rms.getMultiplexerServer();
 			vecAll.addElement(" connections live: " + String.format("%,d", ms.getLiveConnectionCount(), "#,###"));
 			vecAll.addElement("   created: " + String.format("%,d", ms.getCreatedConnectionCount(), "#,###"));
 
