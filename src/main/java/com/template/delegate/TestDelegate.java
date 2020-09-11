@@ -7,7 +7,7 @@ import com.viaoa.hub.Hub;
 import com.viaoa.hub.HubEvent;
 import com.viaoa.hub.HubListenerAdapter;
 import com.viaoa.object.OAObject;
-import com.viaoa.object.OAObjectEditQueryDelegate;
+import com.viaoa.object.OAObjectCallbackDelegate;
 import com.viaoa.object.OAThreadLocalDelegate;
 import com.viaoa.util.*;
 
@@ -22,11 +22,11 @@ public class TestDelegate {
             ds.setAssignIdOnCreate(true);
             dg = new DataGenerator();
             try {
-                OAObjectEditQueryDelegate.demoAllowAllToPass(true);
+                OAObjectCallbackDelegate.demoAllowAllToPass(true);
                 dg.createSamples();
             }
             finally {
-                OAObjectEditQueryDelegate.demoAllowAllToPass(false);
+                OAObjectCallbackDelegate.demoAllowAllToPass(false);
             }
         }
     }

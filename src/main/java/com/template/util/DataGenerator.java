@@ -13,7 +13,7 @@ import com.viaoa.hub.Hub;
 import com.viaoa.object.OALinkInfo;
 import com.viaoa.object.OAObject;
 import com.viaoa.object.OAObjectCacheDelegate;
-import com.viaoa.object.OAObjectEditQueryDelegate;
+import com.viaoa.object.OAObjectCallbackDelegate;
 import com.viaoa.object.OAObjectInfo;
 import com.viaoa.object.OAObjectInfoDelegate;
 import com.viaoa.util.OADate;
@@ -261,7 +261,7 @@ public class DataGenerator {
 	// Hubs to hold sample data that is not in ModelDelegate
 
 	public static void main(String[] args) {
-		OAObjectEditQueryDelegate.demoAllowAllToPass(true);
+		OAObjectCallbackDelegate.demoAllowAllToPass(true);
 		DataGenerator dg = new DataGenerator();
 		dg.createSamples();
 		System.out.println("createSamples is done");

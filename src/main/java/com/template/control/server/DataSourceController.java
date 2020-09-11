@@ -1,29 +1,62 @@
 // Copied from OATemplate project by OABuilder 02/13/19 10:11 AM
 package com.template.control.server;
 
-import java.io.*;
-import java.sql.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-import java.util.logging.*;
-import java.util.zip.*;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 import com.template.datasource.DataSource;
-import com.template.model.oa.*;
-import com.template.model.oa.cs.*;
-import com.template.resource.*;
+import com.template.model.oa.AppServer;
+import com.template.model.oa.cs.ClientRoot;
+import com.template.model.oa.cs.ServerRoot;
+import com.template.resource.Resource;
+import com.viaoa.annotation.OAClass;
 import com.viaoa.comm.io.OAObjectInputStream;
 import com.viaoa.concurrent.OAExecutorService;
 import com.viaoa.datasource.jdbc.OADataSourceJDBC;
 import com.viaoa.datasource.jdbc.db.DBMetaData;
 import com.viaoa.datasource.objectcache.OADataSourceObjectCache;
-import com.viaoa.hub.*;
-import com.viaoa.object.*;
-import com.viaoa.sync.*;
-import com.viaoa.transaction.*;
-import com.viaoa.util.*;
+import com.viaoa.hub.Hub;
+import com.viaoa.hub.HubSaveDelegate;
+import com.viaoa.object.OACallback;
+import com.viaoa.object.OACascade;
+import com.viaoa.object.OAObject;
+import com.viaoa.object.OAObjectCacheDelegate;
+import com.viaoa.object.OAObjectDelegate;
+import com.viaoa.object.OAObjectEmptyHubDelegate;
+import com.viaoa.object.OAObjectSaveDelegate;
+import com.viaoa.object.OAObjectSerializer;
+import com.viaoa.sync.OASyncDelegate;
+import com.viaoa.sync.OASyncServer;
+import com.viaoa.transaction.OATransaction;
+import com.viaoa.util.OAArray;
+import com.viaoa.util.OADate;
+import com.viaoa.util.OADateTime;
+import com.viaoa.util.OAFile;
+import com.viaoa.util.OAFilter;
+import com.viaoa.util.OALogger;
+import com.viaoa.util.OAReflect;
+import com.viaoa.util.OAString;
+import com.viaoa.util.OATime;
 
 /**
  * Used to manage object persistence, includes serialization and JavaDB support. See doc/database.txt
@@ -62,7 +95,22 @@ public class DataSourceController {
 			}
 		} else {
 			// put "non-db ready" classes into another DS
-			final Class[] csNotUsingDatabase = new Class[] {};
+			String packageName = AppServer.class.getPackage().getName(); // oa model classes
+			String[] fnames = OAReflect.getClasses(packageName);
+			Class[] classes = null;
+			for (String fn : fnames) {
+				Class c = Class.forName(packageName + "." + fn);
+				OAClass cx = (OAClass) c.getAnnotation(OAClass.class);
+				if (cx == null) {
+					continue;
+				}
+				if (cx.useDataSource()) {
+					continue;
+				}
+				classes = (Class[]) OAArray.add(Class.class, classes, c);
+			}
+
+			final Class[] csNotUsingDatabase = classes;
 			if (csNotUsingDatabase.length > 0) {
 				for (Class c : csNotUsingDatabase) {
 					LOG.warning(String.format("Class %s is not in using database", c.getName()));
@@ -568,8 +616,7 @@ public class DataSourceController {
 	/**
 	 * This will make a backup of the live database, with rollforward support. The database will be under backupDirectory
 	 *
-	 * @param backupDirectory
-	 *            example: DB20100428
+	 * @param backupDirectory example: DB20100428
 	 * @throws Exception
 	 */
 	public void backupDatabase(String backupDirectory) throws Exception {

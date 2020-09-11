@@ -102,7 +102,7 @@ public class AppUserModel extends OAObjectModel {
         modelAppUserLogins.setAllowCut(false);
         modelAppUserLogins.setAllowPaste(false);
         // call AppUser.onEditQueryAppUserLogins(AppUserLoginModel) to be able to customize this model
-        OAObjectEditQueryDelegate.onEditQueryModel(AppUser.class, AppUser.P_AppUserLogins, modelAppUserLogins);
+        OAObjectCallbackDelegate.onObjectCallbackModel(AppUser.class, AppUser.P_AppUserLogins, modelAppUserLogins);
     
         return modelAppUserLogins;
     }
