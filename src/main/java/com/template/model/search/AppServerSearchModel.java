@@ -7,7 +7,7 @@ import com.viaoa.object.*;
 import com.viaoa.datasource.*;
 import com.viaoa.hub.*;
 import com.viaoa.util.*;
-import com.viaoa.util.filter.*;
+import com.viaoa.filter.*;
 import com.template.model.*;
 import com.template.model.oa.*;
 import com.template.model.oa.propertypath.*;
