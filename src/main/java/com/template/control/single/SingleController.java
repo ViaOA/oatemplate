@@ -592,17 +592,36 @@ public abstract class SingleController {
 			LOG.fine("NOT saving data to database");
 		}
 
-		boolean bSaveToFile = Resource.getBoolean(Resource.INI_SaveDataToFile, true);
+		boolean bSaveToFile = Resource.getBoolean(Resource.INI_SaveDataToFile, !bSaveToDB);
 		try {
 			if (bSaveToFile) {
 				LOG.fine("Saving data as serialized object file");
-				getDataSourceController().writeSerializeToFile(false);
-			}
-			if (!bSaveToDB) {
-				serverRoot.save(OAObject.CASCADE_ALL_LINKS); // flag all as saved
+				getDataSourceController().writeToSerializeFile(false);
 			}
 		} catch (Throwable e) {
 			LOG.log(Level.WARNING, "Error while saving data to serialized file", e);
+		}
+
+		try {
+			if (Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false)) {
+				LOG.fine("Saving data as XML object file");
+				getDataSourceController().writeToXmlFile();
+			}
+		} catch (Throwable e) {
+			LOG.log(Level.WARNING, "Error while saving data to json file", e);
+		}
+
+		try {
+			if (Resource.getBoolean(Resource.INI_SaveDataToJsonFile, false)) {
+				LOG.fine("Saving data as JSON object file");
+				getDataSourceController().writeToJsonFile();
+			}
+		} catch (Throwable e) {
+			LOG.log(Level.WARNING, "Error while saving data to json file", e);
+		}
+
+		if (!bSaveToDB) {
+			serverRoot.save(OAObject.CASCADE_ALL_LINKS); // flag all as saved
 		}
 		LOG.fine("Data saved");
 

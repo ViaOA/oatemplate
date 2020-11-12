@@ -37,6 +37,7 @@ import com.viaoa.datasource.jdbc.db.DBMetaData;
 import com.viaoa.datasource.objectcache.OADataSourceObjectCache;
 import com.viaoa.hub.Hub;
 import com.viaoa.hub.HubSaveDelegate;
+import com.viaoa.jaxb.OAJaxb;
 import com.viaoa.object.OACallback;
 import com.viaoa.object.OACascade;
 import com.viaoa.object.OAObject;
@@ -57,6 +58,8 @@ import com.viaoa.util.OALogger;
 import com.viaoa.util.OAReflect;
 import com.viaoa.util.OAString;
 import com.viaoa.util.OATime;
+import com.viaoa.xml.OAXMLReader;
+import com.viaoa.xml.OAXMLWriter;
 
 /**
  * Used to manage object persistence, includes serialization and JavaDB support. See doc/database.txt
@@ -199,7 +202,11 @@ public class DataSourceController {
 		executorService = new OAExecutorService("DataSourceController.startup");
 
 		if (!isUsingDatabase()) {
-			readSerializeFromFile();
+			if (!Resource.getBoolean(Resource.INI_SaveDataToJsonFile, false) || !readFromJsonFile()) {
+				if (!Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false) || !readFromXmlFile()) {
+					readFromSerializeFile();
+				}
+			}
 		}
 
 		/*$$Start: DatasourceController.loadServerRoot $$*/
@@ -297,7 +304,7 @@ public class DataSourceController {
 		}
 	}
 
-	public void writeSerializeToFile(boolean bErrorMode) throws Exception {
+	public void writeToSerializeFile(boolean bErrorMode) throws Exception {
 		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
 		File f1 = new File(dirName);
 		if (f1.exists()) {
@@ -371,7 +378,7 @@ public class DataSourceController {
 		}
 
 		fileTemp.renameTo(dataFile);
-		LOG.fine("Saved data to file " + dataFile);
+		LOG.fine("Saved data to serialized file " + dataFile);
 	}
 
 	protected void _writeSerializeToFile(File fileTemp) throws Exception {
@@ -400,7 +407,7 @@ public class DataSourceController {
 		fos.close();
 	}
 
-	public boolean readSerializeFromFile() throws Exception {
+	public boolean readFromSerializeFile() throws Exception {
 		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
 		LOG.log(Level.CONFIG, "Reading from file " + dirName + "/data.bin");
 		File file = new File(OAFile.convertFileName(dirName + "/data.bin"));
@@ -427,7 +434,7 @@ public class DataSourceController {
 
 		ois.close();
 		fis.close();
-		LOG.log(Level.CONFIG, "reading from file data.bin completed");
+		LOG.log(Level.CONFIG, "reading from serialized file data.bin completed");
 
 		return true;
 	}
@@ -739,6 +746,183 @@ public class DataSourceController {
 			ds.releaseConnection(connection);
 		}
 
+	}
+
+	public boolean readFromXmlFile() throws Exception {
+		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+		LOG.log(Level.CONFIG, "Reading from file " + dirName + "/data.xml");
+		File file = new File(OAFile.convertFileName(dirName + "/data.xml"));
+		if (!file.exists()) {
+			LOG.log(Level.CONFIG, "file " + dirName + "/data.xml does not exist");
+			return false;
+		}
+
+		OAXMLReader r = new OAXMLReader();
+		r.read(file);
+
+		LOG.log(Level.CONFIG, "reading from file data.xml completed");
+		return true;
+	}
+
+	public void writeToXmlFile() throws Exception {
+		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+		File f1 = new File(dirName);
+		if (f1.exists()) {
+			if (!f1.isDirectory()) {
+				File f2;
+				for (int i = 0;; i++) {
+					f2 = new File(dirName + "_" + i);
+					if (!f2.exists()) {
+						break;
+					}
+				}
+				f1.renameTo(f2);
+			}
+		} else {
+			f1.mkdir();
+		}
+
+		LOG.fine("Saving data to file temp.xml, will rename when done");
+
+		File fileTemp = new File(OAString.convertFileName(dirName + "/temp.xml"));
+		_writeToXmlFile(fileTemp);
+
+		File dataFile = new File(OAString.convertFileName(dirName + "/data.xml"));
+
+		if (dataFile.exists()) {
+			String backupName = null;
+
+			// save to daily/hourly/5minute
+			OADate d = new OADate();
+			if (dateLastSerialize == null || !d.equals(dateLastSerialize)) {
+				dateLastSerialize = d;
+				backupName = "data_daily_" + (d.toString("yyMMdd")) + ".xml";
+				File f = new File(OAFile.convertFileName(dirName + "/" + backupName));
+				if (f.exists()) {
+					backupName = null;
+				}
+			}
+
+			if (backupName == null || backupName.length() == 0) {
+				OATime t = new OATime();
+				if (timeLastSerialize == null || t.getHour() != timeLastSerialize.getHour()) {
+					timeLastSerialize = t;
+					backupName = "data_hourly_" + (t.toString("HH")) + ".xml";
+				} else {
+					// save to nearest 5 minutes, otherwise it could have 60 files over time.
+					int m = t.getMinute();
+					m = m == 0 ? 0 : ((m / 5) * 5);
+					backupName = "data_min_" + OAString.format(m, "00") + ".xml";
+				}
+			}
+
+			backupName = OAFile.convertFileName(dirName + "/" + backupName);
+			File backupFile = new File(backupName);
+			if (backupFile.exists()) {
+				backupFile.delete();
+			}
+			dataFile.renameTo(backupFile);
+			dataFile = new File(OAString.convertFileName(dirName + "/data.xml"));
+		}
+
+		fileTemp.renameTo(dataFile);
+		LOG.fine("Saved data to file " + dataFile);
+	}
+
+	public boolean readFromJsonFile() throws Exception {
+		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+		LOG.log(Level.CONFIG, "Reading from file " + dirName + "/data.json");
+		File file = new File(OAFile.convertFileName(dirName + "/data.json"));
+		if (!file.exists()) {
+			LOG.log(Level.CONFIG, "file " + dirName + "/data.json does not exist");
+			return false;
+		}
+		OAJaxb<ServerRoot> jaxb = new OAJaxb(ServerRoot.class);
+
+		ServerRoot sr = jaxb.convertFromJSON(serverRoot, false, file);
+
+		LOG.log(Level.CONFIG, "reading from file data.json completed");
+
+		return true;
+	}
+
+	public void writeToJsonFile() throws Exception {
+		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+		File f1 = new File(dirName);
+		if (f1.exists()) {
+			if (!f1.isDirectory()) {
+				File f2;
+				for (int i = 0;; i++) {
+					f2 = new File(dirName + "_" + i);
+					if (!f2.exists()) {
+						break;
+					}
+				}
+				f1.renameTo(f2);
+			}
+		} else {
+			f1.mkdir();
+		}
+
+		LOG.fine("Saving data to file temp.json, will rename when done");
+
+		File fileTemp = new File(OAString.convertFileName(dirName + "/temp.json"));
+		_writeToJsonFile(fileTemp);
+
+		File dataFile = new File(OAString.convertFileName(dirName + "/data.json"));
+
+		if (dataFile.exists()) {
+			String backupName = null;
+
+			// save to daily/hourly/5minute
+			OADate d = new OADate();
+			if (dateLastSerialize == null || !d.equals(dateLastSerialize)) {
+				dateLastSerialize = d;
+				backupName = "data_daily_" + (d.toString("yyMMdd")) + ".json";
+				File f = new File(OAFile.convertFileName(dirName + "/" + backupName));
+				if (f.exists()) {
+					backupName = null;
+				}
+			}
+
+			if (backupName == null || backupName.length() == 0) {
+				OATime t = new OATime();
+				if (timeLastSerialize == null || t.getHour() != timeLastSerialize.getHour()) {
+					timeLastSerialize = t;
+					backupName = "data_hourly_" + (t.toString("HH")) + ".json";
+				} else {
+					// save to nearest 5 minutes, otherwise it could have 60 files over time.
+					int m = t.getMinute();
+					m = m == 0 ? 0 : ((m / 5) * 5);
+					backupName = "data_min_" + OAString.format(m, "00") + ".json";
+				}
+			}
+
+			backupName = OAFile.convertFileName(dirName + "/" + backupName);
+			File backupFile = new File(backupName);
+			if (backupFile.exists()) {
+				backupFile.delete();
+			}
+			dataFile.renameTo(backupFile);
+			dataFile = new File(OAString.convertFileName(dirName + "/data.json"));
+		}
+
+		fileTemp.renameTo(dataFile);
+		LOG.fine("Saved data to file " + dataFile);
+	}
+
+	protected void _writeToJsonFile(final File file) throws Exception {
+		OAJaxb<ServerRoot> jaxb = new OAJaxb(ServerRoot.class);
+		jaxb.setIncludeAll(true);
+		jaxb.saveAsJson(serverRoot, file);
+	}
+
+	protected void _writeToXmlFile(final File file) throws Exception {
+		OAXMLWriter w = new OAXMLWriter(file.getPath());
+
+		w.setIndentAmount(2);
+		w.write(serverRoot);
+		w.close();
 	}
 
 	/*
