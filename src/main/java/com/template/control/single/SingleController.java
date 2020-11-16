@@ -148,7 +148,7 @@ public abstract class SingleController {
 		//    if they are damaged, then perform a forward restore from backup + log files.
 		for (int i = 0; bCheckForDatasourceCorruption && i < 2; i++) {
 			LOG.config("Verifying database files");
-			if (!getDataSourceController().isDatabaseCorrupted()) {
+			if (!getDataSourceController().isDataSourceCorrupted()) {
 				break;
 			}
 
@@ -161,7 +161,7 @@ public abstract class SingleController {
 			String dirName = Resource.getValue(Resource.DB_BackupDirectory, "dbbackup");
 
 			LOG.config("performing a forward restore from directory " + dirName);
-			getDataSourceController().forwardRestoreBackupDatabase(dirName);
+			getDataSourceController().restoreDataSource(dirName);
 			LOG.config("successfully performed a forward restore.");
 		}
 
@@ -669,7 +669,7 @@ public abstract class SingleController {
 
 		try {
 			LOG.config("Starting Database backup to " + dirName);
-			getDataSourceController().backupDatabase(dirName);
+			getDataSourceController().backupDataSource(dirName);
 			LOG.config("Completed Database backup to " + dirName);
 		} catch (Exception e) {
 			LOG.log(Level.WARNING, "Database backup failed to directory " + dirName, e);
