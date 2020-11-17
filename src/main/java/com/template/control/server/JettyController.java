@@ -531,7 +531,7 @@ public class JettyController {
 		};
 
 		// 20180201
-		// Custom subdomain handler to allow for "unum.gohi5.com" to be redirected to "www.gohi5.com/login.jsp?unum"
+		// Custom subdomain handler to allow for "sub.acme.com" to be redirected to "www.acem.com/login.jsp?sub"
 		// Note: not used, not added to HandlerList
 		Handler subdomainHandler = new AbstractHandler() {
 			@Override
