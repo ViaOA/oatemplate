@@ -301,14 +301,16 @@ public class StartupController {
 	}
 
 	private void exitApplication() {
-		if (controlClient != null) {
-			controlClient.close();
-		} else if (controlServer != null) {
-			try {
+		try {
+			if (controlSingle != null) {
+				controlSingle.close();
+			} else if (controlClient != null) {
+				controlClient.close();
+			} else if (controlServer != null) {
 				controlServer.close();
-			} catch (Exception e) {
-				LOG.log(Level.WARNING, "Exception during exit", e);
 			}
+		} catch (Exception e) {
+			LOG.log(Level.WARNING, "Exception during exit", e);
 		}
 
 		LOG.config("Looks Great! :) good bye");

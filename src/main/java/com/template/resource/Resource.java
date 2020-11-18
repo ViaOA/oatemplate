@@ -163,8 +163,10 @@ public class Resource {
 	public static final String INI_Debug = "Debug";
 	public static final String INI_DBDebug = "DBDebug";
 	public static final String INI_SuperAdmin = "SuperAdmin";
-	public static final String INI_SaveDataToFile = "SaveDataToFile";
 	public static final String INI_SaveDataToDatabase = "SaveDataToDatabase";
+	public static final String INI_SaveDataToFile = "SaveDataToFile";
+	public static final String INI_SaveDataToJsonFile = "SaveDataToJsonFile";
+	public static final String INI_SaveDataToXmlFile = "SaveDataToXmlFile";
 
 	public static final String DB_Enabled = "db.enabled";
 	public static final String DB_JDBC_Driver = "db.jdbcDriver";
@@ -674,8 +676,7 @@ public class Resource {
 	/**
 	 * Get image from jar file. Uses getDirectory(APP_JarImagePath)
 	 *
-	 * @param name
-	 *            of image. Use IMG_xxx names.
+	 * @param name of image. Use IMG_xxx names.
 	 * @return
 	 */
 	public static ImageIcon getJarIcon(String imageName) {
@@ -712,11 +713,9 @@ public class Resource {
 	/**
 	 * Update a property in an *.ini file.
 	 *
-	 * @param type
-	 *            either TYPE_Server, Client, Runtime
+	 * @param type  either TYPE_Server, Client, Runtime
 	 * @param name
-	 * @param value
-	 *            if null then value will be removed.
+	 * @param value if null then value will be removed.
 	 * @see com.RemoteDelegate.delegate.ServerDelegate#setResourceValue(int, String, String) as a delegate that will call this method and
 	 *      also update other computers (clients/server).
 	 */

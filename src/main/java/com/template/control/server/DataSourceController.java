@@ -6,12 +6,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -33,10 +27,10 @@ import com.viaoa.annotation.OAClass;
 import com.viaoa.comm.io.OAObjectInputStream;
 import com.viaoa.concurrent.OAExecutorService;
 import com.viaoa.datasource.jdbc.OADataSourceJDBC;
-import com.viaoa.datasource.jdbc.db.DBMetaData;
 import com.viaoa.datasource.objectcache.OADataSourceObjectCache;
 import com.viaoa.hub.Hub;
 import com.viaoa.hub.HubSaveDelegate;
+import com.viaoa.jaxb.OAJaxb;
 import com.viaoa.object.OACallback;
 import com.viaoa.object.OACascade;
 import com.viaoa.object.OAObject;
@@ -57,9 +51,11 @@ import com.viaoa.util.OALogger;
 import com.viaoa.util.OAReflect;
 import com.viaoa.util.OAString;
 import com.viaoa.util.OATime;
+import com.viaoa.xml.OAXMLReader;
+import com.viaoa.xml.OAXMLWriter;
 
 /**
- * Used to manage object persistence, includes serialization and JavaDB support. See doc/database.txt
+ * Used to manage object persistence, includes serialization and OADataSource support.
  **/
 public class DataSourceController {
 	private static Logger LOG = OALogger.getLogger(DataSourceController.class);
@@ -73,6 +69,10 @@ public class DataSourceController {
 	private OADate dateLastSerialize;
 	private OATime timeLastSerialize;
 	private String cacheFileName;
+	private OADate dateLastXml;
+	private OATime timeLastXml;
+	private OADate dateLastJson;
+	private OATime timeLastJson;
 
 	private OAExecutorService executorService;
 	private final AtomicInteger aiExecutor = new AtomicInteger();
@@ -199,7 +199,13 @@ public class DataSourceController {
 		executorService = new OAExecutorService("DataSourceController.startup");
 
 		if (!isUsingDatabase()) {
-			readSerializeFromFile();
+			if (!Resource.getBoolean(Resource.INI_SaveDataToFile, false) || !readFromSerializeFile()) {
+				if (!Resource.getBoolean(Resource.INI_SaveDataToJsonFile, false) || !readFromJsonFile()) {
+					if (!Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false) || !readFromXmlFile()) {
+						LOG.log(Level.WARNING, "No data loaded");
+					}
+				}
+			}
 		}
 
 		/*$$Start: DatasourceController.loadServerRoot $$*/
@@ -297,7 +303,7 @@ public class DataSourceController {
 		}
 	}
 
-	public void writeSerializeToFile(boolean bErrorMode) throws Exception {
+	public void writeToSerializeFile(boolean bErrorMode) throws Exception {
 		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
 		File f1 = new File(dirName);
 		if (f1.exists()) {
@@ -371,7 +377,7 @@ public class DataSourceController {
 		}
 
 		fileTemp.renameTo(dataFile);
-		LOG.fine("Saved data to file " + dataFile);
+		LOG.fine("Saved data to serialized file " + dataFile);
 	}
 
 	protected void _writeSerializeToFile(File fileTemp) throws Exception {
@@ -400,7 +406,7 @@ public class DataSourceController {
 		fos.close();
 	}
 
-	public boolean readSerializeFromFile() throws Exception {
+	public boolean readFromSerializeFile() throws Exception {
 		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
 		LOG.log(Level.CONFIG, "Reading from file " + dirName + "/data.bin");
 		File file = new File(OAFile.convertFileName(dirName + "/data.bin"));
@@ -419,6 +425,10 @@ public class DataSourceController {
 		ServerRoot sr = (ServerRoot) wrap.getObject();
 		//Note: sr will be the same as this.serverRoot, since it has the same Id.
 
+		if (sr != this.serverRoot) {
+			throw new Exception("Invalid ServerRoot, expected id=777");
+		}
+
 		try {
 			String s = (String) ois.readObject();
 			Resource.setValue(Resource.TYPE_Server, Resource.APP_DataVersion, s);
@@ -427,7 +437,7 @@ public class DataSourceController {
 
 		ois.close();
 		fis.close();
-		LOG.log(Level.CONFIG, "reading from file data.bin completed");
+		LOG.log(Level.CONFIG, "reading from serialized file data.bin completed");
 
 		return true;
 	}
@@ -547,210 +557,229 @@ public class DataSourceController {
 	 * @see #forwardRestoreBackupDatabase() to restore from backup and include log files for zero data loss.
 	 * @see #backupDatabase(String) to perform database files, and include log files - which will enable forward restores.
 	 */
-	public boolean isDatabaseCorrupted() {
+	public boolean isDataSourceCorrupted() {
 		boolean b;
 		try {
-			checkForDatabaseCorruption();
+			getOADataSourceJDBC().checkForCorruption();
 			b = false;
 		} catch (Exception e) {
-			LOG.log(Level.WARNING, "Error while checking database, will return false", e);
+			LOG.log(Level.WARNING, "Error while checking datasource, will return false", e);
 			b = true;
 		}
 		return b;
 	}
 
-	/**
-	 * @see #isDataSourceReady() for descriptions.
-	 */
-	protected void checkForDatabaseCorruption() throws Exception {
-		OADataSourceJDBC ds = getOADataSourceJDBC();
-		if (ds == null) {
-			return;
-		}
-		DBMetaData dbmd = ds.getDBMetaData();
-		if (dbmd == null || dbmd.getDatabaseType() != DBMetaData.DERBY) {
-			return;
-		}
-		LOG.config("Starting Database verification");
-
-		String sql;
-		Statement statement = null;
+	public boolean restoreDataSource(String backupDirectory) {
+		boolean b;
 		try {
-			statement = ds.getStatement("verify database");
+			getOADataSourceJDBC().restore(backupDirectory);
+			b = false;
+		} catch (Exception e) {
+			LOG.log(Level.WARNING, "Error while restoring datasource, will return false", e);
+			b = true;
+		}
+		return b;
+	}
 
-			sql = "SELECT t.tablename from sys.sysschemas s, sys.systables t " +
-					"where CAST(s.schemaname AS VARCHAR(128)) = 'APP' AND s.schemaid = t.schemaid " +
-					"ORDER BY t.tablename";
+	public boolean backupDataSource(String backupDirectory) {
+		boolean b;
+		try {
+			getOADataSourceJDBC().backup(backupDirectory);
+			b = false;
+		} catch (Exception e) {
+			LOG.log(Level.WARNING, "Error while backing up datasoruce, will return false", e);
+			b = true;
+		}
+		return b;
+	}
 
-			ResultSet rs = statement.executeQuery(sql);
-			ArrayList<String> alTable = new ArrayList<String>();
-			for (int i = 0; rs.next(); i++) {
-				alTable.add(rs.getString(1));
-			}
-			rs.close();
+	public boolean readFromXmlFile() throws Exception {
+		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+		LOG.log(Level.CONFIG, "Reading from file " + dirName + "/data.xml");
+		File file = new File(OAFile.convertFileName(dirName + "/data.xml"));
+		if (!file.exists()) {
+			LOG.log(Level.CONFIG, "file " + dirName + "/data.xml does not exist");
+			return false;
+		}
 
-			int i = 0;
-			for (String tableName : alTable) {
-				LOG.config("Verifiying database table " + tableName);
-				LOG.fine((++i) + ") verify " + tableName);
-				try {
-					sql = "SELECT t.tablename, SYSCS_UTIL.SYSCS_CHECK_TABLE('APP', t.tablename) " +
-							"from sys.systables t " +
-							"where CAST(t.tablename AS VARCHAR(128)) = '" + tableName + "'";
-					rs = statement.executeQuery(sql);
-					for (; rs.next();) {
-						LOG.finest(i + ") " + rs.getString(1) + " = " + rs.getShort(2));
+		OAXMLReader r = new OAXMLReader();
+		r.read(file);
+
+		LOG.log(Level.CONFIG, "reading from file data.xml completed");
+		return true;
+	}
+
+	public void writeToXmlFile() throws Exception {
+		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+		File f1 = new File(dirName);
+		if (f1.exists()) {
+			if (!f1.isDirectory()) {
+				File f2;
+				for (int i = 0;; i++) {
+					f2 = new File(dirName + "_" + i);
+					if (!f2.exists()) {
+						break;
 					}
-				} catch (Exception e) {
-					LOG.log(Level.WARNING, "database verification for table " + tableName + "failed", e);
-					throw e;
+				}
+				f1.renameTo(f2);
+			}
+		} else {
+			f1.mkdir();
+		}
+
+		LOG.fine("Saving data to file temp.xml, will rename when done");
+
+		File fileTemp = new File(OAString.convertFileName(dirName + "/temp.xml"));
+		_writeToXmlFile(fileTemp);
+
+		File dataFile = new File(OAString.convertFileName(dirName + "/data.xml"));
+
+		if (dataFile.exists()) {
+			String backupName = null;
+
+			// save to daily/hourly/5minute
+			OADate d = new OADate();
+			if (dateLastXml == null || !d.equals(dateLastXml)) {
+				dateLastXml = d;
+				backupName = "data_daily_" + (d.toString("yyMMdd")) + ".xml";
+				File f = new File(OAFile.convertFileName(dirName + "/" + backupName));
+				if (f.exists()) {
+					backupName = null;
 				}
 			}
 
-			LOG.config("Completed Database verification");
-		} finally {
-			ds.releaseStatement(statement);
-		}
-	}
-
-	/**
-	 * This will make a backup of the live database, with rollforward support. The database will be under backupDirectory
-	 *
-	 * @param backupDirectory example: DB20100428
-	 * @throws Exception
-	 */
-	public void backupDatabase(String backupDirectory) throws Exception {
-		OADataSourceJDBC ds = getOADataSourceJDBC();
-		if (ds == null) {
-			return;
-		}
-
-		DBMetaData dbmd = ds.getDBMetaData();
-		if (dbmd == null || dbmd.getDatabaseType() != DBMetaData.DERBY) {
-			return;
-		}
-
-		LOG.config("Starting Database backup to " + backupDirectory);
-
-		Statement statement = null;
-		try {
-			statement = ds.getStatement("backup database");
-			// statement.execute("call SYSCS_UTIL.SYSCS_CHECKPOINT_DATABASE()");
-			// statement.execute("call SYSCS_UTIL.SYSCS_BACKUP_DATABASE('"+backupDirectory+"')");
-
-			// create a backup, that will store rollforward log files in the current db log directory.  The '1' will delete previous log files
-			String sql = "call SYSCS_UTIL.SYSCS_BACKUP_DATABASE_AND_ENABLE_LOG_ARCHIVE_MODE('" + backupDirectory + "', 1)";
-			statement.execute(sql);
-
-			// this is the commad to disable log archive.  The '1' will delete previous log files
-			// SYSCS_UTIL.SYSCS_DISABLE_LOG_ARCHIVE_MODE(1)
-
-			// use this to restore
-			// connect 'jdbc:derby:wombat;rollForwardRecoveryFrom=d:/backup/wombat';
-
-			LOG.config("Completed Database backup to " + backupDirectory);
-		} finally {
-			ds.releaseStatement(statement);
-		}
-	}
-
-	/**
-	 * @see #isDataSourceReady() for descriptions.
-	 */
-	public void forwardRestoreBackupDatabase(String backupDirectory) throws Exception {
-		OADataSourceJDBC ds = getOADataSourceJDBC();
-		if (ds == null) {
-			return;
-		}
-
-		DBMetaData dbmd = ds.getDBMetaData();
-		if (dbmd == null || dbmd.getDatabaseType() != DBMetaData.DERBY) {
-			return;
-		}
-		LOG.config("Starting forwardRestoreBackupDatabase from " + backupDirectory);
-		disconnect();
-
-		Class.forName(dbmd.getDriverJDBC()).newInstance();
-
-		if (backupDirectory != null) {
-			backupDirectory = backupDirectory.replace('\\', '/');
-		}
-		String jdbcUrl = dbmd.getUrlJDBC() + ";rollForwardRecoveryFrom=" + backupDirectory;
-
-		String s = dbmd.getUrlJDBC();
-		s = OAString.field(s, ":", OAString.dcount(s, ":"));
-		jdbcUrl += "/" + s;
-
-		/// this will open the database and perform a rollForward
-		Connection connection = DriverManager.getConnection(jdbcUrl, dbmd.user, dbmd.password);
-		connection.close();
-
-		LOG.config("Completed Database forward restore from " + backupDirectory);
-		reconnect();
-	}
-
-	public void compressDatabaseFiles() throws Exception {
-		OADataSourceJDBC ds = getOADataSourceJDBC();
-		if (ds == null) {
-			return;
-		}
-
-		DBMetaData dbmd = ds.getDBMetaData();
-		if (dbmd == null || dbmd.getDatabaseType() != DBMetaData.DERBY) {
-			return;
-		}
-		LOG.config("Starting Database compression");
-
-		String sql;
-		Statement statement = null;
-		Connection connection = null;
-		try {
-			statement = ds.getStatement("compress database");
-
-			sql = "SELECT t.tablename from sys.sysschemas s, sys.systables t " +
-					"where CAST(s.schemaname AS VARCHAR(128)) = 'APP' AND s.schemaid = t.schemaid " +
-					"ORDER BY t.tablename";
-
-			ResultSet rs = statement.executeQuery(sql);
-			ArrayList<String> alTable = new ArrayList<String>();
-			for (int i = 0; rs.next(); i++) {
-				alTable.add(rs.getString(1));
-			}
-			rs.close();
-			ds.releaseStatement(statement);
-
-			connection = ds.getConnection();
-			int i = 0;
-			for (String tableName : alTable) {
-				LOG.fine((++i) + ") compressing table " + tableName);
-				try {
-					sql = "call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', '" + tableName + "', 1)";
-					CallableStatement cs = connection.prepareCall(sql);
-					cs.execute();
-					cs.close();
-				} catch (Exception e) {
-					LOG.log(Level.WARNING, "database compression for table " + tableName + "failed", e);
-					throw e;
+			if (backupName == null || backupName.length() == 0) {
+				OATime t = new OATime();
+				if (timeLastXml == null || t.getHour() != timeLastXml.getHour()) {
+					timeLastXml = t;
+					backupName = "data_hourly_" + (t.toString("HH")) + ".xml";
+				} else {
+					// save to nearest 5 minutes, otherwise it could have 60 files over time.
+					int m = t.getMinute();
+					m = m == 0 ? 0 : ((m / 5) * 5);
+					backupName = "data_min_" + OAString.format(m, "00") + ".xml";
 				}
 			}
 
-			LOG.config("Completed Database verification");
-		} finally {
-			ds.releaseConnection(connection);
+			backupName = OAFile.convertFileName(dirName + "/" + backupName);
+			File backupFile = new File(backupName);
+			if (backupFile.exists()) {
+				backupFile.delete();
+			}
+			dataFile.renameTo(backupFile);
+			dataFile = new File(OAString.convertFileName(dirName + "/data.xml"));
 		}
 
+		fileTemp.renameTo(dataFile);
+		LOG.fine("Saved data to file " + dataFile);
+	}
+
+	protected void _writeToXmlFile(final File file) throws Exception {
+		OAXMLWriter w = new OAXMLWriter(file.getPath());
+
+		w.setIndentAmount(2);
+		w.write(serverRoot);
+		w.close();
+	}
+
+	public boolean readFromJsonFile() throws Exception {
+		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+		LOG.log(Level.CONFIG, "Reading from file " + dirName + "/data.json");
+		File file = new File(OAFile.convertFileName(dirName + "/data.json"));
+		if (!file.exists()) {
+			LOG.log(Level.CONFIG, "file " + dirName + "/data.json does not exist");
+			return false;
+		}
+		OAJaxb<ServerRoot> jaxb = new OAJaxb(ServerRoot.class);
+
+		ServerRoot sr = jaxb.convertFromJSON(serverRoot, false, file);
+
+		LOG.log(Level.CONFIG, "reading from file data.json completed");
+
+		return true;
+	}
+
+	public void writeToJsonFile() throws Exception {
+		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+		File f1 = new File(dirName);
+		if (f1.exists()) {
+			if (!f1.isDirectory()) {
+				File f2;
+				for (int i = 0;; i++) {
+					f2 = new File(dirName + "_" + i);
+					if (!f2.exists()) {
+						break;
+					}
+				}
+				f1.renameTo(f2);
+			}
+		} else {
+			f1.mkdir();
+		}
+
+		LOG.fine("Saving data to file temp.json, will rename when done");
+
+		File fileTemp = new File(OAString.convertFileName(dirName + "/temp.json"));
+		_writeToJsonFile(fileTemp);
+
+		File dataFile = new File(OAString.convertFileName(dirName + "/data.json"));
+
+		if (dataFile.exists()) {
+			String backupName = null;
+
+			// save to daily/hourly/5minute
+			OADate d = new OADate();
+			if (dateLastJson == null || !d.equals(dateLastJson)) {
+				dateLastJson = d;
+				backupName = "data_daily_" + (d.toString("yyMMdd")) + ".json";
+				File f = new File(OAFile.convertFileName(dirName + "/" + backupName));
+				if (f.exists()) {
+					backupName = null;
+				}
+			}
+
+			if (backupName == null || backupName.length() == 0) {
+				OATime t = new OATime();
+				if (timeLastJson == null || t.getHour() != timeLastJson.getHour()) {
+					timeLastJson = t;
+					backupName = "data_hourly_" + (t.toString("HH")) + ".json";
+				} else {
+					// save to nearest 5 minutes, otherwise it could have 60 files over time.
+					int m = t.getMinute();
+					m = m == 0 ? 0 : ((m / 5) * 5);
+					backupName = "data_min_" + OAString.format(m, "00") + ".json";
+				}
+			}
+
+			backupName = OAFile.convertFileName(dirName + "/" + backupName);
+			File backupFile = new File(backupName);
+			if (backupFile.exists()) {
+				backupFile.delete();
+			}
+			dataFile.renameTo(backupFile);
+			dataFile = new File(OAString.convertFileName(dirName + "/data.json"));
+		}
+
+		fileTemp.renameTo(dataFile);
+		LOG.fine("Saved data to file " + dataFile);
+	}
+
+	protected void _writeToJsonFile(final File file) throws Exception {
+		OAJaxb<ServerRoot> jaxb = new OAJaxb(ServerRoot.class);
+		jaxb.setIncludeAll(true);
+		jaxb.saveAsJson(serverRoot, file);
 	}
 
 	/*
 	public static void main(String[] args) throws Exception {
 	    DataSourceController dsc = new DataSourceController();
-	
+
 	    dsc.loadServerRoot();
-	
+
 	    // dsc.backupDatabase("c:\\temp\\dbBackDerby");
 	    dsc.isDataSourceReady();
 	    dsc.isDatabaseCorrupted();
-	
+
 	    System.out.println("Done");
 	}
 	*/

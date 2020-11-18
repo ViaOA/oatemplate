@@ -154,7 +154,7 @@ public abstract class ServerController {
 		//    if they are damaged, then perform a forward restore from backup + log files.
 		for (int i = 0; bCheckForDatasourceCorruption && i < 2; i++) {
 			LOG.config("Verifying database files");
-			if (!getDataSourceController().isDatabaseCorrupted()) {
+			if (!getDataSourceController().isDataSourceCorrupted()) {
 				break;
 			}
 
@@ -167,7 +167,7 @@ public abstract class ServerController {
 			String dirName = Resource.getValue(Resource.DB_BackupDirectory, "dbbackup");
 
 			LOG.config("performing a forward restore from directory " + dirName);
-			getDataSourceController().forwardRestoreBackupDatabase(dirName);
+			getDataSourceController().restoreDataSource(dirName);
 			LOG.config("successfully performed a forward restore.");
 		}
 
@@ -743,7 +743,7 @@ public abstract class ServerController {
 
 		try {
 			LOG.config("Starting Database backup to " + dirName);
-			getDataSourceController().backupDatabase(dirName);
+			getDataSourceController().backupDataSource(dirName);
 			LOG.config("Completed Database backup to " + dirName);
 		} catch (Exception e) {
 			LOG.log(Level.WARNING, "Database backup failed to directory " + dirName, e);
@@ -765,18 +765,38 @@ public abstract class ServerController {
 			LOG.fine("NOT saving data to database");
 		}
 
-		boolean bSaveToFile = Resource.getBoolean(Resource.INI_SaveDataToFile, true);
+		boolean bSaveToFile = Resource.getBoolean(Resource.INI_SaveDataToFile, !bSaveToDB);
 		try {
 			if (bSaveToFile) {
 				LOG.fine("Saving data as serialized object file");
-				getDataSourceController().writeSerializeToFile(false);
-			}
-			if (!bSaveToDB) {
-				serverRoot.save(OAObject.CASCADE_ALL_LINKS); // flag all as saved
+				getDataSourceController().writeToSerializeFile(false);
 			}
 		} catch (Throwable e) {
 			LOG.log(Level.WARNING, "Error while saving data to serialized file", e);
 		}
+
+		try {
+			if (Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false)) {
+				LOG.fine("Saving data as XML object file");
+				getDataSourceController().writeToXmlFile();
+			}
+		} catch (Throwable e) {
+			LOG.log(Level.WARNING, "Error while saving data to json file", e);
+		}
+
+		try {
+			if (Resource.getBoolean(Resource.INI_SaveDataToJsonFile, false)) {
+				LOG.fine("Saving data as JSON object file");
+				getDataSourceController().writeToJsonFile();
+			}
+		} catch (Throwable e) {
+			LOG.log(Level.WARNING, "Error while saving data to json file", e);
+		}
+
+		if (!bSaveToDB) {
+			serverRoot.save(OAObject.CASCADE_ALL_LINKS); // flag all as saved
+		}
+
 		LOG.fine("Data saved");
 
 		String s = Resource.getValue(Resource.APP_NewWordsFileName);

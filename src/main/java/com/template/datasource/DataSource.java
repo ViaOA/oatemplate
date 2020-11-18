@@ -69,6 +69,9 @@ public class DataSource {
 		dbmd = new DBMetaData(dbmdType, user, password, driver, jdbcUrl);
 		dbmd.setMinConnections(min);
 		dbmd.setMaxConnections(max);
+
+		// NOTE:  use vendor specific datasource if available, (ex: OADerbyDataSource)
+
 		jdbcDataSource = new OADataSourceJDBC(db, dbmd);
 	}
 
