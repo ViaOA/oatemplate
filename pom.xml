@@ -7,9 +7,9 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>OATemplate Application Server</name>
+	<name>Template Application Server</name>
 	<description>
-        OATemplate Application Server.
+        Template Application Server.
     </description>
 
 	<scm>

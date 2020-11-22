@@ -75,8 +75,6 @@ public abstract class SingleController {
 	public ServerRoot getServerRoot() {
 		if (serverRoot == null) {
 			serverRoot = new ServerRoot();
-			serverRoot.setId(1);
-			serverRoot.save();
 		}
 		return serverRoot;
 	}
@@ -270,6 +268,7 @@ public abstract class SingleController {
 		ExecutorServiceDelegate.submit(r);
 		ScheduledExecutorServiceDelegate.scheduleEvery(r, new OATime(0, 30, 0)); // run at 12:30am
 
+		/*
 		LOG.config("adding ShutdownHook to call close");
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -283,7 +282,8 @@ public abstract class SingleController {
 					LOG.log(Level.WARNING, "Exception in shutDownHook", e);
 				}
 			}
-		});
+		})
+		*/;
 
 		appServer.setStarted(new OADateTime());
 

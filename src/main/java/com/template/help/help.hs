@@ -6,7 +6,7 @@
 <helpset version="1.0">
 
   <!-- title -->
-  <title>Scheduler Help</title>
+  <title>OATemplate Help</title>
 
   <!-- maps -->
   <maps>
@@ -52,7 +52,7 @@
      <name>main window</name>
      <size width="700" height="575" />
      <location x="20" y="20" />
-     <title>Scheduler - Online Help</title>
+     <title>OATemplate - Online Help</title>
      <image>AppIcon</image>
      <toolbar>
 		<helpaction>javax.help.BackAction</helpaction>
@@ -69,7 +69,7 @@
      <name>main</name>
      <size width="400" height="400" />
      <location x="200" y="200" />
-     <title>Scheduler Online Help</title>
+     <title>OATemplate Online Help</title>
   </presentation>
   
 </helpset>
