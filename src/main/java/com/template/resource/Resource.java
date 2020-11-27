@@ -167,6 +167,7 @@ public class Resource {
 	public static final String INI_SaveDataToFile = "SaveDataToFile";
 	public static final String INI_SaveDataToJsonFile = "SaveDataToJsonFile";
 	public static final String INI_SaveDataToXmlFile = "SaveDataToXmlFile";
+	public static final String INI_EnableShutdownHook = "EnableShutdownHook";
 
 	public static final String DB_Enabled = "db.enabled";
 	public static final String DB_JDBC_Driver = "db.jdbcDriver";

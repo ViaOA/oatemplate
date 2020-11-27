@@ -313,20 +313,22 @@ public abstract class ServerController {
 		ExecutorServiceDelegate.submit(r);
 		ScheduledExecutorServiceDelegate.scheduleEvery(r, new OATime(0, 30, 0)); // run at 12:30am
 
-		LOG.config("adding ShutdownHook to call close");
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				try {
-					if (!bClosed) {
-						LOG.fine("calling ShutdownHook");
-						ServerController.this.close();
+		if (Resource.getBoolean(Resource.INI_EnableShutdownHook, true)) {
+			LOG.config("adding ShutdownHook to call close");
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					try {
+						if (!bClosed) {
+							LOG.fine("calling ShutdownHook");
+							ServerController.this.close();
+						}
+					} catch (Exception e) {
+						LOG.log(Level.WARNING, "Exception in shutDownHook", e);
 					}
-				} catch (Exception e) {
-					LOG.log(Level.WARNING, "Exception in shutDownHook", e);
 				}
-			}
-		});
+			});
+		}
 
 		appServer.setStarted(new OADateTime());
 
@@ -419,7 +421,7 @@ public abstract class ServerController {
 			for (int i=0; i<cntThread; i++) {
 			    threads[i] = new LoaderThread(i, cascade);
 			}
-
+			
 			int cnt = 0;
 			for (Program prog : serverRoot.getPrograms()) {
 			    threads[cnt++ % cntThread].al.add(prog);

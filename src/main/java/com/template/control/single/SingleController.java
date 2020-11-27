@@ -268,22 +268,22 @@ public abstract class SingleController {
 		ExecutorServiceDelegate.submit(r);
 		ScheduledExecutorServiceDelegate.scheduleEvery(r, new OATime(0, 30, 0)); // run at 12:30am
 
-		/*
-		LOG.config("adding ShutdownHook to call close");
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				try {
-					if (!bClosed) {
-						LOG.fine("calling ShutdownHook");
-						SingleController.this.close();
+		if (Resource.getBoolean(Resource.INI_EnableShutdownHook, true)) {
+			LOG.config("adding ShutdownHook to call close");
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					try {
+						if (!bClosed) {
+							LOG.fine("calling ShutdownHook");
+							SingleController.this.close();
+						}
+					} catch (Exception e) {
+						LOG.log(Level.WARNING, "Exception in shutDownHook", e);
 					}
-				} catch (Exception e) {
-					LOG.log(Level.WARNING, "Exception in shutDownHook", e);
 				}
-			}
-		})
-		*/;
+			});
+		}
 
 		appServer.setStarted(new OADateTime());
 
