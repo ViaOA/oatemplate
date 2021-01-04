@@ -582,12 +582,15 @@ public class DataSourceController {
 	}
 
 	public boolean backupDataSource(String backupDirectory) {
+		if (getOADataSourceJDBC() == null) {
+			return false;
+		}
 		boolean b;
 		try {
 			getOADataSourceJDBC().backup(backupDirectory);
 			b = false;
 		} catch (Exception e) {
-			LOG.log(Level.WARNING, "Error while backing up datasoruce, will return false", e);
+			LOG.log(Level.WARNING, "Error while backing up datasource, will return false", e);
 			b = true;
 		}
 		return b;
@@ -773,13 +776,13 @@ public class DataSourceController {
 	/*
 	public static void main(String[] args) throws Exception {
 	    DataSourceController dsc = new DataSourceController();
-
+	
 	    dsc.loadServerRoot();
-
+	
 	    // dsc.backupDatabase("c:\\temp\\dbBackDerby");
 	    dsc.isDataSourceReady();
 	    dsc.isDatabaseCorrupted();
-
+	
 	    System.out.println("Done");
 	}
 	*/
