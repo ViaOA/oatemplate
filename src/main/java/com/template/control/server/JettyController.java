@@ -87,12 +87,25 @@ import com.viaoa.util.OAString;
 
 /**
  * Embedded Jetty webserver that supports: http, https, webservices (jax-ws), servlets, JSP, file explorer, NCSARequestLog logging Servlets
- * for: REST/json, pdf, images, security, jnlp https://www.eclipse.org/jetty/documentation/9.4.x/index.html Doc
- * https://github.com/jetty-project embedded jsp: https://www.eclipse.org/jetty/documentation/9.4.x/configuring-jsp.html read:
- * https://github.com/jetty-project/embedded-jetty-jsp code:
- * https://github.com/jetty-project/embedded-jetty-jsp/blob/master/src/main/java/org/eclipse/jetty/demo/Main.java precompiling jsp
- * https://www.eclipse.org/jetty/documentation/9.4.x/jetty-jspc-maven-plugin.html 20180201 updated to support for Jetty 9.4.8.v20171121,
- * previous version was 7.6.0
+ * <p>
+ * for: REST/json, pdf, images, security, jnlp
+ * <p>
+ * For OpenAPI/Swagger<br>
+ * see: ../src/main/webapp/swagger-ui/index.html
+ * <p>
+ * https://www.eclipse.org/jetty/documentation/9.4.x/index.html
+ * <p>
+ * Doc https://github.com/jetty-project
+ * <p>
+ * embedded jsp: https://www.eclipse.org/jetty/documentation/9.4.x/configuring-jsp.html
+ * <p>
+ * read: https://github.com/jetty-project/embedded-jetty-jsp
+ * <p>
+ * code: https://github.com/jetty-project/embedded-jetty-jsp/blob/master/src/main/java/org/eclipse/jetty/demo/Main.java
+ * <p>
+ * precompiling jsp https://www.eclipse.org/jetty/documentation/9.4.x/jetty-jspc-maven-plugin.html
+ * <p>
+ * 20180201 updated to support for Jetty 9.4.8.v20171121,
  *
  * @author vincevia
  */
