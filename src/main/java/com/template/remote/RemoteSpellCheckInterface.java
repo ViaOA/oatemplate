@@ -1,6 +1,6 @@
 package com.template.remote;
 
-import com.viaoa.remote.annotation.OARemoteInterface;
+import com.viaoa.remote.multiplexer.annotation.OARemoteInterface;
 
 @OARemoteInterface
 public interface RemoteSpellCheckInterface {
