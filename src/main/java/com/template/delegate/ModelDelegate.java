@@ -53,7 +53,7 @@ public class ModelDelegate {
 				break;
 			}
 			if (i > 5) {
-				LOG.fine(i + "/120) waiting on initialize to finish sharing hubs");
+				LOG.fine(i + "/120 seconds) waiting on initialize to finish sharing hubs");
 			}
 			try {
 				Thread.sleep(1000);

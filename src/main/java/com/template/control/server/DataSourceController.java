@@ -163,6 +163,10 @@ public class DataSourceController {
 		return bIsUsingDatabase;
 	}
 
+	public OADataSourceObjectCache getObjectCacheDataSource() {
+		return dsObjectCache;
+	}
+
 	public OADataSourceJDBC getOADataSourceJDBC() {
 		if (this.dataSource == null) {
 			return null;
@@ -205,6 +209,19 @@ public class DataSourceController {
 						LOG.log(Level.WARNING, "No data loaded");
 					}
 				}
+			}
+			if (!readObjectCacheDataSource()) {
+				OAObjectSaveDelegate.save(serverRoot, OAObject.CASCADE_ALL_LINKS, new OACascade() {
+					@Override
+					public boolean wasCascaded(OAObject oaObj, boolean bAdd) {
+						boolean b = super.wasCascaded(oaObj, bAdd);
+						if (!b && oaObj != serverRoot) {
+							dsObjectCache.addToStorage(oaObj, true);
+						}
+						return b;
+					}
+				});
+				writeObjectCacheDataSource();
 			}
 		}
 
@@ -505,7 +522,7 @@ public class DataSourceController {
 	}
 
 	public void updateDataSource() {
-		//qqqqqqqqqqqqqqqq
+		// todo
 	}
 
 	private int cacheCnt;
@@ -773,16 +790,30 @@ public class DataSourceController {
 		jaxb.saveAsJson(serverRoot, file);
 	}
 
+	public void writeObjectCacheDataSource() throws Exception {
+		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+		LOG.log(Level.CONFIG, "Save to file " + dirName + "/ObjectCache.bin");
+		File file = new File(OAFile.convertFileName(dirName + "/ObjectCache.bin"));
+		getObjectCacheDataSource().saveToStorageFile(file);
+	}
+
+	public boolean readObjectCacheDataSource() throws Exception {
+		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+		LOG.log(Level.CONFIG, "Reading from file " + dirName + "/ObjectCache.bin");
+		File file = new File(OAFile.convertFileName(dirName + "/ObjectCache.bin"));
+		return getObjectCacheDataSource().loadFromStorageFile(file);
+	}
+
 	/*
 	public static void main(String[] args) throws Exception {
 	    DataSourceController dsc = new DataSourceController();
-	
+
 	    dsc.loadServerRoot();
-	
+
 	    // dsc.backupDatabase("c:\\temp\\dbBackDerby");
 	    dsc.isDataSourceReady();
 	    dsc.isDatabaseCorrupted();
-	
+
 	    System.out.println("Done");
 	}
 	*/
