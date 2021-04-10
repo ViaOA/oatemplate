@@ -794,6 +794,7 @@ public class DataSourceController {
 		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
 		LOG.log(Level.CONFIG, "Save to file " + dirName + "/ObjectCache.bin");
 		File file = new File(OAFile.convertFileName(dirName + "/ObjectCache.bin"));
+		OAFile.mkdirsForFile(file);
 		getObjectCacheDataSource().saveToStorageFile(file);
 	}
 
@@ -807,13 +808,13 @@ public class DataSourceController {
 	/*
 	public static void main(String[] args) throws Exception {
 	    DataSourceController dsc = new DataSourceController();
-
+	
 	    dsc.loadServerRoot();
-
+	
 	    // dsc.backupDatabase("c:\\temp\\dbBackDerby");
 	    dsc.isDataSourceReady();
 	    dsc.isDatabaseCorrupted();
-
+	
 	    System.out.println("Done");
 	}
 	*/
