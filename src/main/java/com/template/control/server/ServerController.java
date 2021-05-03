@@ -421,7 +421,7 @@ public abstract class ServerController {
 			for (int i=0; i<cntThread; i++) {
 			    threads[i] = new LoaderThread(i, cascade);
 			}
-			
+
 			int cnt = 0;
 			for (Program prog : serverRoot.getPrograms()) {
 			    threads[cnt++ % cntThread].al.add(prog);
@@ -775,6 +775,15 @@ public abstract class ServerController {
 			}
 		} catch (Throwable e) {
 			LOG.log(Level.WARNING, "Error while saving data to serialized file", e);
+		}
+
+		try {
+			if (!bSaveToDB) {
+				LOG.fine("Saving OAObjectCacheDataSource to file");
+				getDataSourceController().writeObjectCacheDataSource();
+			}
+		} catch (Throwable e) {
+			LOG.log(Level.WARNING, "Error while saving OAObjectCacheDataSource file", e);
 		}
 
 		try {
