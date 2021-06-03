@@ -108,6 +108,7 @@ public class Resource {
 	public static final String APP_JettyServer = "JettyServer";
 	public static final String APP_JettyPort = "JettyPort";
 	public static final String APP_JettySSLPort = "JettySSLPort";
+    public static final String APP_JettyWSPort = "JettyWSPort";
 	public static final String APP_JettyDirectory = "JettyDirectory"; // "webcontent"
 	public static final String APP_JettyLibDirectory = "JettyLibDirectory"; // for jnlp to find jar files
 	public static final String APP_Website = "Website"; // url

@@ -6,7 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.template.control.*;
-// import com.template.control.server.JettyController;
+import com.template.control.server.JettyController;
 import com.template.delegate.*;
 import com.template.model.oa.cs.*;
 import com.template.resource.*;
@@ -21,7 +21,7 @@ public class WebserverController {
 	
     private LogController controlLog;
     private RemoteClientController controlRemote;
-    // private JettyController controlJetty;
+    private JettyController controlJetty;
     
     public WebserverController() {
         Resource.setLocale(null);
@@ -39,6 +39,7 @@ public class WebserverController {
         String jettyServer = Resource.getValue(Resource.APP_JettyServer);
         int jettyPort = Resource.getInt(Resource.APP_JettyPort, 80);
         int jettySSLPort = Resource.getInt(Resource.APP_JettySSLPort, 443);
+        int jettyWSPort = Resource.getInt(Resource.APP_JettyWSPort, 0);
         String jettyDirectory = Resource.getValue(Resource.APP_JettyDirectory);
         String website = Resource.getValue(Resource.APP_Website);
         LOG.config(String.format("Jetty Server: %s, port: %d, sslport: %d, root directory: %s, website: %s", 
@@ -72,11 +73,11 @@ public class WebserverController {
 
         
         LOG.config("STEP #2/2 BEGIN: Starting Jetty Webserver");
-        // controlJetty = new JettyController();
+        controlJetty = new JettyController();
 
         try {
-            // controlJetty.init(jettyPort, jettySSLPort, jettyWSPort);
-            // controlJetty.start();
+            controlJetty.init(jettyPort, jettySSLPort, null);
+            controlJetty.start();
         }
         catch (Exception e) {
             LOG.log(Level.WARNING, "STEP #2/2 FAILURE: Could not start webserver, will exit", e);
@@ -92,12 +93,12 @@ public class WebserverController {
         if (d != null && OAString.isNotEmpty(website)) {
             String s = "http";
             int port = jettySSLPort;
-            if (port >= 0) s += "s"; 
+            if (port > 0) s += "s"; 
             else port = jettyPort;
             s += "://"+website;
             if (port != 80 && port != 443) s += ":" + port;
             String s2 = Resource.getValue(Resource.APP_WelcomePage);
-            if (OAString.isNotEmpty(s2)) s += "/" + s2;
+            // if (OAString.isNotEmpty(s2)) s += "/" + s2;
             LOG.config("opening browser to "+s);
             d.browse(new URI(s));
         }
