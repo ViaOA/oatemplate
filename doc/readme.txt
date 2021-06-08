@@ -53,4 +53,16 @@ WebServer / REST / Swagger
 	
 	Note: port is based on property value:  JettyPort, default is 8080.  The console displays ports at server startup. 
 
+Images for JFC application
+
+
+
+
+
+
+
+
+
+
+
 

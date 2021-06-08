@@ -25,15 +25,15 @@ Create in image directory
 	iconClient.xcf (32)
 	iconServer.xcf (32)
 
-	template.xcf  (240)
+	template.xcf  (225)
 		make bg transparent
 		add rounded border (radius 12.0), line width 6
 	button.xcf  (32)   sample
 	bar.xcf     (20)   sample
 
-export convert *.xcf image to image/export 
+gimp: use "file/export As" to convert *.xcf image to jpg/gif/etc
 
-	
+
 images need to be copied:
 	directory: src/.../view/image
 		splash.png 
@@ -42,9 +42,11 @@ images need to be copied:
 		iconClient.gif
 
 	directory: src/.../view/oa/image
-		*Splash.png  (using template.xcf)
-		*Button.png
-		*Bar.png	
+		OABuilder generates the following icons based on the model UI tree.
+			*Splash.png  (using template.xcf)
+			*Button.png
+			*Bar.png
+
 
 	directory: src/.../report/html
 		logo.jpg
@@ -53,7 +55,7 @@ images need to be copied:
 		splash.png
 		icon.gif	
 	
-Note:  use ^+[F11] in the Client to be able to click lables on glassframe	
+Note:  use ^+[F11] in the Client to be able to click labels on glassframe	
 	
 	
 
