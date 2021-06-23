@@ -6,6 +6,10 @@ Building:
 	
 Eclipse:
 	convert to maven project
+		right click on project name
+			choose menu itme: "Configure"
+				select: "Convert to Maven Project"
+			
 
 Setup:
 	create a runtime directory:
