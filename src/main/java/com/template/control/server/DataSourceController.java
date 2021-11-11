@@ -6,21 +6,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashMap;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
+import java.util.logging.*;
+import java.util.zip.*;
 
 import com.template.datasource.DataSource;
-import com.template.model.oa.AppServer;
-import com.template.model.oa.cs.ClientRoot;
+import com.template.model.oa.*;
+import com.template.model.oa.cs.*;
 import com.template.model.oa.cs.ServerRoot;
 import com.template.resource.Resource;
 import com.viaoa.annotation.OAClass;
@@ -28,31 +23,14 @@ import com.viaoa.comm.io.OAObjectInputStream;
 import com.viaoa.concurrent.OAExecutorService;
 import com.viaoa.datasource.jdbc.OADataSourceJDBC;
 import com.viaoa.datasource.objectcache.OADataSourceObjectCache;
-import com.viaoa.hub.Hub;
-import com.viaoa.hub.HubSaveDelegate;
-import com.viaoa.jaxb.OAJaxb;
-import com.viaoa.object.OACallback;
-import com.viaoa.object.OACascade;
-import com.viaoa.object.OAObject;
-import com.viaoa.object.OAObjectCacheDelegate;
-import com.viaoa.object.OAObjectDelegate;
-import com.viaoa.object.OAObjectEmptyHubDelegate;
-import com.viaoa.object.OAObjectSaveDelegate;
-import com.viaoa.object.OAObjectSerializer;
+import com.viaoa.hub.*;
+import com.viaoa.json.OAJson;
+import com.viaoa.object.*;
 import com.viaoa.sync.OASyncDelegate;
 import com.viaoa.sync.OASyncServer;
 import com.viaoa.transaction.OATransaction;
-import com.viaoa.util.OAArray;
-import com.viaoa.util.OADate;
-import com.viaoa.util.OADateTime;
-import com.viaoa.util.OAFile;
-import com.viaoa.util.OAFilter;
-import com.viaoa.util.OALogger;
-import com.viaoa.util.OAReflect;
-import com.viaoa.util.OAString;
-import com.viaoa.util.OATime;
-import com.viaoa.xml.OAXMLReader;
-import com.viaoa.xml.OAXMLWriter;
+import com.viaoa.util.*;
+import com.viaoa.xml.*;
 
 /**
  * Used to manage object persistence, includes serialization and OADataSource support.
@@ -710,9 +688,9 @@ public class DataSourceController {
 			LOG.log(Level.CONFIG, "file " + dirName + "/data.json does not exist");
 			return false;
 		}
-		OAJaxb<ServerRoot> jaxb = new OAJaxb(ServerRoot.class);
 
-		ServerRoot sr = jaxb.convertFromJSON(serverRoot, false, file);
+		OAJson oaj = new OAJson();
+		serverRoot = oaj.readObject(file, ServerRoot.class, false);
 
 		LOG.log(Level.CONFIG, "reading from file data.json completed");
 
@@ -785,9 +763,9 @@ public class DataSourceController {
 	}
 
 	protected void _writeToJsonFile(final File file) throws Exception {
-		OAJaxb<ServerRoot> jaxb = new OAJaxb(ServerRoot.class);
-		jaxb.setIncludeAll(true);
-		jaxb.saveAsJson(serverRoot, file);
+		OAJson oaj = new OAJson();
+		oaj.setIncludeAll(true);
+		oaj.write(serverRoot, file);
 	}
 
 	public void writeObjectCacheDataSource() throws Exception {
@@ -808,13 +786,13 @@ public class DataSourceController {
 	/*
 	public static void main(String[] args) throws Exception {
 	    DataSourceController dsc = new DataSourceController();
-	
+
 	    dsc.loadServerRoot();
-	
+
 	    // dsc.backupDatabase("c:\\temp\\dbBackDerby");
 	    dsc.isDataSourceReady();
 	    dsc.isDatabaseCorrupted();
-	
+
 	    System.out.println("Done");
 	}
 	*/
