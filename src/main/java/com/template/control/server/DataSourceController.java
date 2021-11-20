@@ -15,8 +15,9 @@ import java.util.zip.*;
 
 import com.template.datasource.DataSource;
 import com.template.model.oa.*;
+import com.template.model.oa.propertypath.*;
+import com.template.model.oa.filter.*;
 import com.template.model.oa.cs.*;
-import com.template.model.oa.cs.ServerRoot;
 import com.template.resource.Resource;
 import com.viaoa.annotation.OAClass;
 import com.viaoa.comm.io.OAObjectInputStream;
