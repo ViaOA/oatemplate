@@ -1,4 +1,18 @@
 
+20211205 
+
+Install Derby
+copy derby.jar & derbytools.jar from vvia project/lib to runtime/server
+
+IJ command:
+windows:
+	java -cp ./derby.jar;./derbytools.jar;. -Dij.protocol=jdbc:derby: org.apache.derby.tools.ij
+linux:
+	java -cp ./derby.jar:./derbytools.jar:. -D"ij.protocol=jdbc:derby:" org.apache.derby.tools.ij
+
+
+
+
 
 20200331    
     https://builds.apache.org/job/Derby-docs/lastSuccessfulBuild/artifact/trunk/out/ref/rrefattribcollation.html

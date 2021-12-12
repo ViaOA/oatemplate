@@ -90,7 +90,7 @@ public class DataSourceController {
 			}
 
 			final Class[] csNotUsingDatabase = classes;
-			if (csNotUsingDatabase.length > 0) {
+			if (csNotUsingDatabase != null && csNotUsingDatabase.length > 0) {
 				for (Class c : csNotUsingDatabase) {
 					LOG.warning(String.format("Class %s is not in using database", c.getName()));
 				}
