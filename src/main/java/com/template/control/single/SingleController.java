@@ -602,14 +602,12 @@ public abstract class SingleController {
 			LOG.log(Level.WARNING, "Error while saving data to serialized file", e);
 		}
 
-        try {
-            if (!bSaveToDB) {
-                LOG.fine("Saving OAObjectCacheDataSource to file");
-                getDataSourceController().writeObjectCacheDataSource();
-            }
-        } catch (Throwable e) {
-            LOG.log(Level.WARNING, "Error while saving OAObjectCacheDataSource file", e);
-        }
+		try {
+			LOG.fine("Saving OAObjectCacheDataSource to file");
+			getDataSourceController().writeObjectCacheDataSource();
+		} catch (Throwable e) {
+			LOG.log(Level.WARNING, "Error while saving OAObjectCacheDataSource file", e);
+		}
 
 		try {
 			if (Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false)) {

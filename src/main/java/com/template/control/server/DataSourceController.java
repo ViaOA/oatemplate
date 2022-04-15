@@ -79,22 +79,18 @@ public class DataSourceController {
 			Class[] classes = null;
 			for (String fn : fnames) {
 				Class c = Class.forName(packageName + "." + fn);
-				OAClass cx = (OAClass) c.getAnnotation(OAClass.class);
-				if (cx == null) {
-					continue;
+				OAObjectInfo oi = OAObjectInfoDelegate.getOAObjectInfo(c);
+				if (!oi.getUseDataSource()) {
+					classes = (Class[]) OAArray.add(Class.class, classes, c);
 				}
-				if (cx.useDataSource()) {
-					continue;
-				}
-				classes = (Class[]) OAArray.add(Class.class, classes, c);
 			}
 
 			final Class[] csNotUsingDatabase = classes;
 			if (csNotUsingDatabase != null && csNotUsingDatabase.length > 0) {
 				for (Class c : csNotUsingDatabase) {
-					LOG.warning(String.format("Class %s is not in using database", c.getName()));
+					LOG.fine(String.format("Class %s is not in using database", c.getName()));
 				}
-				new OADataSourceObjectCache() {
+				dsObjectCache = new OADataSourceObjectCache() {
 					@Override
 					public boolean isClassSupported(Class clazz, OAFilter filter) {
 						for (Class c : csNotUsingDatabase) {
@@ -119,8 +115,9 @@ public class DataSourceController {
 			dataSource.open();
 			dataSource.getOADataSource().setAssignIdOnCreate(true);
 		}
-
-		dsObjectCache = new OADataSourceObjectCache(); // for non-DB objects
+		if (dsObjectCache == null) {
+			dsObjectCache = new OADataSourceObjectCache(); // for non-DB objects
+        }
 		dsObjectCache.setAssignIdOnCreate(true);
 
 		if (!OAString.isEmpty(cacheFileName)) {
@@ -202,6 +199,8 @@ public class DataSourceController {
 				});
 				writeObjectCacheDataSource();
 			}
+		} else {
+			readObjectCacheDataSource(); // non-DB
 		}
 
 		/*$$Start: DatasourceController.loadServerRoot $$*/
