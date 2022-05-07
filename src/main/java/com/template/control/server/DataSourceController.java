@@ -283,20 +283,30 @@ public class DataSourceController {
 	}
 
 	public void saveData() {
-		// serverRoot.save(OAObject.CASCADE_ALL_LINKS);
-		// hubClientRoot.saveAll(OAObject.CASCADE_ALL_LINKS);
+		OATransaction trans = new OATransaction(java.sql.Connection.TRANSACTION_READ_UNCOMMITTED);
+		trans.setBatchUpdate(true);
+		trans.start();
 
-		OACascade cascade = new OACascade();
-		OAObjectSaveDelegate.save(serverRoot, OAObject.CASCADE_ALL_LINKS, cascade);
+		long ms = System.currentTimeMillis();
+		try {
+			OACascade cascade = new OACascade();
+			OAObjectSaveDelegate.save(serverRoot, OAObject.CASCADE_ALL_LINKS, cascade);
 
-		HubSaveDelegate.saveAll(hubClientRoot, OAObject.CASCADE_ALL_LINKS, cascade);
+			HubSaveDelegate.saveAll(hubClientRoot, OAObject.CASCADE_ALL_LINKS, cascade);
 
-		OASyncServer ss = OASyncDelegate.getSyncServer();
-		if (ss != null) {
-			OASyncDelegate.getSyncServer().saveCache(cascade, OAObject.CASCADE_ALL_LINKS);
-			OASyncDelegate.getSyncServer().performDGC();
+			OASyncServer ss = OASyncDelegate.getSyncServer();
+			if (ss != null) {
+				OASyncDelegate.getSyncServer().saveCache(cascade, OAObject.CASCADE_ALL_LINKS);
+				OASyncDelegate.getSyncServer().performDGC();
+			}
+		} finally {
+			trans.commit();
 		}
+		long ms2 = System.currentTimeMillis();
+		LOG.fine(String.format("all changes saved to DataSource in %,d ms", (ms2 - ms)));
 	}
+
+
 
 	public void writeToSerializeFile(boolean bErrorMode) throws Exception {
 		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
