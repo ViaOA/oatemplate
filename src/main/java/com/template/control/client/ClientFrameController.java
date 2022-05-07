@@ -271,6 +271,7 @@ public abstract class ClientFrameController {
 				System.out.println("[ctrl+F12] OAJfcController.DEBUGUI=" + OAJfcController.DEBUGUI);
 			}
 		}, KeyStroke.getKeyStroke(KeyEvent.VK_F12, KeyEvent.CTRL_DOWN_MASK, false), JComponent.WHEN_IN_FOCUSED_WINDOW);
+		OAJfcController.DEBUGUI = Resource.getBoolean(Resource.INI_UIDebug, false);
 
 		// this will add panels, etc based on oaModel
 		customize();
