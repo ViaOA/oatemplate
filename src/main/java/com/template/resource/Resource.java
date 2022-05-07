@@ -163,6 +163,7 @@ public class Resource {
 	public static final String INI_License = "License";
 	public static final String INI_Debug = "Debug";
 	public static final String INI_DBDebug = "DBDebug";
+	public static final String INI_UIDebug = "UIDebug";
 	public static final String INI_SuperAdmin = "SuperAdmin";
 	public static final String INI_SaveDataToDatabase = "SaveDataToDatabase";
 	public static final String INI_SaveDataToFile = "SaveDataToFile";
