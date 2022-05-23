@@ -113,7 +113,8 @@ public class DataSourceController {
 
 			dataSource = new DataSource();
 			dataSource.open();
-			dataSource.getOADataSource().setAssignIdOnCreate(true);
+			
+			dataSource.getOADataSource().setAssignIdOnCreate(false);
 		}
 		if (dsObjectCache == null) {
 			dsObjectCache = new OADataSourceObjectCache(); // for non-DB objects
