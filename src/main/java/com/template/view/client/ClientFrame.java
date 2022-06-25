@@ -66,7 +66,6 @@ import com.viaoa.jfc.OACommand;
 import com.viaoa.jfc.control.CutCopyPasteController;
 import com.viaoa.jfc.control.UndoableController;
 import com.viaoa.jfc.print.PrintController;
-
 //import net.java.balloontip.BalloonTip;
 //import net.java.balloontip.BalloonTip;
 import com.viaoa.util.OADateTime;
@@ -598,6 +597,7 @@ public abstract class ClientFrame extends JFrame {
 		if (toolbarCommandPanel != null) {
 			return toolbarCommandPanel;
 		}
+		final int hgapForButtons = 20;
 		toolbarCommandPanel = new JPanel() {
 			final CopyOnWriteArrayList<JToggleButton> al = new CopyOnWriteArrayList<>();
 
@@ -645,7 +645,7 @@ public abstract class ClientFrame extends JFrame {
 					try {
 						setLayout(null);
 						removeAll();
-						setLayout(new GridLayout(1, 0, 0, 0));
+						setLayout(new GridLayout(1, 0, hgapForButtons, 0));
 						for (JToggleButton btn : al) {
 							if (btn.isVisible()) {
 								add(btn);
@@ -661,7 +661,7 @@ public abstract class ClientFrame extends JFrame {
 				}
 			}
 		};
-		toolbarCommandPanel.setLayout(new GridLayout(1, 0, 0, 0));
+		toolbarCommandPanel.setLayout(new GridLayout(1, 0, hgapForButtons, 0));
 		toolbarCommandPanel.setOpaque(false);
 		return toolbarCommandPanel;
 	}
