@@ -68,10 +68,20 @@ public class DataSourceController {
 		bIsUsingDatabase = Resource.getBoolean(Resource.DB_Enabled, false);
 		if (!bIsUsingDatabase) {
 			String msg = "NOTE: DataSourceController ********* not using database **********";
+			
+			// make sure that it is saving to file
+			if (!Resource.getBoolean(Resource.INI_SaveDataToFile, false)) {
+				if (!Resource.getBoolean(Resource.INI_SaveDataToJsonFile, false)) {
+					if (!Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false)) {
+						msg = "WARNING: DataSourceController **** WARNING **** DATA persistence not defined - not using database or data file(s) data.* (.bin, .json, .xml) **** WARNING ****";
+					}
+				}
+			}
 			LOG.warning(msg);
 			for (int i = 0; i < 10; i++) {
 				System.out.println(msg);
 			}
+			
 		} else {
 			// put "non-db ready" classes into another DS
 			String packageName = AppServer.class.getPackage().getName(); // oa model classes
@@ -110,6 +120,7 @@ public class DataSourceController {
 							.println("DataSourceController. is NOT! saving to Database, " + Resource.INI_SaveDataToDatabase + " is false");
 				}
 			}
+
 
 			dataSource = new DataSource();
 			dataSource.open();
