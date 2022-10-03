@@ -344,7 +344,7 @@ public class JettyController {
 		defaultServlet.setInitParameter("redirectWelcome", "true");
 		defaultServlet.setInitParameter("cacheControl", "private, max-age=0, no-cache, no-store, must-revalidate");
 		//was: defaultServlet.setInitParameter("cacheControl", "max-age=3600,public");
-		defaultServlet.setInitParameter("resourceBase", Resource.getValue(Resource.APP_JettyDirectory));
+		defaultServlet.setInitParameter("resourceBase", dirName);
 
 		// Hello Servlet
 		HelloServlet servletHello = new HelloServlet();
@@ -799,6 +799,7 @@ public class JettyController {
 					if (jarName != null && jarName.toLowerCase().contains("derby")) { // skip derby jars, since the jar manifest includes a classpath to other derby jars
 						return false;
 					}
+					// Note: might want to return false as the default, so that it does not scan jar files.
 					return filterOrig.check(jarScanType, jarName);
 				}
 			});

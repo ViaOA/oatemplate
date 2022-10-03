@@ -82,54 +82,52 @@ public class DataSourceController {
 				System.out.println(msg);
 			}
 			
+			// use DS OAObjectCache
+			String packageName = AppServer.class.getPackage().getName(); // model classes
+			final Set<Class> hsClass = new HashSet<>();
+			for (String fn : OAReflect.getClasses(packageName)) {
+				Class c = Class.forName(packageName + "." + fn);
+				hsClass.add(c);
+			}
+
+			dsObjectCache = new OADataSourceObjectCache() {
+				@Override
+				public boolean isClassSupported(Class clazz, OAFilter filter) {
+					return hsClass.contains(clazz);
+				}
+			};
+			
 		} else {
 			// put "non-db ready" classes into another DS
 			String packageName = AppServer.class.getPackage().getName(); // oa model classes
-			String[] fnames = OAReflect.getClasses(packageName);
-			Class[] classes = null;
-			for (String fn : fnames) {
+			final Set<Class> hsClass = new HashSet<>();
+			for (String fn : OAReflect.getClasses(packageName)) {
 				Class c = Class.forName(packageName + "." + fn);
 				OAObjectInfo oi = OAObjectInfoDelegate.getOAObjectInfo(c);
 				if (!oi.getUseDataSource()) {
-					classes = (Class[]) OAArray.add(Class.class, classes, c);
+					hsClass.add(c);
 				}
 			}
 
-			final Class[] csNotUsingDatabase = classes;
-			if (csNotUsingDatabase != null && csNotUsingDatabase.length > 0) {
-				for (Class c : csNotUsingDatabase) {
-					LOG.fine(String.format("Class %s is not in using database", c.getName()));
+			dsObjectCache = new OADataSourceObjectCache() {
+				@Override
+				public boolean isClassSupported(Class clazz, OAFilter filter) {
+					return hsClass.contains(clazz);
 				}
-				dsObjectCache = new OADataSourceObjectCache() {
-					@Override
-					public boolean isClassSupported(Class clazz, OAFilter filter) {
-						for (Class c : csNotUsingDatabase) {
-							if (c.equals(clazz)) {
-								return true;
-							}
-						}
-						return false;
-					}
-				};
-			}
+			};
 
 			if (!Resource.getBoolean(Resource.INI_SaveDataToDatabase, true)) {
 				LOG.warning("NOT saving to Database, " + Resource.INI_SaveDataToDatabase + " is false");
 				for (int i = 0; i < 20; i++) {
-					System.out
-							.println("DataSourceController. is NOT! saving to Database, " + Resource.INI_SaveDataToDatabase + " is false");
+					System.out.println("DataSourceController. is NOT! saving to Database, " + Resource.INI_SaveDataToDatabase + " is false");
 				}
 			}
-
 
 			dataSource = new DataSource();
 			dataSource.open();
 			
 			dataSource.getOADataSource().setAssignIdOnCreate(false);
 		}
-		if (dsObjectCache == null) {
-			dsObjectCache = new OADataSourceObjectCache(); // for non-DB objects
-        }
 		dsObjectCache.setAssignIdOnCreate(true);
 
 		if (!OAString.isEmpty(cacheFileName)) {
