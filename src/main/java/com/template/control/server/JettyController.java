@@ -171,11 +171,12 @@ public class JettyController {
 		Configuration.ClassList classlist = Configuration.ClassList.setServerDefault(server);
 		classlist.addBefore("org.eclipse.jetty.webapp.JettyWebXmlConfiguration", "org.eclipse.jetty.annotations.AnnotationConfiguration");
 
-		String hostName = Resource.getValue(Resource.APP_JettyServer);
-		if (OAString.isEmpty(hostName)) {
-			// hostName = Resource.getValue(Resource.APP_HostName);
+		// jettyHostName should only set to have url pin the the name. Wont allow using "localhost", etc 
+		String jettyHostName = Resource.getValue(Resource.APP_JettyServer);
+		if (OAString.isEmpty(jettyHostName)) {
+			// jettyHostName = Resource.getValue(Resource.APP_HostName);
 		}
-		LOG.fine("Jetty server: " + hostName);
+		LOG.fine("Jetty server host name: " + jettyHostName);
 
 		// see: http://www.eclipse.org/jetty/documentation/9.4.8.v20171121/embedding-jetty.html
 		HttpConfiguration httpConfig = new HttpConfiguration();
@@ -192,8 +193,9 @@ public class JettyController {
 		ServerConnector httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
 		httpConnector.setPort(port);
 		httpConnector.setIdleTimeout(30 * 1000);
-		if (OAString.isNotEmpty(hostName)) {
-			httpConnector.setHost(hostName);
+		if (OAString.isNotEmpty(jettyHostName)) {
+		    // The network interface this connector binds to as an IP address or a hostname.  If null or 0.0.0.0, then bind to all interfaces.
+			httpConnector.setHost(jettyHostName);
 		}
 		server.addConnector(httpConnector);
 
@@ -273,6 +275,7 @@ public class JettyController {
 		}
 
 		// Resource handler for all regular pages
+        /*   not needed, will be handled by DefaultServlet
 		ResourceHandler resourceHandler = new ResourceHandler();
 		resourceHandler.setDirectoriesListed(true);
 		resourceHandler.setResourceBase(dirName);
@@ -280,6 +283,10 @@ public class JettyController {
 		resourceHandler.setCacheControl("max-age=3600,public"); // one hour
 		// resourceHandler.setCacheControl("private, max-age=0, no-cache, no-store, must-revalidate");
 
+        ContextHandler resourceContextHandler = new ContextHandler("/");
+        resourceContextHandler.setHandler(resourceHandler);
+		*/
+		
 		// Servlet handler
 		ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		servletContextHandler.setContextPath("/"); // url prefix
@@ -339,6 +346,7 @@ public class JettyController {
 		//======= custom servlets, see each for specific usage ======================
 		// set up default servlet
 		// see init params: https://www.eclipse.org/jetty/documentation/9.3.x/advanced-extras.html
+		// this is so that jsp and web pages can be in same directories
 		ServletHolder defaultServlet = servletContextHandler.addServlet(DefaultServlet.class, "/");
 		defaultServlet.setInitParameter("welcomeServlets", "true");
 		defaultServlet.setInitParameter("redirectWelcome", "true");
@@ -590,8 +598,11 @@ public class JettyController {
 
 		//======= create ordered handler list for "/" context ===========================
 		HandlerList handlerList = new HandlerList();
-		handlerList.setHandlers(new Handler[] { requestLogHandler, httpsRedirectHandler, redirectHandler, servletContextHandler,
-				resourceHandler, new DefaultHandler() });
+		handlerList.setHandlers(new Handler[] { 
+		        requestLogHandler, httpsRedirectHandler, 
+		        redirectHandler, servletContextHandler,
+		        // resourceContextHandler, 
+				new DefaultHandler() });
 		contextHandlerCollection.addHandler(handlerList);
 
 		//======= web services ======================================================
