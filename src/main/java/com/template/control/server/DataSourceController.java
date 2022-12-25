@@ -22,6 +22,7 @@ import com.template.resource.Resource;
 import com.viaoa.annotation.OAClass;
 import com.viaoa.comm.io.OAObjectInputStream;
 import com.viaoa.concurrent.OAExecutorService;
+import com.viaoa.datasource.*;
 import com.viaoa.datasource.jdbc.OADataSourceJDBC;
 import com.viaoa.datasource.objectcache.OADataSourceObjectCache;
 import com.viaoa.hub.*;
@@ -67,13 +68,13 @@ public class DataSourceController {
 
 		bIsUsingDatabase = Resource.getBoolean(Resource.DB_Enabled, false);
 		if (!bIsUsingDatabase) {
-			String msg = "NOTE: DataSourceController ********* not using database **********";
-			
+			String msg = "Note: Database is NOT being used, db.enabled=false";
+
 			// make sure that it is saving to file
 			if (!Resource.getBoolean(Resource.INI_SaveDataToFile, false)) {
 				if (!Resource.getBoolean(Resource.INI_SaveDataToJsonFile, false)) {
 					if (!Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false)) {
-						msg = "WARNING: DataSourceController **** WARNING **** DATA persistence not defined - not using database or data file(s) data.* (.bin, .json, .xml) **** WARNING ****";
+						msg += ", WARNING: NOT saving - not using database or data file(s) data.* (.bin, .json, .xml) **** WARNING ****";
 					}
 				}
 			}
@@ -81,7 +82,7 @@ public class DataSourceController {
 			for (int i = 0; i < 10; i++) {
 				System.out.println(msg);
 			}
-			
+
 			// use DS OAObjectCache
 			String packageName = AppServer.class.getPackage().getName(); // model classes
 			final Set<Class> hsClass = new HashSet<>();
@@ -96,9 +97,8 @@ public class DataSourceController {
 					return hsClass.contains(clazz);
 				}
 			};
-			
 		} else {
-			// put "non-db ready" classes into another DS
+			// put "non-db" classes into another DS
 			String packageName = AppServer.class.getPackage().getName(); // oa model classes
 			final Set<Class> hsClass = new HashSet<>();
 			for (String fn : OAReflect.getClasses(packageName)) {
@@ -116,29 +116,32 @@ public class DataSourceController {
 				}
 			};
 
-			if (!Resource.getBoolean(Resource.INI_SaveDataToDatabase, true)) {
-				LOG.warning("NOT saving to Database, " + Resource.INI_SaveDataToDatabase + " is false");
+			if (!Resource.getBoolean(Resource.INI_SaveDataToDatabase, true) || Resource.getBoolean(Resource.DB_IgnoreWrites, false)) {
+				String msg = "Note: using Database, but NOT saving ... all writes are ignored (insert/update/delete)";
+				LOG.warning(msg);
 				for (int i = 0; i < 20; i++) {
-					System.out.println("DataSourceController. is NOT! saving to Database, " + Resource.INI_SaveDataToDatabase + " is false");
+					System.out.println(msg);
 				}
 			}
-
 			dataSource = new DataSource();
 			dataSource.open();
-			
+
 			dataSource.getOADataSource().setAssignIdOnCreate(false);
+			if (!Resource.getBoolean(Resource.INI_SaveDataToDatabase, true) || Resource.getBoolean(Resource.DB_IgnoreWrites, false)) {
+				dataSource.getOADataSource().setIgnoreWrites(true);  // readonly
+			}
 		}
 		dsObjectCache.setAssignIdOnCreate(true);
 
-		if (!OAString.isEmpty(cacheFileName)) {
+		if (OAString.isNotEmpty(cacheFileName)) {
 			cacheFileName = OAFile.convertFileName(cacheFileName);
 			File file = new File(cacheFileName);
 			if (file.exists()) {
-				LOG.config("OAObjectEmptyHubDelegate.load(" + cacheFileName + ");");
+				LOG.info("OAObjectEmptyHubDelegate.load(" + cacheFileName + ");");
 				try {
 					OAObjectEmptyHubDelegate.load(file);
 				} catch (Exception e) {
-					LOG.log(Level.WARNING, "error loading " + cacheFileName + "", e);
+					LOG.log(Level.WARNING, "error loading cache file, " + cacheFileName + ", will continue", e);
 				}
 				file.delete();
 			}
@@ -189,14 +192,16 @@ public class DataSourceController {
 		executorService = new OAExecutorService("DataSourceController.startup");
 
 		if (!isUsingDatabase()) {
+			boolean b = true;
 			if (!Resource.getBoolean(Resource.INI_SaveDataToFile, false) || !readFromSerializeFile()) {
 				if (!Resource.getBoolean(Resource.INI_SaveDataToJsonFile, false) || !readFromJsonFile()) {
 					if (!Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false) || !readFromXmlFile()) {
+						b = false;
 						LOG.log(Level.WARNING, "No data loaded");
 					}
 				}
 			}
-			if (!readObjectCacheDataSource()) {
+			if (b && !readObjectCacheDataSource()) {
 				OAObjectSaveDelegate.save(serverRoot, OAObject.CASCADE_ALL_LINKS, new OACascade() {
 					@Override
 					public boolean wasCascaded(OAObject oaObj, boolean bAdd) {
@@ -293,8 +298,8 @@ public class DataSourceController {
 	}
 
 	public void saveData() {
-		OATransaction trans = new OATransaction(java.sql.Connection.TRANSACTION_READ_UNCOMMITTED);
-		trans.setBatchUpdate(true);
+		OATransaction trans = new OATransaction();
+		trans.setUseBatch(true);
 		trans.start();
 
 		long ms = System.currentTimeMillis();
@@ -783,7 +788,25 @@ public class DataSourceController {
 	}
 
 	protected void _writeToJsonFile(final File file) throws Exception {
-		OAJson oaj = new OAJson();
+		OAJson oaj = new OAJson() {
+			OAObjectInfo oi;
+			@Override
+			public boolean getUsePropertyCallback(Object obj, String propertyName) {
+				if (obj == serverRoot) {
+					if (oi == null) {
+						oi = OAObjectInfoDelegate.getOAObjectInfo(serverRoot);
+					}
+					OALinkInfo li = oi.getLinkInfo(propertyName);
+					if (li != null) {
+						OADataSource ds = OADataSource.getDataSource(li.getToClass());
+						if (ds != null && ds.supportsStorage()) {
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+		};
 		oaj.setIncludeAll(true);
 		oaj.write(serverRoot, file);
 	}

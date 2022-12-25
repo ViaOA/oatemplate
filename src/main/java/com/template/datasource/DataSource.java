@@ -81,6 +81,7 @@ public class DataSource {
 
 	public void close() {
 		getOADataSource().close();
+		jdbcDataSource = null;
 	}
 
 	public OADataSourceJDBC getOADataSource() {

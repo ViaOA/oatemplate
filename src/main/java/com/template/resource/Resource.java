@@ -185,6 +185,7 @@ public class Resource {
 	public static final String DB_CacheFileName = "db.cacheFileName";
 	public static final String DB_Verify = "db.verify";
 	public static final String DB_MaxWaitForSelects = "db.maxWaitForSelects"; // seconds
+	public static final String DB_IgnoreWrites = "db.ignoreWrites";
 
 	public static final String SERVER_RecordFileName = "Server.RecordFileName";
 	public static final String SERVER_PlayBackFileName = "Server.PlaybackFileName";
