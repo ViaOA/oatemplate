@@ -8,18 +8,55 @@ import com.viaoa.jsp.*;
 public class AppUserJspBase {
 
     public static final String JSP_lblId = "lblId";
+    public static final String JSP_txtLoginId = "txtLoginId";
     public static final String JSP_txtFirstName = "txtFirstName";
     public static final String JSP_txtLastName = "txtLastName";
     public static final String JSP_ptxtPassword = "ptxtPassword";
     public static final String JSP_chkAdmin = "chkAdmin";
     public static final String JSP_txtInactiveDate = "txtInactiveDate";
-    public static final String JSP_txtCreated = "txtCreated";
+    public static final String JSP_chkEditProcessed = "chkEditProcessed";
+    public static final String JSP_txtNote = "txtNote";
+    
+    
     public static final String JSP_cbo = "cbo";
     public static final String JSP_select = "select";
     public static final String JSP_table = "table";
     public static final String JSP_list = "list";
     public static final String JSP_grid = "grid";
 
+//qqqqqqqqqqqqqqqqqqqqqqqq    
+    
+    // autocomplete
+    // textarea
+    // styledTextArea
+    // calendar
+    // scheduler
+    
+    // backgroundImage
+    // badge
+    // button multiple, selectMenu (jqueryui)
+    // button group
+    // buttonList
+    // checkBox
+    // combo, comboBox (bootstrap)
+    // croppieFileInput, fileInput
+    // dialog
+    // expander
+    // image
+    // label
+    // link
+    // list
+    // password
+    // popup, popupList
+    // radio
+    // servletImage, servletBackgroundImage
+    // table
+    // tablColumn
+    // tableEditor
+    // tablePager
+    // toggleButton
+    // tree
+    
     
     protected AppUserModel model;
     protected OAForm form;
@@ -28,11 +65,16 @@ public class AppUserJspBase {
     protected AppUserLoginJsp jspAppUserLogins;
     
     protected OALabel lblId;
+    protected OATextField txtLoginId;
     protected OATextField txtFirstName;
     protected OATextField txtLastName;
     protected OACheckBox chkAdmin;
     protected OAPassword ptxtPassword;
     protected OATextField txtInactiveDate;
+    protected OACheckBox chkEditProcessed;
+    protected OAStyledTextArea txtNote;
+    
+    
     protected OACombo cbo;
     protected OAHtmlSelect select;
     protected OATable table;
@@ -79,6 +121,18 @@ public class AppUserJspBase {
         return lbl;
     }
 
+    public OATextField getLoginIdTextField() {
+        if (txtLoginId == null) {
+            txtLoginId = createLoginIdTextField(idPrefix+JSP_txtLoginId);
+        }
+        return txtLoginId;
+    }
+    public OATextField createLoginIdTextField(String id) {
+        OATextField txt = new OATextField(id, model.getHub(), AppUser.P_LoginId);
+        return txt;
+    }
+    
+    
     public OATextField getFirstNameTextField() {
         if (txtFirstName == null) {
             txtFirstName = createFirstNameTextField(idPrefix+JSP_txtFirstName);
@@ -86,6 +140,7 @@ public class AppUserJspBase {
         return txtFirstName;
     }
     public OATextField createFirstNameTextField(String id) {
+        //qqqqqqqqqq len params are not needed
         OATextField txt = new OATextField(id, model.getHub(), AppUser.P_FirstName, 10, 25);
         return txt;
     }
@@ -116,11 +171,11 @@ public class AppUserJspBase {
 
     public OACheckBox getAdminCheckBox() {
         if (chkAdmin == null) {
-            chkAdmin = createtAdminCheckBox(idPrefix+JSP_chkAdmin);
+            chkAdmin = createAdminCheckBox(idPrefix+JSP_chkAdmin);
         }
         return chkAdmin;
     }
-    public OACheckBox createtAdminCheckBox(String id) {
+    public OACheckBox createAdminCheckBox(String id) {
         OACheckBox chk = new OACheckBox(id, model.getHub(), AppUser.P_Admin);
         return chk;
     }
@@ -136,6 +191,33 @@ public class AppUserJspBase {
         return txt;
     }
 
+    public OACheckBox getEditProcessedCheckBox() {
+        if (chkEditProcessed == null) {
+            chkEditProcessed = createEditProcessedCheckBox(idPrefix+JSP_chkEditProcessed);
+        }
+        return chkEditProcessed;
+    }
+    public OACheckBox createEditProcessedCheckBox(String id) {
+        OACheckBox chk = new OACheckBox(id, model.getHub(), AppUser.P_EditProcessed);
+        return chk;
+    }
+    
+    public OAStyledTextArea getNoteTextField() {
+        if (txtNote == null) {
+            txtNote = createNoteTextField(idPrefix+JSP_txtNote);
+        }
+        return txtNote;
+    }
+    public OAStyledTextArea createNoteTextField(String id) {
+        OAStyledTextArea txt = new OAStyledTextArea(id, model.getHub(), AppUser.P_Note);
+        return txt;
+    }
+
+    
+    
+    
+    
+    
     public OACombo getCombo() {
         if (cbo == null) {
             cbo = createCombo(idPrefix+JSP_cbo);
@@ -188,7 +270,7 @@ public class AppUserJspBase {
             table.setSelectHub(model.getMultiSelectHub());
         }
         table.setAjaxSubmit(true);
-        table.setPager(10, 0, 5, true, true);
+        table.setPager(5, 0, 5, true, true);
         addColumns(table);
         return table;
     }

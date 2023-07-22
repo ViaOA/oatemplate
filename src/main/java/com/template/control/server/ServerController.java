@@ -36,7 +36,6 @@ import com.template.remote.RemoteSpellCheckInterface;
 import com.template.resource.Resource;
 import com.viaoa.context.OAContext;
 import com.viaoa.context.OAUserAccess;
-import com.viaoa.filter.OAUserAccessFilter;
 import com.viaoa.hub.Hub;
 import com.viaoa.jfc.text.spellcheck.SpellChecker;
 import com.viaoa.object.OACascade;
@@ -51,6 +50,7 @@ import com.viaoa.util.OAFile;
 import com.viaoa.util.OAProperties;
 import com.viaoa.util.OAString;
 import com.viaoa.util.OATime;
+import com.viaoa.web.filter.OAUserAccessFilter;
 
 /**
  * Starts up server controllers.

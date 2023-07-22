@@ -1,42 +1,20 @@
-<%@page trimDirectiveWhitespaces="true"%>
-<%@page language="java" errorPage="oaerror.jsp"%>
-<%@page import="java.io.*, java.util.*"%> 
-<%@page import="java.util.logging.* "%>
-<%@page import="com.viaoa.object.*, com.viaoa.hub.*, com.viaoa.util.*, com.viaoa.jsp.*"%>
-<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- OAJSP hierarchy: System/Application/Session/Form --%>
-<jsp:useBean id="oasystem" scope="application" class="com.viaoa.jsp.OASystem" />
-<%!static Logger LOG = Logger.getLogger("oajsp");%>
-<%
-    String applicationId = "oajsp";
-    OAApplication oaapplication = oasystem.getApplication(applicationId, application);
-    OASession oasession = oaapplication.getSession(session);
-    OAForm form = null;
-%>
+<%@ include file="include/jspImport.jspf"%> 
 <%
 /**
+
+
+qqqqqqqqqqqqqqqqqqqqqq replaced with oagetjson.jsp qqqqqqqqqqqqqqqqqqqqqqqqqqqqq
+
+
     Used by OATextField.autoComplete to forward jquery ajax to OATextField.getAutoCompleteText
 */
-    request.setCharacterEncoding("UTF-8");
-    response.setContentType("application/json");  //qqqqqqqqq NEW
+    response.setContentType("application/json");
 
-    if (!true) {
-        System.out.println("oatypeahead.jsp ----------------- START -------------");
-        System.out.print("realPath="+application.getRealPath("test"));
-        System.out.print(", servletPath="+request.getServletPath());
-        System.out.print(", pathInfo="+request.getPathInfo());
-        System.out.println(", pathTranslated="+request.getPathTranslated());
-        System.out.print("requestURI="+request.getRequestURI());
-        System.out.print(", serverName="+request.getServerName());
-        System.out.println(" serverPort="+request.getServerPort());
-        Enumeration enumx = request.getParameterNames();
-        while ( enumx.hasMoreElements()) {
-            String name = (String) enumx.nextElement();
-            String[] values = request.getParameterValues(name);
-            System.out.println( "param: name=" + name + "  value[0]=" + ((values.length==0)?"":values[0]) );
-        }
+    if (false || oasession.getCalcDebug()) {
+        System.out.println("JSP oatypeahead.jsp");
+        OAWebUtil.debug(application, oasession, request, response);
     }
-
+    
     String forwardPage = null;
     String id = request.getParameter("oaform");
     if (id != null) form = oasession.getForm(id);
@@ -50,7 +28,9 @@
             values = txt.getTypeAheadJson(value);
             if (values == null) values = "";
         }
-        if (!true) System.out.println("returning ==>"+values+", txt="+txt);
+        if (false || form.getCalcDebug()) {
+            System.out.println("JSP oatypeahead.jsp, returning values="+values+", txt="+txt);
+        }
     }
     out.print("["+values+"]");
 %>
