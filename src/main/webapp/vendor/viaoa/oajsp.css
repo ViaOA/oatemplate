@@ -154,6 +154,10 @@ table.oatable tr {
     font-size: 10pt;
 }
 
+table.oatable tr.oatableDisable { /* qqqqqqqqqqqq new */
+    cursor: not-allowed;
+}
+
 table.oatable th {
     background: #012542;
     color: #fff;
@@ -172,7 +176,14 @@ table.oatable td {
 /* selected row */
 table.oatable tr.oatableSelected {
     background: #eee; 
+    border: thin red solid;
 }
+table.oatable tr.oatableSelected:hover { /* qqqqqqqqq new */
+    background: #f2f2f2;
+    cursor: pointer;
+    color: #000;
+}
+
 
 table.oatable tr.oatableOdd {
     background: #f7f7f7;
@@ -312,7 +323,7 @@ div.oatableScroller1a {
     padding-top: 4em; 
     padding-bottom: 2.2em; 
     overflow: hidden;
-    border: 1px black solid;'   
+    border: 1px black solid;   
 }
 
 
@@ -388,7 +399,7 @@ div.oaPopupListOuterWrapper .oaCaret {
 	margin: 10px 1px 10px 8px;
 }
 div.oaPopupListOuterWrapper .oaList {
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);"   
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);   
 }
 
 

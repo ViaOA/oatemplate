@@ -73,17 +73,22 @@ import com.template.control.LogController;
 import com.template.resource.Resource;
 import com.template.servlet.HelloServlet;
 import com.viaoa.context.OAUserAccess;
-import com.viaoa.filter.OAUserAccessFilter;
 import com.viaoa.object.OAObject;
-import com.viaoa.servlet.HealthCheckServlet;
-import com.viaoa.servlet.ImageServlet;
-import com.viaoa.servlet.JNLPServlet;
-import com.viaoa.servlet.JsonServlet;
-import com.viaoa.servlet.OARestServlet;
-import com.viaoa.servlet.PdfServlet;
-import com.viaoa.servlet.SecurityServlet;
 import com.viaoa.util.OAFile;
 import com.viaoa.util.OAString;
+import com.viaoa.web.filter.OAUserAccessFilter;
+import com.viaoa.web.servlet.HealthCheckServlet;
+import com.viaoa.web.servlet.ImageServlet;
+import com.viaoa.web.servlet.JNLPServlet;
+import com.viaoa.web.servlet.JsonServlet;
+import com.viaoa.web.servlet.OARestServlet;
+import com.viaoa.web.servlet.PdfServlet;
+import com.viaoa.web.servlet.SecurityServlet;
+
+/* sys props for logging
+-Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StdErrLog
+-Dorg.eclipse.jetty.LEVEL=DEBUG
+*/
 
 /**
  * Embedded Jetty webserver that supports: http, https, webservices (jax-ws), servlets, JSP, file explorer, NCSARequestLog logging Servlets
@@ -353,7 +358,10 @@ public class JettyController {
 		defaultServlet.setInitParameter("cacheControl", "private, max-age=0, no-cache, no-store, must-revalidate");
 		//was: defaultServlet.setInitParameter("cacheControl", "max-age=3600,public");
 		defaultServlet.setInitParameter("resourceBase", dirName);
-
+        defaultServlet.setInitParameter("resourceBase", dirName);
+        // commented out, only works if webcomeServlets=false
+        // defaultServlet.setInitParameter("dirAllowed", "true");
+        
 		// Hello Servlet
 		HelloServlet servletHello = new HelloServlet();
 		servletContextHandler.addServlet(new ServletHolder(servletHello), "/servlet/hello");
@@ -375,8 +383,8 @@ public class JettyController {
 		jsp.setInitParameter("compilerTargetVM", "1.8");
 		jsp.setInitParameter("compilerSourceVM", "1.8");
 		jsp.setInitParameter("classpath", cp);
-		OAFile.mkdirsForFile("work/xx");
-		jsp.setInitParameter("scratchdir", "../work");
+		OAFile.mkdirsForFile("./work/xx");
+		jsp.setInitParameter("scratchdir", "./work");
 		jsp.setInitParameter("keepgenerated", "true");
 		jsp.setInitParameter("development", "true");
 		jsp.setInitParameter("saveByteCode", "true");
@@ -811,7 +819,8 @@ public class JettyController {
 						return false;
 					}
 					// Note: might want to return false as the default, so that it does not scan jar files.
-					return filterOrig.check(jarScanType, jarName);
+					// return filterOrig.check(jarScanType, jarName);
+					return false;
 				}
 			});
 			this.contextHandler.setAttribute("org.apache.tomcat.JarScanner", scanner);

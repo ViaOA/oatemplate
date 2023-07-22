@@ -1,1162 +1,843 @@
-
-
-
-
 <!DOCTYPE html>
 <html lang="enUS">
 
-<HEAD>
-<TITLE>OA|JSP</TITLE>
+<head>
+<TITLE>OATemplate</TITLE>
 <meta charset="utf-8">
+
 <meta content="text/html; charset=UFT-8" http-equiv=Content-Type>
 <meta http-equiv="Content-Language" content="en-us" />
 <meta http-equiv="Expires" content="Tue, 20 Aug 1996 14:25:27 GMT">
 <meta HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <link rel="shortcut icon" type="image" href="image/icon.gif" />
 
-
-<!-- form css insert -->
+<meta name="author" content="xxx">
+<meta name="description" content="xxx">
+<meta name="generator" content="xxx">
+<meta name="keywords" content="abc,xyz,etc">
+<meta name="application-name" content="xxx">
+<meta name="robots" content="index,follow">
+<meta name="publisher" content="xxx">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="vendor/jquery-ui-1.12.1/jquery-ui.css">
 <link rel="stylesheet" type="text/css" href="vendor/bootstrap-3.3.7/css/bootstrap.css">
-<link rel="stylesheet" type="text/css" href="vendor/bootstrap-select/css/bootstrap-select.css">
-<link rel="stylesheet" type="text/css" href="vendor/jquery-timepicker/timepicker.css">
-<link rel="stylesheet" type="text/css" href="vendor/bootstrap-spinner/ladda-themeless.css">
-<link rel="stylesheet" type="text/css" href="vendor/bootstrap-treeview/bootstrap-treeview.css">
-<link rel="stylesheet" type="text/css" href="vendor/summernote/summernote.css">
 <link rel="stylesheet" type="text/css" href="vendor/viaoa/oajsp.css">
-
-<!-- qqqqqq -->
-<link href="vendor/bootstrap-select/css/bootstrap-select.css" rel="stylesheet">
-
-
-
-<!-- form js insert -->
 <script type="text/javascript" language="javascript" src="vendor/jquery-3.1.1/jquery.js"></script>
 <script type="text/javascript" language="javascript" src="vendor/jquery-ui-1.12.1/jquery-ui.js"></script>
 <script type="text/javascript" language="javascript" src="vendor/bootstrap-3.3.7/js/bootstrap.js"></script>
-<script type="text/javascript" language="javascript" src="vendor/bootstrap-select/js/bootstrap-select.js"></script>
-<script type="text/javascript" language="javascript" src="vendor/jquery-timepicker/timepicker.js"></script>
-<script type="text/javascript" language="javascript" src="vendor/bootstrap-spinner/spin.js"></script>
-<script type="text/javascript" language="javascript" src="vendor/bootstrap-spinner/ladda.js"></script>
-<script type="text/javascript" language="javascript" src="vendor/bootstrap-treeview/bootstrap-treeview.js"></script>
-<script type="text/javascript" language="javascript" src="vendor/jquery-slimscroll/jquery.slimscroll.js"></script>
-<script type="text/javascript" language="javascript" src="vendor/summernote/summernote.js"></script>
-
-
-<!-- qqqqqq -->
-<script type="text/javascript" language="javascript" src="vendor/bootstrap-select/js/bootstrap-select.js"></script>
-
-
-<style>
-
-.oatableSelected {
-    border: 2px red solid;
-}
-
-.tt-dropdown-menu {
-    background-color: yellow;
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-/* Move down content because we have a fixed navbar that is 50px tall */
-body {
-    padding-top: 50px;
-}
-
-/* Hide for mobile, show later */
-.sidebar {
-    display: none;
-}
-
-@media ( min-width : 768px) {
-    .sidebar {
-        position: fixed;
-        top: 51px;
-        bottom: 30px;
-        left: 0;
-        z-index: 1000;
-        display: block;
-        padding: 20px;
-        overflow-x: hidden;
-        overflow-y: auto;
-        border-right: 1px solid #eee;
-    }
-}
-
-/* Sidebar navigation */
-.nav-sidebar {
-    margin-bottom: 32px;
-    margin-left: -20px;
-    margin-right: -21px;
-}
-
-.nav-sidebar>li>a {
-    padding-right: 20px;
-    padding-left: 20px;
-}
-
-.nav-sidebar>.active>a, .nav-sidebar>.active>a:hover, .nav-sidebar>.active>a:focus {
-    color: #fff;
-    background-color: #428bca;
-}
-
-/*
- * Main content
- */
-.main {
-    padding: 20px;
-}
-
-@media ( min-width : 768px) {
-    .main {
-        padding-right: 40px;
-        padding-left: 40px;
-    }
-}
-
-.main .page-header {
-    margin-top: 0;
-}
-
-.footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 32px;
-    background-color: #f5f5f5;
-}
-</style>
-
-</HEAD>
-
 <script>
-var oaShowMessage;if ($().modal) {oaShowMessage = function(title, msg) {
-  $('#oaformDialog .modal-title').html(title);
-  $('#oaformDialog .modal-body').html(msg);
-  $('#oaformDialog').modal({keyboard: true});
+
+var oaShowMessage;
+if ($().modal) {
+  oaShowMessage = function(title, msg) {
+    $('#oaformDialog .modal-title').html(title);
+    $('#oaformDialog .modal-body').html(msg);
+    $('#oaformDialog').modal({keyboard: true});
+  }
 }
-}else {oaShowMessage = function(title, msg) {
+else {
+  oaShowMessage = function(title, msg) {
     $('#oaformDialog').dialog('option', 'title', title);
     $('#oaformDialog').html(msg);
     $('#oaformDialog').dialog('open');
-}
-}function oaShowSnackbarMessage(msg) {
-    $('#oaFormSnackbarMessage').html(msg);
-    $('#oaFormSnackbarMessage').css({visibility:'visible', opacity: 0.0}).animate({opacity: 1.0},300);
-    setTimeout(function() {
-      $('#oaFormSnackbarMessage').animate({opacity: 0.0}, 2000,
-        function(){
-          $('#oaFormSnackbarMessage').css('visibility','hidden');
-        }
-      );
-    }, 2000);
   }
+}
+function oaShowSnackbarMessage(msg) {
+  $('#oaFormSnackbarMessage').html(msg);
+  $('#oaFormSnackbarMessage').css({visibility:'visible', opacity: 0.0}).animate({opacity: 1.0},300);
+  setTimeout(function() {
+    $('#oaFormSnackbarMessage').animate({opacity: 0.0}, 2000,
+      function() {
+        $('#oaFormSnackbarMessage').css('visibility','hidden');
+      }
+    );
+  }, 2000);
+}
 $(document).ready(function() {
-if ($().modal) {$('#demoJsp').prepend("<div id='oaformDialog' class='modal fade' tabindex='-1'>  <div class='modal-dialog'>    <div class='modal-content'>      <div class='modal-header'>        <button type='button' class='close' data-dismiss='modal'><span>&times;</span></button>        <h4 class='modal-title'>        </h4>      </div>      <div class='modal-body'>      </div>      <div class='modal-footer'>        <button type='button' class='btn btn-primary' data-dismiss='modal'>Ok</button>      </div>    </div>  </div></div>");
-}else {    $('#demoJsp').prepend("<div id='oaformDialog'></div>");
-    $('#oaformDialog').dialog({        autoOpen : false,        title : 'Message',        modal : true,        width : 420,        zIndex: 19999,        buttons: [
-          { text: 'Ok', click: function() { $(this).dialog('close'); } }
-         ]
-    });}$('#demoJsp').prepend("<div id='oaFormProcess' class='modal fade' tabindex='-1'><div class='modal-dialog'>  <div class='modal-content'>    <div class='modal-header'>      <button id='oaFormProcessClose' type='button' class='close' data-dismiss='modal'>&times;</button>      <h4 class='modal-title' id='myModalLabel'><span id='oaFormProcessTitle'></span></h4>    </div>    <div class='modal-body center-block'>      <div class='progress'>        <div id='oaFormProcessProgress' class='progress-bar bar' role='progressbar' style='min-width: 2em; width: 5%;'>        </div>      </div>      <div>      <span id='oaFormProcessStep'></span> ... <span id='oaFormProcessMessage'></span>      </div>    </div>    <div id='oaFormProcessFooter' class='modal-footer'>      <button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>    </div>  </div></div></div>");
-$('#oaFormProcess button').click(function() { $('#oaFormProcessClosed').val('true'); } );if ($().modal) {
-$('#oaFormProcess').modal('hide');
-}
-$('body').append("<div id='oaFormSnackbarMessage'></div>");
-$('body').append("<div id='oaWait'><img src='image/oawait.gif'></div>");    $('#demoJsp').attr('method', 'post');
-    $('#demoJsp').attr('action', 'oaform.jsp');
-    $('#demoJsp').prepend("<input type='hidden' name='oaform' value='demoJsp'>");
-    $('#demoJsp').prepend("<input id='oaajaxid' type='hidden' name='oaajaxid' value='0'>");
-    $('#demoJsp').prepend("<input id='oaFormProcessClosed' type='hidden' name='oaFormProcessClosed' value=''>");
-    $('#demoJsp').prepend("<input id='oacommand' type='hidden' name='oacommand' value=''>");
-    $('#demoJsp').prepend("<input id='oaparam' type='hidden' name='oaparam' value=''>");
-    $('#demoJsp').prepend("<input id='oachanged' type='hidden' name='oachanged' value=''>");
-    (function() {
-      var dtNow = new Date();
-      var tzOffsetJan = (new Date(dtNow.getFullYear(),0,1)).getTimezoneOffset();
-      var tzOffsetJul = (new Date(dtNow.getFullYear(),6,1)).getTimezoneOffset();
-      $('#demoJsp').prepend("<input id='jsDate' type='hidden' name='jsDate' value='"+(dtNow.toString())+"'>");
-      $('#demoJsp').prepend("<input id='jsTzRawOffset' type='hidden' name='jsTzRawOffset' value='"+Math.max(tzOffsetJan,tzOffsetJul)+"'>");
-      $('#demoJsp').prepend("<input id='jsDateSupportsDST' type='hidden' name='jsDateSupportsDST' value='"+(tzOffsetJan != tzOffsetJul)+"'>");
-    })();
-    $('#demoJsp').removeClass('oaDebug');
-    $('.oaBindable').removeClass('oaDebug');
-    $('#lblId').removeClass('oaDebug');
-$('#lblId').show();
-$('#lblId').html("93");
-
-    $('#txtFirstName').removeClass('oaDebug');
-$('#txtFirstName').keyup(function(event) {
-    var text = $(this).val();
-    if (text.length > 25) {
-        $(this).val(text.slice(0, 25));
-    }
-});
-$('#txtFirstName').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtFirstName').attr('name', 'txtFirstName_93');
-$('#txtFirstName').val('John');
-$('#txtFirstName').attr('maxlength', '25');
-$('#txtFirstName').attr('size', '10');
-$('#txtFirstName').removeAttr('disabled');
-$('#txtFirstName').show();
-
-    $('#txtLastName').removeClass('oaDebug');
-$('#txtLastName').keyup(function(event) {
-    var text = $(this).val();
-    if (text.length > 35) {
-        $(this).val(text.slice(0, 35));
-    }
-});
-$('#txtLastName').addClass('oaRequired');
-$('#txtLastName').attr('required', true);
-$('#txtLastName').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtLastName').attr('name', 'txtLastName_93');
-$('#txtLastName').val('Doe');
-$('#txtLastName').attr('maxlength', '35');
-$('#txtLastName').attr('size', '10');
-$('#txtLastName').removeAttr('disabled');
-$('#txtLastName').show();
-
-    $('#ptxtPassword').removeClass('oaDebug');
-$('#ptxtPassword').keyup(function(event) {
-    var text = $(this).val();
-    if (text.length > 35) {
-        $(this).val(text.slice(0, 35));
-    }
-});
-$('#ptxtPassword').blur(function() {$(this).removeClass('oaError');}); 
-$('#ptxtPassword').attr('name', 'ptxtPassword_93');
-$('#ptxtPassword').val('');
-$('#ptxtPassword').attr('maxlength', '35');
-$('#ptxtPassword').attr('size', '10');
-$('#ptxtPassword').removeAttr('disabled');
-$('#ptxtPassword').show();
-
-    $('#chkAdmin').removeClass('oaDebug');
-$('#chkAdmin').attr('name', 'chkAdmin');
-$('#chkAdmin').attr('value', 'chkAdmin_93');
-$('#chkAdmin').removeAttr('checked');
-$('#chkAdmin').removeAttr('disabled');
-$('#chkAdmin').show();
-    $('#txtInactiveDate').removeClass('oaDebug');
-$('#txtInactiveDate').keyup(function(event) {
-    var text = $(this).val();
-    if (text.length > 35) {
-        $(this).val(text.slice(0, 35));
-    }
-});
-$('#txtInactiveDate').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtInactiveDate').attr('name', 'txtInactiveDate_93');
-$('#txtInactiveDate').val('');
-$('#txtInactiveDate').attr('maxlength', '35');
-$('#txtInactiveDate').attr('size', '10');
-$('#txtInactiveDate').removeAttr('disabled');
-$('#txtInactiveDate').show();
-if ($().bsdatetimepicker) {
-$('#txtInactiveDate').bsdatetimepicker({format: 'MM/DD/YY', showTodayButton: true, showClear: true, showClose: true});
+  if ($().modal) {
+    $('#oaHtmlTable').prepend(
+    "<div id='oaformDialog' class='modal fade' tabindex='-1'>" +
+      "<div class='modal-dialog'>" +
+        "<div class='modal-content'>" +
+          "<div class='modal-header'>" +
+            "<button type='button' class='close' data-dismiss='modal'><span>&times;</span></button>" +
+            "<h4 class='modal-title'>" +
+            "</h4>" +
+          "</div>" +
+          "<div class='modal-body'>" +
+          "</div>" +
+          "<div class='modal-footer'>" +
+            "<button type='button' class='btn btn-primary' data-dismiss='modal'>Ok</button>" +
+          "</div>" +
+        "</div>" +
+      "</div>" +
+    "</div>"
+  );
 }
 else {
-$('#txtInactiveDate').datepicker({ dateFormat: 'mm/dd/y'});
+  $('#oaHtmlTable').prepend("<div id='oaformDialog'></div>");
+  $('#oaformDialog').dialog({
+    autoOpen : false,
+    title : 'Message',
+    modal : true,
+    width : 420,
+    zIndex: 19999,
+    buttons: [
+      { text: 'Ok', click: function() { $(this).dialog('close'); } }
+    ]
+  });
 }
-
-    $('#cbo').removeClass('oaDebug');
-$('#cbo').attr('name', 'cbo');
-$('#cbo').empty();
-$('#cbo').append("<option value='93' selected='selected' data-content='John Doe<br>aa&#39;bb\"xxxx'>John Doe</option><option value='101' data-content='Eva Doe<br>aa&#39;bb\"xxxx'>Eva Doe</option><option value='109' data-content='Howard Doe<br>aa&#39;bb\"xxxx'>Howard Doe</option><option value='117' data-content='Jim Doe<br>aa&#39;bb\"xxxx'>Jim Doe</option><option value='85' data-content='Tracy Doe<br>aa&#39;bb\"xxxx'>Tracy Doe</option><option value='90' data-content='Eva Harris<br>aa&#39;bb\"xxxx'>Eva Harris</option><option value='98' data-content='Howard Harris<br>aa&#39;bb\"xxxx'>Howard Harris</option><option value='106' data-content='Jim Harris<br>aa&#39;bb\"xxxx'>Jim Harris</option><option value='114' data-content='Jethro Harris<br>aa&#39;bb\"xxxx'>Jethro Harris</option><option value='82' data-content='John Harris<br>aa&#39;bb\"xxxx'>John Harris</option><option value='105' data-content='Mary Harrison<br>aa&#39;bb\"xxxx'>Mary Harrison</option><option value='121' data-content='Pete Harrison<br>aa&#39;bb\"xxxx'>Pete Harrison</option><option value='113' data-content='Eli Harrison<br>aa&#39;bb\"xxxx'>Eli Harrison</option><option value='97' data-content='Victor Harrison<br>aa&#39;bb\"xxxx'>Victor Harrison</option><option value='89' data-content='Morgan Harrison<br>aa&#39;bb\"xxxx'>Morgan Harrison</option><option value='91' data-content='Eli Johnson<br>aa&#39;bb\"xxxx'>Eli Johnson</option><option value='99' data-content='Pete Johnson<br>aa&#39;bb\"xxxx'>Pete Johnson</option><option value='107' data-content='Tracy Johnson<br>aa&#39;bb\"xxxx'>Tracy Johnson</option><option value='115' data-content='John Johnson<br>aa&#39;bb\"xxxx'>John Johnson</option><option value='83' data-content='Mary Johnson<br>aa&#39;bb\"xxxx'>Mary Johnson</option><option value='95' data-content='Jim Masters<br>aa&#39;bb\"xxxx'>Jim Masters</option><option value='103' data-content='Jethro Masters<br>aa&#39;bb\"xxxx'>Jethro Masters</option><option value='111' data-content='Morgan Masters<br>aa&#39;bb\"xxxx'>Morgan Masters</option><option value='119' data-content='Victor Masters<br>aa&#39;bb\"xxxx'>Victor Masters</option><option value='87' data-content='Howard Masters<br>aa&#39;bb\"xxxx'>Howard Masters</option><option value='104' data-content='John Philips<br>aa&#39;bb\"xxxx'>John Philips</option><option value='120' data-content='Howard Philips<br>aa&#39;bb\"xxxx'>Howard Philips</option><option value='112' data-content='Eva Philips<br>aa&#39;bb\"xxxx'>Eva Philips</option><option value='96' data-content='Tracy Philips<br>aa&#39;bb\"xxxx'>Tracy Philips</option><option value='88' data-content='Pete Philips<br>aa&#39;bb\"xxxx'>Pete Philips</option><option value='92' data-content='Jethro Smith<br>aa&#39;bb\"xxxx'>Jethro Smith</option><option value='100' data-content='Morgan Smith<br>aa&#39;bb\"xxxx'>Morgan Smith</option><option value='108' data-content='Victor Smith<br>aa&#39;bb\"xxxx'>Victor Smith</option><option value='116' data-content='Mary Smith<br>aa&#39;bb\"xxxx'>Mary Smith</option><option value='84' data-content='Jim Smith<br>aa&#39;bb\"xxxx'>Jim Smith</option><option value='102' data-content='Eli Tomlinson<br>aa&#39;bb\"xxxx'>Eli Tomlinson</option><option value='118' data-content='Tracy Tomlinson<br>aa&#39;bb\"xxxx'>Tracy Tomlinson</option><option value='110' data-content='Pete Tomlinson<br>aa&#39;bb\"xxxx'>Pete Tomlinson</option><option value='94' data-content='Mary Tomlinson<br>aa&#39;bb\"xxxx'>Mary Tomlinson</option><option value='86' data-content='Victor Tomlinson<br>aa&#39;bb\"xxxx'>Victor Tomlinson</option><option value='oanull' >Select an AppUser</option>");
-$('#cbo').removeAttr('disabled');
-$('#cbo').show();
-$('#cbo').on('change', function() {$('#oacommand').val('cbo');ajaxSubmit();return false;});
-$('#cbo').addClass('oaSubmit');
-$('#cbo').blur(function() {$(this).removeClass('oaError');}); 
-$('#cbo').removeAttr('multiple');
-if ($().selectpicker) {
-$('#cbo').selectpicker({
-  style: 'btn-default',
-  noneSelectedText:'Select an AppUser',
-  liveSearch: true,
-  dropupAuto: false,
-  size: 8
-});
-}
-
-    $('#cmdCreateOAProcess').removeClass('oaDebug');
-$('#cmdCreateOAProcess').attr('name', 'cmdCreateOAProcess');
-$('#cmdCreateOAProcess').addClass('oaSubmit');
-$('#cmdCreateOAProcess').click(function() {$('#oacommand').val('cmdCreateOAProcess');ajaxSubmit();return false;});
-$('#cmdCreateOAProcess').removeAttr('disabled');
-$('#cmdCreateOAProcess').show();
-
-    $('#cmdHideOAProcessDialog').removeClass('oaDebug');
-$('#cmdHideOAProcessDialog').attr('name', 'cmdHideOAProcessDialog');
-$('#cmdHideOAProcessDialog').addClass('oaSubmit');
-$('#cmdHideOAProcessDialog').click(function() {$('#oacommand').val('cmdHideOAProcessDialog');ajaxSubmit();return false;});
-$('#cmdHideOAProcessDialog').removeAttr('disabled');
-$('#cmdHideOAProcessDialog').show();
-
-    $('#cmdShowOAProcessDialog').removeClass('oaDebug');
-$('#cmdShowOAProcessDialog').attr('name', 'cmdShowOAProcessDialog');
-$('#cmdShowOAProcessDialog').addClass('oaSubmit');
-$('#cmdShowOAProcessDialog').click(function() {$('#oacommand').val('cmdShowOAProcessDialog');ajaxSubmit();return false;});
-$('#cmdShowOAProcessDialog').removeAttr('disabled');
-$('#cmdShowOAProcessDialog').show();
-
-    $('#cmdCancelOAProcesses').removeClass('oaDebug');
-$('#cmdCancelOAProcesses').attr('name', 'cmdCancelOAProcesses');
-$('#cmdCancelOAProcesses').addClass('oaSubmit');
-$('#cmdCancelOAProcesses').click(function() {$('#oacommand').val('cmdCancelOAProcesses');ajaxSubmit();return false;});
-$('#cmdCancelOAProcesses').removeAttr('disabled');
-$('#cmdCancelOAProcesses').show();
-
-    $('#cmdClearOAProcesses').removeClass('oaDebug');
-$('#cmdClearOAProcesses').attr('name', 'cmdClearOAProcesses');
-$('#cmdClearOAProcesses').addClass('oaSubmit');
-$('#cmdClearOAProcesses').click(function() {$('#oacommand').val('cmdClearOAProcesses');ajaxSubmit();return false;});
-$('#cmdClearOAProcesses').removeAttr('disabled');
-$('#cmdClearOAProcesses').show();
-
-    $('#badgeId').removeClass('oaDebug');
-$('#badgeId').show();
-$('#badgeId').html("93");
-$('#badgeId').addClass('badge');
-
-    $('#popupDiv1').removeClass('oaDebug');
-$('#popupDiv1').hide();
-$('#popupDiv1').css({'max-height':'200px','max-width':'200px',overflow:'scroll'});
-$('#popupDiv1').addClass('oaShadow');$('#popupDiv1').addClass('oaPopup');
-if ($('#popupDiv1').is(':visible')) $('#popupDiv1').hide('fade', 325);
-$('#popupDiv1').css({top:'0px', right:'0px'});
-$('#popupCommand1').click(function() {
-  if ($('#popupDiv1').is(':visible')) $('#popupDiv1').hide('slide', {direction: 'right'}, 325); else $('#popupDiv1').show('slide', {direction: 'right'}, 325);return false;}
+$('#oaHtmlTable').prepend(
+  "<div id='oaFormProcess' class='modal fade' tabindex='-1'>" +
+    "<div class='modal-dialog'>" +
+      "<div class='modal-content'>" +
+        "<div class='modal-header'>" +
+          "<button id='oaFormProcessClose' type='button' class='close' data-dismiss='modal'>&times;</button>" +
+          "<h4 class='modal-title' id='myModalLabel'><span id='oaFormProcessTitle'></span></h4>" +
+        "</div>" +
+        "<div class='modal-body center-block'>" +
+          "<div class='progress'>" +
+            "<div id='oaFormProcessProgress' class='progress-bar bar' role='progressbar' style='min-width: 2em; width: 5%;'>" +
+              "" +
+            "</div>" +
+          "</div>" +
+          "<div>" +
+          "<span id='oaFormProcessStep'></span> ... <span id='oaFormProcessMessage'></span>" +
+          "</div>" +
+        "</div>" +
+        "<div id='oaFormProcessFooter' class='modal-footer'>" +
+          "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>" +
+        "</div>" +
+      "</div>" +
+    "</div>" +
+  "</div>"
 );
-
-    $('#popupDiv2').removeClass('oaDebug');
-$('#popupDiv2').hide();
-$('#popupDiv2').css({'max-height':'200px','max-width':'200px',overflow:'scroll'});
-$('#popupDiv2').addClass('oaShadow');$('#popupDiv2').addClass('oaPopup');
-if ($('#popupDiv2').is(':visible')) $('#popupDiv2').hide('fade', 325);
-$('#popupDiv2').css({bottom:'0px', right:'0px'});
-$('#popupCommand2').click(function() {
-  if ($('#popupDiv2').is(':visible')) $('#popupDiv2').hide('slide', {direction: 'right'}, 325); else $('#popupDiv2').show('slide', {direction: 'right'}, 325);return false;}
+$('#oaFormProcess button').click(function() { $('#oaFormProcessClosed').val('true'); } );
+$('body').append(
+  "<div id='oaFormSnackbarMessage'></div>"
 );
-
-    $('#popupDiv3').removeClass('oaDebug');
-$('#popupDiv3').hide();
-$('#popupDiv3').html("popup bottom left<h1>this is a 600x600 minimum");
-$('#popupDiv3').css({'min-height':'600px','min-width':'600px',overflow:'hidden','text-overflow':'ellipsis'});
-$('#popupDiv3').addClass('oaShadow');$('#popupDiv3').addClass('oaPopup');
-if ($('#popupDiv3').is(':visible')) $('#popupDiv3').hide('fade', 325);
-$('#popupDiv3').css({bottom:'0px', left:'0px'});
-$('#popupCommand3').click(function() {
-  if ($('#popupDiv3').is(':visible')) $('#popupDiv3').hide('slide', {direction: 'left'}, 325); else $('#popupDiv3').show('slide', {direction: 'left'}, 325);return false;}
-);
-
-    $('#popupDiv4').removeClass('oaDebug');
-$('#popupDiv4').hide();
-$('#popupDiv4').addClass('oaShadow');$('#popupDiv4').addClass('oaPopup');
-if ($('#popupDiv4').is(':visible')) $('#popupDiv4').hide('fade', 325);
-$('#popupDiv4').css({top:'0px', left:'0px'});
-$('#popupCommand4').click(function() {
-  if ($('#popupDiv4').is(':visible')) $('#popupDiv4').hide('slide', {direction: 'left'}, 325); else $('#popupDiv4').show('slide', {direction: 'left'}, 325);return false;}
-);
-
-    $('#popupDiv5').removeClass('oaDebug');
-$('#popupDiv5').hide();
-$('#popupDiv5').addClass('oaShadow');$('#popupDiv5').addClass('oaPopup');
-if ($('#popupDiv5').is(':visible')) $('#popupDiv5').hide('fade', 325);
-$('#popupDiv5').css({transform: 'translate(-50%, -50%)'});$('#popupDiv5').css({top:'50vh', left:'50vw'});
-$('#popupCommand5').click(function() {
-  if ($('#popupDiv5').is(':visible')) $('#popupDiv5').hide('fade', 325); else $('#popupDiv5').show('fade', 325);return false;}
-);
-
-    $('#popupDiv6').removeClass('oaDebug');
-$('#popupDiv6').hide();
-$('#popupDiv6').addClass('oaShadow');$('#popupDiv6').addClass('oaPopup');
-if ($('#popupDiv6').is(':visible')) $('#popupDiv6').hide('fade', 325);
-$('#popupDiv6').css({top:'30px', left:'44px'});
-$('#popupCommand6').click(function() {
-  if ($('#popupDiv6').is(':visible')) $('#popupDiv6').hide('fade', 325); else $('#popupDiv6').show('fade', 325);return false;}
-);
-
-    $('#popupDiv7').removeClass('oaDebug');
-$('#popupDiv7').hide();
-$('#popupDiv7').addClass('oaShadow');$('#popupDiv7').addClass('oaPopup');
-if ($('#popupDiv7').is(':visible')) $('#popupDiv7').hide('fade', 325);
-$('#popupDiv7').css({top:'50vh', right:'0px'});
-$('#popupCommand7').click(function() {
-  if ($('#popupDiv7').is(':visible')) $('#popupDiv7').hide('slide', {direction: 'right'}, 325); else $('#popupDiv7').show('slide', {direction: 'right'}, 325);return false;}
-);
-
-    $('#popupDivA').removeClass('oaDebug');
-$('#popupDivA').hide();
-$('#popupDivA').addClass('oaShadow');$('#popupDivA').addClass('oaPopup');
-if ($('#popupDivA').is(':visible')) $('#popupDivA').hide('fade', 325);
-$('#popupDivA').css({top:'0px', left:'50vw'});
-$('#popupCommandA').click(function() {
-  if ($('#popupDivA').is(':visible')) $('#popupDivA').hide('slide', {direction: 'up'}, 325); else $('#popupDivA').show('slide', {direction: 'up'}, 325);return false;}
-);
-
-    $('#popupDivB').removeClass('oaDebug');
-$('#popupDivB').hide();
-$('#popupDivB').addClass('oaShadow');$('#popupDivB').addClass('oaPopup');
-if ($('#popupDivB').is(':visible')) $('#popupDivB').hide('fade', 325);
-$('#popupDivB').css({bottom:'0px', left:'50vw'});
-$('#popupCommandB').click(function() {
-  if ($('#popupDivB').is(':visible')) $('#popupDivB').hide('slide', {direction: 'down'}, 325); else $('#popupDivB').show('slide', {direction: 'down'}, 325);return false;}
-);
-
-    $('#txtFirstNameAjax').removeClass('oaDebug');
-$('#txtFirstNameAjax').keyup(function(event) {
-    var text = $(this).val();
-    if (text.length > 25) {
-        $(this).val(text.slice(0, 25));
-    }
-});
-$('#txtFirstNameAjax').blur(function(e) {if($(this).ignore){$(this).ignore=false;return;}$('#oacommand').val('txtFirstNameAjax'); ajaxSubmit();return false;});
-$('#txtFirstNameAjax').keypress(function(e) { if (e.keyCode != 13) return; e.preventDefault(); $('#oacommand').val('txtFirstNameAjax'); $(this).ignore=true;ajaxSubmit();$(this).ignore=false;return false;});
-$('#txtFirstNameAjax').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtFirstNameAjax').addClass('oaSubmit');
-$('#txtFirstNameAjax').attr('name', 'txtFirstNameAjax_93');
-$('#txtFirstNameAjax').val('John');
-$('#txtFirstNameAjax').attr('maxlength', '25');
-$('#txtFirstNameAjax').attr('size', '10');
-$('#txtFirstNameAjax').removeAttr('disabled');
-$('#txtFirstNameAjax').show();
-$('#txtFirstNameAjax').attr('placeholder', 'First Name');
-$('#txtFirstNameAjax').addClass('oaFloatLabel');
-$('#txtFirstNameAjax').after('<span></span>');
-$('#txtFirstNameAjax').on('propertychange change keyup paste input', function() { if ($('#txtFirstNameAjax').val().length > 0) $('#txtFirstNameAjax + span').addClass('active'); else $('#txtFirstNameAjax + span').removeClass('active'); });
-if ($('#txtFirstNameAjax').val().length > 0) $('#txtFirstNameAjax + span').addClass('active');
-$('#txtFirstNameAjax + span').html("the first name");
-
-    $('#lblFullNameAjax').removeClass('oaDebug');
-$('#lblFullNameAjax').click(function() {$('#oacommand').val('lblFullNameAjax');ajaxSubmit();return false;});
-$('#lblFullNameAjax').addClass('oaSubmit');
-$('#lblFullNameAjax').show();
-$('#lblFullNameAjax').html("John Doe                 ");
-
-    $('#radAdminTrue').removeClass('oaDebug');
-$('#radAdminTrue').attr('name', 'radAdmin');
-$('#radAdminTrue').attr('value', 'radAdminTrue_93');
-$('#radAdminTrue').removeAttr('checked');
-$('#radAdminTrue').removeAttr('disabled');
-$('#radAdminTrue').show();
-    $('#AppUserLoginstxtCreated').removeClass('oaDebug');
-$('#AppUserLoginstxtCreated').keyup(function(event) {
-    var text = $(this).val();
-    if (text.length > 35) {
-        $(this).val(text.slice(0, 35));
-    }
-});
-$('#AppUserLoginstxtCreated').blur(function() {$(this).removeClass('oaError');}); 
-$('#AppUserLoginstxtCreated').attr('name', 'AppUserLoginstxtCreated');
-$('#AppUserLoginstxtCreated').val('');
-$('#AppUserLoginstxtCreated').attr('maxlength', '35');
-$('#AppUserLoginstxtCreated').attr('size', '10');
-$('#AppUserLoginstxtCreated').attr('disabled', 'disabled');
-$('#AppUserLoginstxtCreated').show();
-if ($().bsdatetimepicker) {
-  $('#AppUserLoginstxtCreated').bsdatetimepicker({format: 'MM/DD/YY hh:mm a', sideBySide: true, showTodayButton: true, showClear: true, showClose: true});
-}
-else {
-$('#AppUserLoginstxtCreated').datetimepicker({ dateFormat: 'mm/dd/y', timeFormat: 'hh:mm TT' });
-}
-
-    $('#AppUserLoginscbo').removeClass('oaDebug');
-$('#AppUserLoginscbo').attr('name', 'AppUserLoginscbo');
-$('#AppUserLoginscbo').empty();
-$('#AppUserLoginscbo').append("<option value='1777'>01/11/18 03:27 PM</option><option value='1778'>01/11/18 03:27 PM</option><option value='1779'>01/11/18 03:27 PM</option><option value='1780'>01/11/18 03:27 PM</option><option value='1781'>01/11/18 03:27 PM</option><option value='1782'>01/11/18 03:27 PM</option><option value='1783'>01/11/18 03:27 PM</option><option value='1784'>01/11/18 03:27 PM</option><option value='1785'>01/11/18 03:27 PM</option><option value='1786'>01/11/18 03:27 PM</option><option value='1787'>01/11/18 03:27 PM</option><option value='1788'>01/11/18 03:27 PM</option><option value='1789'>01/11/18 03:27 PM</option><option value='1790'>01/11/18 03:27 PM</option><option value='1791'>01/11/18 03:27 PM</option><option value='1792'>01/11/18 03:27 PM</option><option value='1793'>01/11/18 03:27 PM</option><option value='1794'>01/11/18 03:27 PM</option><option value='1795'>01/11/18 03:27 PM</option><option value='1796'>01/11/18 03:27 PM</option><option value='1797'>01/11/18 03:27 PM</option><option value='oanull' selected='selected'>Select an AppUserLogin</option>");
-$('#AppUserLoginscbo').removeAttr('disabled');
-$('#AppUserLoginscbo').show();
-$('#AppUserLoginscbo').on('change', function() {$('#oacommand').val('AppUserLoginscbo');ajaxSubmit();return false;});
-$('#AppUserLoginscbo').addClass('oaSubmit');
-$('#AppUserLoginscbo').blur(function() {$(this).removeClass('oaError');}); 
-$('#AppUserLoginscbo').removeAttr('multiple');
-if ($().selectpicker) {
-$('#AppUserLoginscbo').selectpicker({
-  style: 'btn-default',
-  noneSelectedText:'Select an AppUserLogin',
-  dropupAuto: false,
-  size: 8
-});
-}
-
-    $('#select').removeClass('oaDebug');
-$('#select').attr('name', 'select');
-$('#select').empty();
-$('#select').append("<option value='93' selected='selected'>John Doe</option><option value='101'>Eva Doe</option><option value='109'>Howard Doe</option><option value='117'>Jim Doe</option><option value='85'>Tracy Doe</option><option value='90'>Eva Harris</option><option value='98'>Howard Harris</option><option value='106'>Jim Harris</option><option value='114'>Jethro Harris</option><option value='82'>John Harris</option><option value='105'>Mary Harrison</option><option value='121'>Pete Harrison</option><option value='113'>Eli Harrison</option><option value='97'>Victor Harrison</option><option value='89'>Morgan Harrison</option><option value='91'>Eli Johnson</option><option value='99'>Pete Johnson</option><option value='107'>Tracy Johnson</option><option value='115'>John Johnson</option><option value='83'>Mary Johnson</option><option value='95'>Jim Masters</option><option value='103'>Jethro Masters</option><option value='111'>Morgan Masters</option><option value='119'>Victor Masters</option><option value='87'>Howard Masters</option><option value='104'>John Philips</option><option value='120'>Howard Philips</option><option value='112'>Eva Philips</option><option value='96'>Tracy Philips</option><option value='88'>Pete Philips</option><option value='92'>Jethro Smith</option><option value='100'>Morgan Smith</option><option value='108'>Victor Smith</option><option value='116'>Mary Smith</option><option value='84'>Jim Smith</option><option value='102'>Eli Tomlinson</option><option value='118'>Tracy Tomlinson</option><option value='110'>Pete Tomlinson</option><option value='94'>Mary Tomlinson</option><option value='86'>Victor Tomlinson</option><option value='oanull' ></option>");
-$('#select').removeAttr('disabled');
-$('#select').show();
-$('#select').on('change', function() {$('#oacommand').val('select');ajaxSubmit();return false;});
-$('#select').addClass('oaSubmit');
-$('#select').blur(function() {$(this).removeClass('oaError');}); 
-$('#select').attr('size', '25');
-$('#select').removeAttr('multiple');
-if ($().selectpicker) {
-$('#select').selectpicker({
-  style: 'btn-default',
-  noneSelectedText:'',
-  dropupAuto: false,
-  size: 25
-});
-}
-
-    $('#cmdSubmit').removeClass('oaDebug');
-$('#cmdSubmit').attr('name', 'cmdSubmit');
-$('#cmdSubmit').addClass('oaSubmit');
-$('#cmdSubmit').click(function() {$('#oacommand').val('cmdSubmit'); $('form').submit(); $('#oacommand').val(''); return false;});
-$('#cmdSubmit').tooltip();
-$('#cmdSubmit').removeAttr('disabled');
-$('#cmdSubmit').show();
-$('#cmdSubmit').data('bs.tooltip').options.title = 'this is tooltip, current user is John Doe';
-$('#cmdSubmit').data('bs.tooltip').options.placement = 'top';
-
-    $('#cmdSubmitAjax').removeClass('oaDebug');
-$('#cmdSubmitAjax').attr('name', 'cmdSubmitAjax');
-$('#cmdSubmitAjax').addClass('oaSubmit');
-$('#cmdSubmitAjax').addClass('ladda-button');
-$('#cmdSubmitAjax').attr('data-style', 'slide-right');
-$('#cmdSubmitAjax').html("<span class='ladda-label'>"+$('#cmdSubmitAjax').html()+"</span>");
-$('#cmdSubmitAjax').click(function() {$('#oacommand').val('cmdSubmitAjax');Ladda.create(this).start();ajaxSubmit();return false;});
-Ladda.create($('#cmdSubmitAjax')[0]).stop();
-$('#cmdSubmitAjax').removeAttr('disabled');
-$('#cmdSubmitAjax').show();
-
-    $('#lblTest').removeClass('oaDebug');
-$('#lblTest').click(function() {$('#oacommand').val('lblTest');ajaxSubmit();return false;});
-$('#lblTest').addClass('oaSubmit');
-$('#lblTest').show();
-$('#lblTest').html("John Doe                 ");
-
-    $('#txta').removeClass('oaDebug');
-$('#txta').keyup(function(event) {
-    var text = $(this).val();
-    if (text.length > 25) {
-        $(this).val(text.slice(0, 25));
-    }
-});
-$('#txta').blur(function() {$(this).removeClass('oaError');}); 
-$('#txta').attr('name', 'txta_93');
-$('#txta').val('Doe');
-$('#txta').attr('maxlength', '25');
-$('#txta').attr('size', '15');
-$('#txta').removeAttr('disabled');
-$('#txta').show();
-$('#txta').attr('cols', '15');
-$('#txta').attr('rows', '6');
-
-    $('#table').removeClass('oaDebug');
-$('form').prepend("<input id='oahiddentable' type='hidden' name='oahiddentable' value=''>");
-function oatabletableRowClick() {
-    var v = $(this).attr('oarow');
-    if (v == null) return;
-    if ($(this).hasClass('oatableSelected')) {
-        if (!$(this).attr('href')) return;
-    }
-    $('#oahiddentable').val(v);
-    ajaxSubmit();
-}
-function oatabletablePagerClick() {
-    var v = $(this).attr('class');
-    if (v == 'oatablePagerDisable') return;
-    if (v == 'oatablePagerSelected') return;
-    
-    v = $(this).attr('oaValue');
-    if (typeof v == 'undefined') {
-        v = $(this).html();
-    }
-    if (v == null) return;
-    $('#oahiddentable').val('P'+v);
-    ajaxSubmit();
-}
-function oatabletableClick1() {
-  var v = $(this).parents('tr').attr('oarow');
-  if (v == null) return;
-  $('#oahiddentable').val(v);
-  if ($(this).attr('target').length > 0) {
-      return true;
-  }
-  if ($(this).attr('tabindex').length > 0) {
-      return true;
-  }
-  $('#oacommand').val('href='+$(this).attr('href'));
-  $('form').submit();
-  $('#oacommand').val('');
-  return false;
-}
-$('#table').html("<table id='oatable' class='oatable'><thead><tr><td colspan='6' class='oatablePager'><span class='oatablePagerMsg'>(40 selected)</span><span class='oatablePagerMsg'>Page 1 of 4</span><ul class='oatablePager'><li oaValue='0' class='oatablePagerDisable'>«</li><li oaValue='0' class='oatablePagerDisable'>&lt;</li><li class='oatablePagerSelected' oaValue='0'>1</li><li oaValue='1'>2</li><li oaValue='2'>3</li><li oaValue='3'>4</li><li oaValue='1'>&gt;</li><li oaValue='3'>»</a></li></ul></td></tr><tr><th class='oatableColumnCount' style='width: 24px;'><div style='width: 24px;'>#</div></th><th style='width:96px;'><div style='width:96px; overflow:hidden; white-space: nowrap;'>First Name</div></th><th style='width:120px;'><div style='width:120px; overflow:hidden; white-space: nowrap;'>Last Name</div></th><th style='width:176px;'><div style='width:176px; overflow:hidden; white-space: nowrap;'>Full Name</div></th><th style='width:96px;'><div style='width:96px; overflow:hidden; white-space: nowrap;'>Inactive</div></th><th style='width:176px;'><div style='width:176px; overflow:hidden; white-space: nowrap;'>Employee Full Name</div></th></tr></thead><tfoot><tr><td colspan='6' class='oatablePager'><span class='oatablePagerMsg'>(40 selected)</span><span class='oatablePagerMsg'>Page 1 of 4</span><ul class='oatablePager'><li oaValue='0' class='oatablePagerDisable'>«</li><li oaValue='0' class='oatablePagerDisable'>&lt;</li><li class='oatablePagerSelected' oaValue='0'>1</li><li oaValue='1'>2</li><li oaValue='2'>3</li><li oaValue='3'>4</li><li oaValue='1'>&gt;</li><li oaValue='3'>»</a></li></ul></td></tr></tfoot><tbody><tr class='oatableSelected' oarow='0'><td style='width: 24px'><div style='width: 24px'>1</div></td><td style='position:relative; width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis;'><input id='txtTableFirstName' type='text' style='position:absolute; top:0px; left:1px; width:97%; max-height:97%'></div></td><td style='position:relative; width:120px;'><div style='width:120px; overflow:hidden; text-overflow: ellipsis;'><input id='txtTableLastName' type='text' style='position:absolute; top:0px; left:1px; width:97%; max-height:97%'></div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>John Doe</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>John Doe</div></td></tr><tr oarow='1'><td style='width: 24px'><div style='width: 24px'>2</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Eva</div></td><td style='width:120px;'><div style='width:120px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Doe</div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Eva Doe</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Eva Doe</div></td></tr><tr oarow='2'><td style='width: 24px'><div style='width: 24px'>3</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Howard</div></td><td style='width:120px;'><div style='width:120px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Doe</div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Howard Doe</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Howard Doe</div></td></tr><tr oarow='3'><td style='width: 24px'><div style='width: 24px'>4</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Jim</div></td><td style='width:120px;'><div style='width:120px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Doe</div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Jim Doe</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Jim Doe</div></td></tr><tr oarow='4'><td style='width: 24px'><div style='width: 24px'>5</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Tracy</div></td><td style='width:120px;'><div style='width:120px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Doe</div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Tracy Doe</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Tracy Doe</div></td></tr><tr oarow='5'><td style='width: 24px'><div style='width: 24px'>6</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Eva</div></td><td style='width:120px;'><div style='width:120px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Harris</div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Eva Harris</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Eva Harris</div></td></tr><tr oarow='6'><td style='width: 24px'><div style='width: 24px'>7</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Howard</div></td><td style='width:120px;'><div style='width:120px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Harris</div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Howard Harris</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Howard Harris</div></td></tr><tr oarow='7'><td style='width: 24px'><div style='width: 24px'>8</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Jim</div></td><td style='width:120px;'><div style='width:120px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Harris</div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Jim Harris</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Jim Harris</div></td></tr><tr oarow='8'><td style='width: 24px'><div style='width: 24px'>9</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Jethro</div></td><td style='width:120px;'><div style='width:120px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Harris</div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Jethro Harris</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Jethro Harris</div></td></tr><tr oarow='9'><td style='width: 24px'><div style='width: 24px'>10</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>John</div></td><td style='width:120px;'><div style='width:120px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>Harris</div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>John Harris</div></td><td style='width:96px;'><div style='width:96px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:176px;'><div style='width:176px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>John Harris</div></td></tr></tbody></table>");
-$('table#oatable tbody tr').find('td:first').addClass('oatableColumnCount');
-$('table#oatable tbody tr:even').each(function(i) { if ($(this).attr('class') != 'oatableDisable') $(this).attr('class', 'oatableEven');});$('table#oatable tbody tr:odd').each(function(i) { if ($(this).attr('class') != 'oatableDisable') $(this).attr('class', 'oatableOdd');});$('table#oatable tr:nth-child(1)').attr('class', 'oatableSelected');
-$('table#oatable tr').click(oatabletableRowClick);
-$('table#oatable tr td a').click(oatabletableClick1);
-$('#oatable').addClass('oaSubmit');
-$('table#oatable .oatablePager ul li').click(oatabletablePagerClick);
-$('#oahiddentable').val('');$('#txtTableFirstName').attr('name', 'txtTableFirstName_93');
-$('#txtTableFirstName').val('John');
-$('#txtTableFirstName').attr('maxlength', '25');
-$('#txtTableFirstName').removeAttr('disabled');
-$('#txtTableFirstName').show();
-$('#txtTableLastName').attr('name', 'txtTableLastName_93');
-$('#txtTableLastName').val('Doe');
-$('#txtTableLastName').attr('maxlength', '35');
-$('#txtTableLastName').removeAttr('disabled');
-$('#txtTableLastName').show();
-$('#table').show();
-
-    $('#tableAppUserLogins').removeClass('oaDebug');
-$('form').prepend("<input id='oahiddentableAppUserLogins' type='hidden' name='oahiddentableAppUserLogins' value=''>");
-function oatabletableAppUserLoginsRowClick() {
-    var v = $(this).attr('oarow');
-    if (v == null) return;
-    if ($(this).hasClass('oatableSelected')) {
-        if (!$(this).attr('href')) return;
-    }
-    $('#oahiddentableAppUserLogins').val(v);
-    ajaxSubmit();
-}
-function oatabletableAppUserLoginsPagerClick() {
-    var v = $(this).attr('class');
-    if (v == 'oatablePagerDisable') return;
-    if (v == 'oatablePagerSelected') return;
-    
-    v = $(this).attr('oaValue');
-    if (typeof v == 'undefined') {
-        v = $(this).html();
-    }
-    if (v == null) return;
-    $('#oahiddentableAppUserLogins').val('P'+v);
-    ajaxSubmit();
-}
-function oatabletableAppUserLoginsClick1() {
-  var v = $(this).parents('tr').attr('oarow');
-  if (v == null) return;
-  $('#oahiddentableAppUserLogins').val(v);
-  if ($(this).attr('target').length > 0) {
-      return true;
-  }
-  if ($(this).attr('tabindex').length > 0) {
-      return true;
-  }
-  $('#oacommand').val('href='+$(this).attr('href'));
-  $('form').submit();
-  $('#oacommand').val('');
-  return false;
-}
-$('#tableAppUserLogins').html("<table id='oatableAppUserLogins' class='oatable'><thead><tr><td colspan='4' class='oatablePager'><span class='oatablePagerMsg'>(21 selected)</span><span class='oatablePagerMsg'>Page 1 of 3</span><ul class='oatablePager'><li oaValue='0' class='oatablePagerDisable'>«</li><li oaValue='0' class='oatablePagerDisable'>&lt;</li><li class='oatablePagerSelected' oaValue='0'>1</li><li oaValue='1'>2</li><li oaValue='2'>3</li><li oaValue='1'>&gt;</li><li oaValue='2'>»</a></li></ul></td></tr><tr><th class='oatableColumnCount' style='width: 24px;'><div style='width: 24px;'>#</div></th><th style='width:128px;'><div style='width:128px; overflow:hidden; white-space: nowrap;'>Created</div></th><th style='width:128px;'><div style='width:128px; overflow:hidden; white-space: nowrap;'>Disconnected</div></th><th style='width:128px;'><div style='width:128px; overflow:hidden; white-space: nowrap;'>Computer</div></th></tr></thead><tfoot><tr><td colspan='4' class='oatablePager'><span class='oatablePagerMsg'>(21 selected)</span><span class='oatablePagerMsg'>Page 1 of 3</span><ul class='oatablePager'><li oaValue='0' class='oatablePagerDisable'>«</li><li oaValue='0' class='oatablePagerDisable'>&lt;</li><li class='oatablePagerSelected' oaValue='0'>1</li><li oaValue='1'>2</li><li oaValue='2'>3</li><li oaValue='1'>&gt;</li><li oaValue='2'>»</a></li></ul></td></tr></tfoot><tbody><tr oarow='0'><td style='width: 24px'><div style='width: 24px'>1</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>01/11/18 03:27 PM</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>computer.11.0</div></td></tr><tr oarow='1'><td style='width: 24px'><div style='width: 24px'>2</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>01/11/18 03:27 PM</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>computer.11.1</div></td></tr><tr oarow='2'><td style='width: 24px'><div style='width: 24px'>3</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>01/11/18 03:27 PM</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>computer.11.2</div></td></tr><tr oarow='3'><td style='width: 24px'><div style='width: 24px'>4</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>01/11/18 03:27 PM</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>computer.11.3</div></td></tr><tr oarow='4'><td style='width: 24px'><div style='width: 24px'>5</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>01/11/18 03:27 PM</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>computer.11.4</div></td></tr><tr oarow='5'><td style='width: 24px'><div style='width: 24px'>6</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>01/11/18 03:27 PM</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>computer.11.5</div></td></tr><tr oarow='6'><td style='width: 24px'><div style='width: 24px'>7</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>01/11/18 03:27 PM</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>computer.11.6</div></td></tr><tr oarow='7'><td style='width: 24px'><div style='width: 24px'>8</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>01/11/18 03:27 PM</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>computer.11.7</div></td></tr><tr oarow='8'><td style='width: 24px'><div style='width: 24px'>9</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>01/11/18 03:27 PM</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>computer.11.8</div></td></tr><tr oarow='9'><td style='width: 24px'><div style='width: 24px'>10</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>01/11/18 03:27 PM</div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'></div></td><td style='width:128px;'><div style='width:128px; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;'>computer.11.9</div></td></tr></tbody></table>");
-$('table#oatableAppUserLogins tbody tr').find('td:first').addClass('oatableColumnCount');
-$('table#oatableAppUserLogins tbody tr:even').each(function(i) { if ($(this).attr('class') != 'oatableDisable') $(this).attr('class', 'oatableEven');});$('table#oatableAppUserLogins tbody tr:odd').each(function(i) { if ($(this).attr('class') != 'oatableDisable') $(this).attr('class', 'oatableOdd');});$('table#oatableAppUserLogins tr').click(oatabletableAppUserLoginsRowClick);
-$('table#oatableAppUserLogins tr td a').click(oatabletableAppUserLoginsClick1);
-$('#oatableAppUserLogins').addClass('oaSubmit');
-$('table#oatableAppUserLogins .oatablePager ul li').click(oatabletableAppUserLoginsPagerClick);
-$('#oahiddentableAppUserLogins').val('');$('#tableAppUserLogins').show();
-
-    $('#list').removeClass('oaDebug');
-$('form').prepend("<input id='oalistlist' type='hidden' name='oalistlist' value=''>");
-function oaListlistClick() {
-    var v = $(this).attr('oarow');
-    if (v == null) return;
-    $('#oalistlist').val(v);
-    $('#oacommand').val('list');
-    ajaxSubmit();
-}
-$('#list').addClass('oaList');
-$('#list').html("<li class='oaSelected' oarow='0'>John Doe</li><li oarow='1'>Eva Doe</li><li oarow='2'>Howard Doe</li><li oarow='3'>Jim Doe</li><li oarow='4'>Tracy Doe</li><li oarow='5'>Eva Harris</li><li oarow='6'>Howard Harris</li><li oarow='7'>Jim Harris</li><li oarow='8'>Jethro Harris</li><li oarow='9'>John Harris</li><li oarow='10'>Mary Harrison</li><li oarow='11'>Pete Harrison</li><li oarow='12'>Eli Harrison</li><li oarow='13'>Victor Harrison</li><li oarow='14'>Morgan Harrison</li><li oarow='15'>Eli Johnson</li><li oarow='16'>Pete Johnson</li><li oarow='17'>Tracy Johnson</li><li oarow='18'>John Johnson</li><li oarow='19'>Mary Johnson</li><li oarow='20'>Jim Masters</li><li oarow='21'>Jethro Masters</li><li oarow='22'>Morgan Masters</li><li oarow='23'>Victor Masters</li><li oarow='24'>Howard Masters</li><li oarow='25'>John Philips</li><li oarow='26'>Howard Philips</li><li oarow='27'>Eva Philips</li><li oarow='28'>Tracy Philips</li><li oarow='29'>Pete Philips</li><li oarow='30'>Jethro Smith</li><li oarow='31'>Morgan Smith</li><li oarow='32'>Victor Smith</li><li oarow='33'>Mary Smith</li><li oarow='34'>Jim Smith</li><li oarow='35'>Eli Tomlinson</li><li oarow='36'>Tracy Tomlinson</li><li oarow='37'>Pete Tomlinson</li><li oarow='38'>Mary Tomlinson</li><li oarow='39'>Victor Tomlinson</li><li oarow='-1'>set AO to null</li>");
-$('#list li').addClass('oaTextNoWrap');
-$('#list li[oarow]').click(oaListlistClick);
-    $('#oalistlist').val('0');
-$('#list').addClass('oaRequired');
-$('#list').attr('required', true);
-$('#list').blur(function() {$(this).removeClass('oaError');}); 
-$('#list').addClass('oaSubmit');
-$('#list > li').css("line-height", "1.1em");
-$('#list').css("max-height", "28em");
-$('#list').css("width", "17em");
-$('#list').css("max-width", "18em");
-$('#list').css("width", "17em");
-$('#list').css("max-width", "18em");
-
-    $('#cmdButtonList1').removeClass('oaDebug');
-$('form').prepend("<input id='oalistcmdButtonList1PopupList' type='hidden' name='oalistcmdButtonList1PopupList' value=''>");
-function oaListcmdButtonList1PopupListClick() {
-    var v = $(this).attr('oarow');
-    if (v == null) return;
-    $('#oalistcmdButtonList1PopupList').val(v);
-    $('#oacommand').val('cmdButtonList1PopupList');
-    $('#cmdButtonList1 .oaPopupListText').html($(this).html());
-    ajaxSubmit();
-}
-$('#cmdButtonList1').wrap("<div id='cmdButtonList1PopupListOuterWrapper' class='oaPopupListOuterWrapper' style=''></div>");
-$('#cmdButtonList1').html("<span class='oaPopupListText'></span><span class='oaCaret'></span>");
-$('#cmdButtonList1').after("<div id='cmdButtonList1PopupListWrapper' class='oaPopupListWrapper'><ul id='cmdButtonList1PopupList'></ul></div>");
-$('#cmdButtonList1').click(function(e) {
-    $('#cmdButtonList1PopupListWrapper').css("min-width", $('#cmdButtonList1').width()+26);
-    $('#cmdButtonList1PopupListWrapper').slideToggle(80);
-    return false;
-});
-var cmdButtonList1WindowClick = window.onclick;
-window.onclick = function(event) {
-    if (cmdButtonList1WindowClick) cmdButtonList1WindowClick(event);
-    if ($('#cmdButtonList1PopupListWrapper').is(':visible')) $('#cmdButtonList1PopupListWrapper').slideToggle(80);
-}
-$('#cmdButtonList1PopupList').addClass('oaList');
-$('#cmdButtonList1PopupList').html("<li class='oaSelected' oarow='0'>John Doe</li><li oarow='1'>Eva Doe</li><li oarow='2'>Howard Doe</li><li oarow='3'>Jim Doe</li><li oarow='4'>Tracy Doe</li><li oarow='5'>Eva Harris</li><li oarow='6'>Howard Harris</li><li oarow='7'>Jim Harris</li><li oarow='8'>Jethro Harris</li><li oarow='9'>John Harris</li><li oarow='10'>Mary Harrison</li><li oarow='11'>Pete Harrison</li><li oarow='12'>Eli Harrison</li><li oarow='13'>Victor Harrison</li><li oarow='14'>Morgan Harrison</li><li oarow='15'>Eli Johnson</li><li oarow='16'>Pete Johnson</li><li oarow='17'>Tracy Johnson</li><li oarow='18'>John Johnson</li><li oarow='19'>Mary Johnson</li><li oarow='20'>Jim Masters</li><li oarow='21'>Jethro Masters</li><li oarow='22'>Morgan Masters</li><li oarow='23'>Victor Masters</li><li oarow='24'>Howard Masters</li><li oarow='25'>John Philips</li><li oarow='26'>Howard Philips</li><li oarow='27'>Eva Philips</li><li oarow='28'>Tracy Philips</li><li oarow='29'>Pete Philips</li><li oarow='30'>Jethro Smith</li><li oarow='31'>Morgan Smith</li><li oarow='32'>Victor Smith</li><li oarow='33'>Mary Smith</li><li oarow='34'>Jim Smith</li><li oarow='35'>Eli Tomlinson</li><li oarow='36'>Tracy Tomlinson</li><li oarow='37'>Pete Tomlinson</li><li oarow='38'>Mary Tomlinson</li><li oarow='39'>Victor Tomlinson</li><li oarow='-1'>&nbsp;</li>");
-$('#cmdButtonList1PopupList li').addClass('oaTextNoWrap');
-$('#cmdButtonList1PopupList li[oarow]').click(oaListcmdButtonList1PopupListClick);
-    $('#oalistcmdButtonList1PopupList').val('0');
-$('#cmdButtonList1 .oaPopupListText').html($('#cmdButtonList1PopupList li.oaSelected').html());
-$('#cmdButtonList1 .oaPopupListText').html($('#cmdButtonList1PopupList li.oaSelected').html());
-$('#cmdButtonList1PopupList').blur(function() {$(this).removeClass('oaError');}); 
-$('#cmdButtonList1PopupList').addClass('oaSubmit');
-
-    $('#cmdButtonList2').removeClass('oaDebug');
-$('form').prepend("<input id='oalistcmdButtonList2PopupList' type='hidden' name='oalistcmdButtonList2PopupList' value=''>");
-function oaListcmdButtonList2PopupListClick() {
-    var v = $(this).attr('oarow');
-    if (v == null) return;
-    $('#oalistcmdButtonList2PopupList').val(v);
-    $('#oacommand').val('cmdButtonList2PopupList');
-    $('#cmdButtonList2 .oaPopupListText').html($(this).html());
-    ajaxSubmit();
-}
-$('#cmdButtonList2').wrap("<div id='cmdButtonList2PopupListOuterWrapper' class='oaPopupListOuterWrapper' style='width: 15em;max-width: 15em;'></div>");
-$('#cmdButtonList2').css("width", "100%");
-$('#cmdButtonList2').html("<span class='oaPopupListText oaPopupListTextSized'></span><span class='oaCaret'></span>");
-$('#cmdButtonList2').after("<div id='cmdButtonList2PopupListWrapper' class='oaPopupListWrapper'><ul id='cmdButtonList2PopupList'></ul></div>");
-$('#cmdButtonList2').click(function(e) {
-    $('#cmdButtonList2PopupListWrapper').css("min-width", $('#cmdButtonList2').width()+26);
-    $('#cmdButtonList2PopupListWrapper').slideToggle(80);
-    return false;
-});
-var cmdButtonList2WindowClick = window.onclick;
-window.onclick = function(event) {
-    if (cmdButtonList2WindowClick) cmdButtonList2WindowClick(event);
-    if ($('#cmdButtonList2PopupListWrapper').is(':visible')) $('#cmdButtonList2PopupListWrapper').slideToggle(80);
-}
-$('#cmdButtonList2PopupList').addClass('oaList');
-$('#cmdButtonList2PopupList').addClass('oaIndent');
-$('#cmdButtonList2PopupList').html("<li class='oaHeading'>Top Performer Group</li><li class='oaSelected' oarow='0'>John Doe</li><li oarow='1'>Eva Doe</li><li oarow='2'>Howard Doe</li><li class='oaHeading'>The Other Group</li><li oarow='3'>Jim Doe</li><li oarow='4'>Tracy Doe</li><li oarow='5'>Eva Harris</li><li oarow='6'>Howard Harris</li><li oarow='7'>Jim Harris</li><li oarow='8'>Jethro Harris</li><li oarow='9'>John Harris</li><li oarow='10'>Mary Harrison</li><li oarow='11'>Pete Harrison</li><li oarow='12'>Eli Harrison</li><li oarow='13'>Victor Harrison</li><li oarow='14'>Morgan Harrison</li><li oarow='15'>Eli Johnson</li><li oarow='16'>Pete Johnson</li><li oarow='17'>Tracy Johnson</li><li oarow='18'>John Johnson</li><li oarow='19'>Mary Johnson</li><li oarow='20'>Jim Masters</li><li oarow='21'>Jethro Masters</li><li oarow='22'>Morgan Masters</li><li oarow='23'>Victor Masters</li><li oarow='24'>Howard Masters</li><li oarow='25'>John Philips</li><li oarow='26'>Howard Philips</li><li oarow='27'>Eva Philips</li><li oarow='28'>Tracy Philips</li><li oarow='29'>Pete Philips</li><li oarow='30'>Jethro Smith</li><li oarow='31'>Morgan Smith</li><li oarow='32'>Victor Smith</li><li oarow='33'>Mary Smith</li><li oarow='34'>Jim Smith</li><li oarow='35'>Eli Tomlinson</li><li oarow='36'>Tracy Tomlinson</li><li oarow='37'>Pete Tomlinson</li><li oarow='38'>Mary Tomlinson</li><li oarow='39'>Victor Tomlinson</li><li oarow='-1'>&nbsp;</li>");
-$('#cmdButtonList2PopupList li').addClass('oaTextNoWrap');
-$('#cmdButtonList2PopupList li[oarow]').click(oaListcmdButtonList2PopupListClick);
-    $('#oalistcmdButtonList2PopupList').val('0');
-$('#cmdButtonList2 .oaPopupListText').html($('#cmdButtonList2PopupList li.oaSelected').html());
-$('#cmdButtonList2 .oaPopupListText').html($('#cmdButtonList2PopupList li.oaSelected').html());
-$('#cmdButtonList2PopupList').blur(function() {$(this).removeClass('oaError');}); 
-$('#cmdButtonList2PopupList').addClass('oaSubmit');
-$('#cmdButtonList2PopupList > li').css("line-height", "1.1em");
-$('#cmdButtonList2PopupList').css("max-height", "18em");
-
-    $('#cmdButtonList3').removeClass('oaDebug');
-$('form').prepend("<input id='oalistcmdButtonList3PopupList' type='hidden' name='oalistcmdButtonList3PopupList' value=''>");
-function oaListcmdButtonList3PopupListClick() {
-    var v = $(this).attr('oarow');
-    if (v == null) return;
-    $('#oalistcmdButtonList3PopupList').val(v);
-    $('#oacommand').val('cmdButtonList3PopupList');
-    $('#cmdButtonList3 .oaPopupListText').html($(this).html());
-    ajaxSubmit();
-}
-$('#cmdButtonList3').wrap("<div id='cmdButtonList3PopupListOuterWrapper' class='oaPopupListOuterWrapper' style=''></div>");
-$('#cmdButtonList3').html("<span class='oaPopupListText'></span><span class='oaCaret'></span>");
-$('#cmdButtonList3').after("<div id='cmdButtonList3PopupListWrapper' class='oaPopupListWrapper'><ul id='cmdButtonList3PopupList'></ul></div>");
-$('#cmdButtonList3').click(function(e) {
-    $('#cmdButtonList3PopupListWrapper').css("min-width", $('#cmdButtonList3').width()+26);
-    $('#cmdButtonList3PopupListWrapper').slideToggle(80);
-    return false;
-});
-var cmdButtonList3WindowClick = window.onclick;
-window.onclick = function(event) {
-    if (cmdButtonList3WindowClick) cmdButtonList3WindowClick(event);
-    if ($('#cmdButtonList3PopupListWrapper').is(':visible')) $('#cmdButtonList3PopupListWrapper').slideToggle(80);
-}
-$('#cmdButtonList3PopupList').tooltip();
-$('#cmdButtonList3PopupList').addClass('oaList');
-$('#cmdButtonList3PopupList').addClass('oaIndent');
-$('#cmdButtonList3PopupList').html("<li class='oaHeading'>Doe</li><li class='oaSelected' oarow='0'>1 John Doe - jdoe@bing.com <small>(93)</small></li><li oarow='1'>2 Eva Doe - edoe@bing.com <small>(101)</small></li><li oarow='2'>3 Howard Doe - hdoe@bing.com <small>(109)</small></li><li oarow='3'>4 Jim Doe - jdoe@bing.com <small>(117)</small></li><li oarow='4'>5 Tracy Doe - tdoe@bing.com <small>(85)</small></li><li class='oaHeading'>Harris</li><li oarow='5'>6 Eva Harris - eharris@gmail.com <small>(90)</small></li><li oarow='6'>7 Howard Harris - hharris@gmail.com <small>(98)</small></li><li oarow='7'>8 Jim Harris - jharris@gmail.com <small>(106)</small></li><li oarow='8'>9 Jethro Harris - jharris@gmail.com <small>(114)</small></li><li oarow='9'>10 John Harris - jharris@gmail.com <small>(82)</small></li><li class='oaHeading'>Harrison</li><li oarow='10'>11 Mary Harrison - mharrison@bing.com <small>(105)</small></li><li oarow='11'>12 Pete Harrison - pharrison@bing.com <small>(121)</small></li><li oarow='12'>13 Eli Harrison - eharrison@bing.com <small>(113)</small></li><li oarow='13'>14 Victor Harrison - vharrison@bing.com <small>(97)</small></li><li oarow='14'>15 Morgan Harrison - mharrison@bing.com <small>(89)</small></li><li class='oaHeading'>Johnson</li><li oarow='15'>16 Eli Johnson - ejohnson@yahoo.com <small>(91)</small></li><li oarow='16'>17 Pete Johnson - pjohnson@yahoo.com <small>(99)</small></li><li oarow='17'>18 Tracy Johnson - tjohnson@yahoo.com <small>(107)</small></li><li oarow='18'>19 John Johnson - jjohnson@yahoo.com <small>(115)</small></li><li oarow='19'>20 Mary Johnson - mjohnson@yahoo.com <small>(83)</small></li><li class='oaHeading'>Masters</li><li oarow='20'>21 Jim Masters - jmasters@yahoo.com <small>(95)</small></li><li oarow='21'>22 Jethro Masters - jmasters@yahoo.com <small>(103)</small></li><li oarow='22'>23 Morgan Masters - mmasters@yahoo.com <small>(111)</small></li><li oarow='23'>24 Victor Masters - vmasters@yahoo.com <small>(119)</small></li><li oarow='24'>25 Howard Masters - hmasters@yahoo.com <small>(87)</small></li><li class='oaHeading'>Philips</li><li oarow='25'>26 John Philips - jphilips@garage.com <small>(104)</small></li><li oarow='26'>27 Howard Philips - hphilips@garage.com <small>(120)</small></li><li oarow='27'>28 Eva Philips - ephilips@garage.com <small>(112)</small></li><li oarow='28'>29 Tracy Philips - tphilips@garage.com <small>(96)</small></li><li oarow='29'>30 Pete Philips - pphilips@garage.com <small>(88)</small></li><li class='oaHeading'>Smith</li><li oarow='30'>31 Jethro Smith - jsmith@garage.com <small>(92)</small></li><li oarow='31'>32 Morgan Smith - msmith@garage.com <small>(100)</small></li><li oarow='32'>33 Victor Smith - vsmith@garage.com <small>(108)</small></li><li oarow='33'>34 Mary Smith - msmith@garage.com <small>(116)</small></li><li oarow='34'>35 Jim Smith - jsmith@garage.com <small>(84)</small></li><li class='oaHeading'>Tomlinson</li><li oarow='35'>36 Eli Tomlinson - etomlinson@gmail.com <small>(102)</small></li><li oarow='36'>37 Tracy Tomlinson - ttomlinson@gmail.com <small>(118)</small></li><li oarow='37'>38 Pete Tomlinson - ptomlinson@gmail.com <small>(110)</small></li><li oarow='38'>39 Mary Tomlinson - mtomlinson@gmail.com <small>(94)</small></li><li oarow='39'>40 Victor Tomlinson - vtomlinson@gmail.com <small>(86)</small></li><li oarow='-1'><i style='padding-left: 20px; border-left: 2px blue solid;'>Select a user from the list</i></li>");
-$('#cmdButtonList3PopupList li').addClass('oaTextNoWrap');
-$('#cmdButtonList3PopupList li[oarow]').click(oaListcmdButtonList3PopupListClick);
-    $('#oalistcmdButtonList3PopupList').val('0');
-$('#cmdButtonList3PopupList li[oarow=\'0\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'0\']').data('bs.tooltip').options.title = 'User Id: 93';
-$('#cmdButtonList3PopupList li[oarow=\'0\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'1\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'1\']').data('bs.tooltip').options.title = 'User Id: 101';
-$('#cmdButtonList3PopupList li[oarow=\'1\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'2\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'2\']').data('bs.tooltip').options.title = 'User Id: 109';
-$('#cmdButtonList3PopupList li[oarow=\'2\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'3\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'3\']').data('bs.tooltip').options.title = 'User Id: 117';
-$('#cmdButtonList3PopupList li[oarow=\'3\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'4\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'4\']').data('bs.tooltip').options.title = 'User Id: 85';
-$('#cmdButtonList3PopupList li[oarow=\'4\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'5\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'5\']').data('bs.tooltip').options.title = 'User Id: 90';
-$('#cmdButtonList3PopupList li[oarow=\'5\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'6\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'6\']').data('bs.tooltip').options.title = 'User Id: 98';
-$('#cmdButtonList3PopupList li[oarow=\'6\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'7\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'7\']').data('bs.tooltip').options.title = 'User Id: 106';
-$('#cmdButtonList3PopupList li[oarow=\'7\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'8\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'8\']').data('bs.tooltip').options.title = 'User Id: 114';
-$('#cmdButtonList3PopupList li[oarow=\'8\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'9\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'9\']').data('bs.tooltip').options.title = 'User Id: 82';
-$('#cmdButtonList3PopupList li[oarow=\'9\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'10\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'10\']').data('bs.tooltip').options.title = 'User Id: 105';
-$('#cmdButtonList3PopupList li[oarow=\'10\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'11\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'11\']').data('bs.tooltip').options.title = 'User Id: 121';
-$('#cmdButtonList3PopupList li[oarow=\'11\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'12\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'12\']').data('bs.tooltip').options.title = 'User Id: 113';
-$('#cmdButtonList3PopupList li[oarow=\'12\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'13\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'13\']').data('bs.tooltip').options.title = 'User Id: 97';
-$('#cmdButtonList3PopupList li[oarow=\'13\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'14\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'14\']').data('bs.tooltip').options.title = 'User Id: 89';
-$('#cmdButtonList3PopupList li[oarow=\'14\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'15\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'15\']').data('bs.tooltip').options.title = 'User Id: 91';
-$('#cmdButtonList3PopupList li[oarow=\'15\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'16\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'16\']').data('bs.tooltip').options.title = 'User Id: 99';
-$('#cmdButtonList3PopupList li[oarow=\'16\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'17\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'17\']').data('bs.tooltip').options.title = 'User Id: 107';
-$('#cmdButtonList3PopupList li[oarow=\'17\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'18\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'18\']').data('bs.tooltip').options.title = 'User Id: 115';
-$('#cmdButtonList3PopupList li[oarow=\'18\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'19\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'19\']').data('bs.tooltip').options.title = 'User Id: 83';
-$('#cmdButtonList3PopupList li[oarow=\'19\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'20\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'20\']').data('bs.tooltip').options.title = 'User Id: 95';
-$('#cmdButtonList3PopupList li[oarow=\'20\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'21\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'21\']').data('bs.tooltip').options.title = 'User Id: 103';
-$('#cmdButtonList3PopupList li[oarow=\'21\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'22\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'22\']').data('bs.tooltip').options.title = 'User Id: 111';
-$('#cmdButtonList3PopupList li[oarow=\'22\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'23\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'23\']').data('bs.tooltip').options.title = 'User Id: 119';
-$('#cmdButtonList3PopupList li[oarow=\'23\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'24\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'24\']').data('bs.tooltip').options.title = 'User Id: 87';
-$('#cmdButtonList3PopupList li[oarow=\'24\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'25\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'25\']').data('bs.tooltip').options.title = 'User Id: 104';
-$('#cmdButtonList3PopupList li[oarow=\'25\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'26\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'26\']').data('bs.tooltip').options.title = 'User Id: 120';
-$('#cmdButtonList3PopupList li[oarow=\'26\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'27\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'27\']').data('bs.tooltip').options.title = 'User Id: 112';
-$('#cmdButtonList3PopupList li[oarow=\'27\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'28\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'28\']').data('bs.tooltip').options.title = 'User Id: 96';
-$('#cmdButtonList3PopupList li[oarow=\'28\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'29\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'29\']').data('bs.tooltip').options.title = 'User Id: 88';
-$('#cmdButtonList3PopupList li[oarow=\'29\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'30\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'30\']').data('bs.tooltip').options.title = 'User Id: 92';
-$('#cmdButtonList3PopupList li[oarow=\'30\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'31\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'31\']').data('bs.tooltip').options.title = 'User Id: 100';
-$('#cmdButtonList3PopupList li[oarow=\'31\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'32\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'32\']').data('bs.tooltip').options.title = 'User Id: 108';
-$('#cmdButtonList3PopupList li[oarow=\'32\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'33\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'33\']').data('bs.tooltip').options.title = 'User Id: 116';
-$('#cmdButtonList3PopupList li[oarow=\'33\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'34\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'34\']').data('bs.tooltip').options.title = 'User Id: 84';
-$('#cmdButtonList3PopupList li[oarow=\'34\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'35\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'35\']').data('bs.tooltip').options.title = 'User Id: 102';
-$('#cmdButtonList3PopupList li[oarow=\'35\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'36\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'36\']').data('bs.tooltip').options.title = 'User Id: 118';
-$('#cmdButtonList3PopupList li[oarow=\'36\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'37\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'37\']').data('bs.tooltip').options.title = 'User Id: 110';
-$('#cmdButtonList3PopupList li[oarow=\'37\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'38\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'38\']').data('bs.tooltip').options.title = 'User Id: 94';
-$('#cmdButtonList3PopupList li[oarow=\'38\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList li[oarow=\'39\']').tooltip();
-$('#cmdButtonList3PopupList li[oarow=\'39\']').data('bs.tooltip').options.title = 'User Id: 86';
-$('#cmdButtonList3PopupList li[oarow=\'39\']').data('bs.tooltip').options.placement = 'right';
-$('#cmdButtonList3PopupList').data('bs.tooltip').options.title = 'Select an employee from the list';
-$('#cmdButtonList3PopupList').data('bs.tooltip').options.placement = 'top';
-$('#cmdButtonList3 .oaPopupListText').html($('#cmdButtonList3PopupList li.oaSelected').html());
-$('#cmdButtonList3 .oaPopupListText').html($('#cmdButtonList3PopupList li.oaSelected').html());
-$('#cmdButtonList3PopupList').blur(function() {$(this).removeClass('oaError');}); 
-$('#cmdButtonList3PopupList').addClass('oaSubmit');
-
-    $('#cmdButtonList4').removeClass('oaDebug');
-$('form').prepend("<input id='oalistcmdButtonList4PopupList' type='hidden' name='oalistcmdButtonList4PopupList' value=''>");
-function oaListcmdButtonList4PopupListClick() {
-    var v = $(this).attr('oarow');
-    if (v == null) return;
-    $('#oalistcmdButtonList4PopupList').val(v);
-    $('#oacommand').val('cmdButtonList4PopupList');
-    $('#cmdButtonList4 .oaPopupListText').html($(this).html());
-    ajaxSubmit();
-}
-$('#cmdButtonList4').wrap("<div id='cmdButtonList4PopupListOuterWrapper' class='oaPopupListOuterWrapper' style='width: 30%;max-width: 30%;'></div>");
-$('#cmdButtonList4').css("width", "100%");
-$('#cmdButtonList4').html("<span class='oaPopupListText oaPopupListTextSized'></span><span class='oaCaret'></span>");
-$('#cmdButtonList4').after("<div id='cmdButtonList4PopupListWrapper' class='oaPopupListWrapper'><ul id='cmdButtonList4PopupList'></ul></div>");
-$('#cmdButtonList4').click(function(e) {
-    $('#cmdButtonList4PopupListWrapper').width($('#cmdButtonList4').width()+26);
-    $('#cmdButtonList4PopupListWrapper').slideToggle(80);
-    return false;
-});
-var cmdButtonList4WindowClick = window.onclick;
-window.onclick = function(event) {
-    if (cmdButtonList4WindowClick) cmdButtonList4WindowClick(event);
-    if ($('#cmdButtonList4PopupListWrapper').is(':visible')) $('#cmdButtonList4PopupListWrapper').slideToggle(80);
-}
-$('#cmdButtonList4PopupList').tooltip();
-$('#cmdButtonList4PopupList').addClass('oaList');
-$('#cmdButtonList4PopupList').addClass('oaIndent');
-$('#cmdButtonList4PopupList').html("<li class='oaHeading'>Doe</li><li class='oaSelected' oarow='0'>1 John Doe - jdoe@bing.com <small>(93)</small></li><li oarow='1'>2 Eva Doe - edoe@bing.com <small>(101)</small></li><li oarow='2'>3 Howard Doe - hdoe@bing.com <small>(109)</small></li><li oarow='3'>4 Jim Doe - jdoe@bing.com <small>(117)</small></li><li oarow='4'>5 Tracy Doe - tdoe@bing.com <small>(85)</small></li><li class='oaHeading'>Harris</li><li oarow='5'>6 Eva Harris - eharris@gmail.com <small>(90)</small></li><li oarow='6'>7 Howard Harris - hharris@gmail.com <small>(98)</small></li><li oarow='7'>8 Jim Harris - jharris@gmail.com <small>(106)</small></li><li oarow='8'>9 Jethro Harris - jharris@gmail.com <small>(114)</small></li><li oarow='9'>10 John Harris - jharris@gmail.com <small>(82)</small></li><li class='oaHeading'>Harrison</li><li oarow='10'>11 Mary Harrison - mharrison@bing.com <small>(105)</small></li><li oarow='11'>12 Pete Harrison - pharrison@bing.com <small>(121)</small></li><li oarow='12'>13 Eli Harrison - eharrison@bing.com <small>(113)</small></li><li oarow='13'>14 Victor Harrison - vharrison@bing.com <small>(97)</small></li><li oarow='14'>15 Morgan Harrison - mharrison@bing.com <small>(89)</small></li><li class='oaHeading'>Johnson</li><li oarow='15'>16 Eli Johnson - ejohnson@yahoo.com <small>(91)</small></li><li oarow='16'>17 Pete Johnson - pjohnson@yahoo.com <small>(99)</small></li><li oarow='17'>18 Tracy Johnson - tjohnson@yahoo.com <small>(107)</small></li><li oarow='18'>19 John Johnson - jjohnson@yahoo.com <small>(115)</small></li><li oarow='19'>20 Mary Johnson - mjohnson@yahoo.com <small>(83)</small></li><li class='oaHeading'>Masters</li><li oarow='20'>21 Jim Masters - jmasters@yahoo.com <small>(95)</small></li><li oarow='21'>22 Jethro Masters - jmasters@yahoo.com <small>(103)</small></li><li oarow='22'>23 Morgan Masters - mmasters@yahoo.com <small>(111)</small></li><li oarow='23'>24 Victor Masters - vmasters@yahoo.com <small>(119)</small></li><li oarow='24'>25 Howard Masters - hmasters@yahoo.com <small>(87)</small></li><li class='oaHeading'>Philips</li><li oarow='25'>26 John Philips - jphilips@garage.com <small>(104)</small></li><li oarow='26'>27 Howard Philips - hphilips@garage.com <small>(120)</small></li><li oarow='27'>28 Eva Philips - ephilips@garage.com <small>(112)</small></li><li oarow='28'>29 Tracy Philips - tphilips@garage.com <small>(96)</small></li><li oarow='29'>30 Pete Philips - pphilips@garage.com <small>(88)</small></li><li class='oaHeading'>Smith</li><li oarow='30'>31 Jethro Smith - jsmith@garage.com <small>(92)</small></li><li oarow='31'>32 Morgan Smith - msmith@garage.com <small>(100)</small></li><li oarow='32'>33 Victor Smith - vsmith@garage.com <small>(108)</small></li><li oarow='33'>34 Mary Smith - msmith@garage.com <small>(116)</small></li><li oarow='34'>35 Jim Smith - jsmith@garage.com <small>(84)</small></li><li class='oaHeading'>Tomlinson</li><li oarow='35'>36 Eli Tomlinson - etomlinson@gmail.com <small>(102)</small></li><li oarow='36'>37 Tracy Tomlinson - ttomlinson@gmail.com <small>(118)</small></li><li oarow='37'>38 Pete Tomlinson - ptomlinson@gmail.com <small>(110)</small></li><li oarow='38'>39 Mary Tomlinson - mtomlinson@gmail.com <small>(94)</small></li><li oarow='39'>40 Victor Tomlinson - vtomlinson@gmail.com <small>(86)</small></li><li oarow='-1'><i style='padding-left: 20px; border-left: 2px blue solid;'>Select a user from the list</i></li>");
-$('#cmdButtonList4PopupList li').addClass('oaTextNoWrap');
-$('#cmdButtonList4PopupList li[oarow]').click(oaListcmdButtonList4PopupListClick);
-    $('#oalistcmdButtonList4PopupList').val('0');
-$('#cmdButtonList4PopupList').data('bs.tooltip').options.title = 'Select an employee from the list';
-$('#cmdButtonList4PopupList').data('bs.tooltip').options.placement = 'top';
-$('#cmdButtonList4 .oaPopupListText').html($('#cmdButtonList4PopupList li.oaSelected').html());
-$('#cmdButtonList4 .oaPopupListText').html($('#cmdButtonList4PopupList li.oaSelected').html());
-$('#cmdButtonList4PopupList').blur(function() {$(this).removeClass('oaError');}); 
-$('#cmdButtonList4PopupList').addClass('oaSubmit');
-$('#cmdButtonList4PopupList').css("max-height", "441px");
-$('#cmdButtonList4PopupList').css("width", "100%");
-$('#cmdButtonList4PopupList').css("max-width", "100%");
-$('#cmdButtonList4PopupList').css("width", "100%");
-$('#cmdButtonList4PopupList').css("max-width", "100%");
-
-    $('#grid').removeClass('oaDebug');
-$('form').prepend("<input id='oahiddengrid' type='hidden' name='oahiddengrid' value=''>");
-$('#grid').html("<div id='oagrid' class='oaGrid'><div class='row'><div class='col-sm-12 oatablePager'><span class='oatablePagerMsg'>(40 selected)</span><span class='oatablePagerMsg'>Page 1 of 2</span><ul class='oatablePager'><li oaValue='0' class='oatablePagerDisable'>«</li><li oaValue='0' class='oatablePagerDisable'>&lt;</li><li class='oatablePagerSelected' oaValue='0'>1</li><li oaValue='1'>2</li><li oaValue='1'>&gt;</li><li oaValue='1'>»</a></li></ul></div></div><div class='row auto-clear'><div class='oaGridCell col-lg-3 col-md-4 col-sm-6 oatableSelected' oarow='0'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is John Doe</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='1'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Eva Doe</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='2'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Howard Doe</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='3'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Jim Doe</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='4'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Tracy Doe</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='5'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Eva Harris</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='6'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Howard Harris</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='7'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Jim Harris</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='8'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Jethro Harris</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='9'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is John Harris</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='10'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Mary Harrison</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='11'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Pete Harrison</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='12'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Eli Harrison</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='13'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Victor Harrison</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='14'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Morgan Harrison</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='15'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Eli Johnson</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='16'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Pete Johnson</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='17'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Tracy Johnson</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='18'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is John Johnson</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div><div class='oaGridCell col-lg-3 col-md-4 col-sm-6' oarow='19'><div style='border: 5px green solid; padding: 12px; height: 100px; width: 200px; overflow: hidden;'><nobr>Fullname is Mary Johnson</nobr><br>button <button type='button' onClick='$(\"#oacommand\").val(\"button\");'>click me</button></div></div></div><div class='row'><div class='col-sm-12 oatablePager'><span class='oatablePagerMsg'>(40 selected)</span><span class='oatablePagerMsg'>Page 1 of 2</span><ul class='oatablePager'><li oaValue='0' class='oatablePagerDisable'>«</li><li oaValue='0' class='oatablePagerDisable'>&lt;</li><li class='oatablePagerSelected' oaValue='0'>1</li><li oaValue='1'>2</li><li oaValue='1'>&gt;</li><li oaValue='1'>»</a></li></ul></div></div></div>");
-$('#oagrid div.oaGridCell').click(oagridgridCellClick);
-$('div#oagrid .oatablePager ul li').click(oatablePagergridClick);
-$('#oahiddengrid').val('');
-$('#grid').show();
-function oagridgridCellClick() {
-    var v = $(this).attr('oarow');
-    if (v == null) return;
-    $('#oahiddengrid').val(v);
-    ajaxSubmit();
-}
-function oatablePagergridClick() {
-    var v = $(this).attr('class');
-    if (v == 'oatablePagerDisable') return;
-    if (v == 'oatablePagerSelected') return;
-    
-    v = $(this).attr('oaValue');
-    if (typeof v == 'undefined') {
-        v = $(this).html();
-    }
-    if (v == null) return;
-    $('#oahiddengrid').val('P'+v);
-    ajaxSubmit();
-}
-
-    $('#cmdSnackbar').removeClass('oaDebug');
-$('#cmdSnackbar').attr('name', 'cmdSnackbar');
-$('#cmdSnackbar').addClass('oaSubmit');
-$('#cmdSnackbar').click(function() {$('#oacommand').val('cmdSnackbar');ajaxSubmit();return false;});
-$('#cmdSnackbar').removeAttr('disabled');
-$('#cmdSnackbar').show();
-
-    $('#dlgTest').removeClass('oaDebug');
+$('body').append("<div id='oaWait'><img src='image/oawait.gif'></div>");
+$('#oaHtmlTable').attr('method', 'post');
+$('#oaHtmlTable').attr('action', 'oaform.jsp');
+$('#oaHtmlTable').prepend("<input type='hidden' name='oaform' value='oaHtmlTable'>");
+$('#oaHtmlTable').prepend("<input id='oaajaxid' type='hidden' name='oaajaxid' value='0'>");
+$('#oaHtmlTable').prepend("<input id='oaFormProcessClosed' type='hidden' name='oaFormProcessClosed' value=''>");
+$('#oaHtmlTable').prepend("<input id='oacommand' type='hidden' name='oacommand' value=''>");
+$('#oaHtmlTable').prepend("<input id='oaparam' type='hidden' name='oaparam' value=''>");
+$('#oaHtmlTable').prepend("<input id='oachanged' type='hidden' name='oachanged' value=''>");
 (function() {
-    var xx = $('#dlgTest').wrap("<div class='modal-body'></div>").parent();
-    xx.wrap("<div class='modal-content'></div>");
-    xx.before("<div class='modal-header'><button type='button' class='close' data-dismiss='modal'><span>&times;</span></button><h4 class='modal-title'>Title text goes here</h4></div>");
-    xx.after("<div class='modal-footer'><button id='dlgTest_0button1' type='button' class='btn btn-default' data-dismiss='modal'>button1</button><button id='dlgTest_1button2' type='button' class='btn btn-default' data-dismiss='modal'>button2</button><button id='dlgTest_2button3' type='button' class='btn btn-default' data-dismiss='modal'>button3</button><button type='button' class='btn btn-default' data-dismiss='modal'>button to close</button></div>");
-    xx = xx.parent();
-    xx = xx.wrap("<div class='modal-dialog'></div>").parent();
-    xx.wrap("<div id='oaDialogdlgTest' class='modal fade' tabindex='-1'></div>");
- })();
-$('#dlgTest_0button1').click(function() {$('#oacommand').val('dlgTest button1');ajaxSubmit();return false;});
-$('#dlgTest_1button2').click(function() {$('#oacommand').val('dlgTest button2');ajaxSubmit();return false;});
-$('#dlgTest_2button3').click(function() {$('#oacommand').val('dlgTest button3');ajaxSubmit();return false;});
-$('#oaDialogdlgTest').modal('hide');
-    $('#expanderDiv').removeClass('oaDebug');
-$('#expanderCommand').click(function() {
-  if ($('#expanderDiv').is(':visible')) {
-    $('#expanderDiv').hide('slide', {direction: 'up'}, 325);
-    $('#expanderCommand').html('click to Expand');
-  }
-  else {
-    $('#expanderDiv').show('slide', {direction: 'up'}, 325);
-    $('#expanderCommand').html('click to Collapse');
-  }
+  var dtNow = new Date();
+  var tzOffsetJan = (new Date(dtNow.getFullYear(),0,1)).getTimezoneOffset();
+  var tzOffsetJul = (new Date(dtNow.getFullYear(),6,1)).getTimezoneOffset();
+  $('#oaHtmlTable').prepend("<input id='jsDate' type='hidden' name='jsDate' value='"+(dtNow.toString())+"'>");
+  $('#oaHtmlTable').prepend("<input id='jsTzRawOffset' type='hidden' name='jsTzRawOffset' value='"+Math.max(tzOffsetJan,tzOffsetJul)+"'>");
+  $('#oaHtmlTable').prepend("<input id='jsDateSupportsDST' type='hidden' name='jsDateSupportsDST' value='"+(tzOffsetJan != tzOffsetJul)+"'>");
+})();
+$('#table').attr('name', 'table');
+$('#table').blur(function() {$(this).removeClass('oaError');}); 
+$('#table').addClass('oaSubmit');
+$('#table').click(function() {
+  $('#oacommand').val('table');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
   return false;
 });
 
-    $('#tree').removeClass('oaDebug');
-$('form').prepend("<input id='oatreetree' type='hidden' name='oatreetree' value=''>");
-$('#tree').treeview({ levels: 1, showTags: true, data: [
-{text: 'Eli Harrison', oaid: 'g2312'},{text: 'Eli Johnson', oaid: 'g1832'},{text: 'Eli Tomlinson', oaid: 'g2070'},{text: 'Eva Doe', oaid: 'g2041'},{text: 'Eva Harris', oaid: 'g1821'},{text: 'Eva Philips', oaid: 'g2288'},{text: 'Howard Doe', oaid: 'g2222'},{text: 'Howard Harris', oaid: 'g1980'},{text: 'Howard Masters', oaid: 'g1760'},{text: 'Howard Philips', oaid: 'g2464'},{text: 'Jethro Harris', oaid: 'g2341'},{text: 'Jethro Masters', oaid: 'g2085'},{text: 'Jethro Smith', oaid: 'g1851'},{text: 'Jim Doe', oaid: 'g2400'},{text: 'Jim Harris', oaid: 'g2157'},{text: 'Jim Masters', oaid: 'g1921'},{text: 'Jim Smith', oaid: 'g1697'},{text: 'John Doe', oaid: 'g1873'},{text: 'John Harris', oaid: 'g1638'},{text: 'John Johnson', oaid: 'g2353'},{text: 'John Philips', oaid: 'g2110'},{text: 'Mary Harrison', oaid: 'g2138'},{text: 'Mary Johnson', oaid: 'g1668'},{text: 'Mary Smith', oaid: 'g2367'},{text: 'Mary Tomlinson', oaid: 'g1895'},{text: 'Morgan Harrison', oaid: 'g1810'},{text: 'Morgan Masters', oaid: 'g2255'},{text: 'Morgan Smith', oaid: 'g2024'},{text: 'Pete Harrison', oaid: 'g2478'},{text: 'Pete Johnson', oaid: 'g1997'},{text: 'Pete Philips', oaid: 'g1783'},{text: 'Pete Tomlinson', oaid: 'g2241'},{text: 'Tracy Doe', oaid: 'g1724'},{text: 'Tracy Johnson', oaid: 'g2173'},{text: 'Tracy Philips', oaid: 'g1941'},{text: 'Tracy Tomlinson', oaid: 'g2414'},{text: 'Victor Harrison', oaid: 'g1958'},{text: 'Victor Masters', oaid: 'g2434'},{text: 'Victor Smith', oaid: 'g2198'},{text: 'Victor Tomlinson', oaid: 'g1751'}
-]
-,onNodeSelected : function(event, node) {
-$('#oacommand').val('tree');
-$('#oatreetree').val('select.'+node.oaid);
-ajaxSubmit();return false;
-}
-,
-onNodeExpanded : function(event, node) {
-$('#oacommand').val('tree');
-$('#oatreetree').val('expand.'+node.oaid);
-ajaxSubmit2();return false;
-}
-,
-onNodeCollapsed : function(event, node) {
-$('#oacommand').val('tree');
-$('#oatreetree').val('collapse.'+node.oaid);
-ajaxSubmit2();return false;
-}
+$('#table').on('click', 'tr td', function() {
+  $('#oacommand').val($(this).attr('id'));
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
 });
 
-    $('#listAppUserLogins').removeClass('oaDebug');
-$('form').prepend("<input id='oalistlistAppUserLogins' type='hidden' name='oalistlistAppUserLogins' value=''>");
-function oaListlistAppUserLoginsClick() {
-    var v = $(this).attr('oarow');
-    if (v == null) return;
-    $('#oalistlistAppUserLogins').val(v);
-    $('#oacommand').val('listAppUserLogins');
-    ajaxSubmit();
-}
-$('#listAppUserLogins').addClass('oaList');
-$('#listAppUserLogins').html("<li oarow='0'>224.0</li><li oarow='1'>225.1</li><li oarow='2'>226.2</li><li oarow='3'>227.3</li><li oarow='4'>228.4</li><li oarow='5'>229.5</li><li oarow='6'>230.6</li><li oarow='7'>231.7</li><li oarow='8'>232.8</li><li oarow='9'>233.9</li><li oarow='10'>234.10</li><li oarow='11'>235.11</li><li oarow='12'>236.12</li><li oarow='13'>237.13</li><li oarow='14'>238.14</li><li oarow='15'>239.15</li><li oarow='16'>240.16</li><li oarow='17'>241.17</li><li oarow='18'>242.18</li><li oarow='19'>243.19</li><li oarow='20'>244.20</li><li class='oaSelected' oarow='-1'>set AO to null</li>");
-$('#listAppUserLogins li').addClass('oaTextNoWrap');
-$('#listAppUserLogins li[oarow]').click(oaListlistAppUserLoginsClick);
-$('#oalistlistAppUserLogins').val('');
-$('#listAppUserLogins').addClass('oaRequired');
-$('#listAppUserLogins').attr('required', true);
-$('#listAppUserLogins').blur(function() {$(this).removeClass('oaError');}); 
-$('#listAppUserLogins').addClass('oaSubmit');
-$('#listAppUserLogins > li').css("line-height", "1.1em");
-$('#listAppUserLogins').css("max-height", "15em");
-$('#listAppUserLogins').css("width", "11em");
-$('#listAppUserLogins').css("max-width", "12em");
-$('#listAppUserLogins').css("width", "11em");
-$('#listAppUserLogins').css("max-width", "12em");
+$('#cmdReloadMessage').attr('name', 'cmdReloadMessage');
+$('#cmdReloadMessage').blur(function() {$(this).removeClass('oaError');}); 
 
-    $('#cmdPopover').removeClass('oaDebug');
-$('#cmdPopover').popover({content: 'This is a popover message for user John Doe', placement: 'top', title: 'Popover test', trigger: 'hover'});
+$('#cmdOAReset').attr('name', 'cmdOAReset');
+$('#cmdOAReset').blur(function() {$(this).removeClass('oaError');}); 
 
-    $('#slimscrollTest').removeClass('oaDebug');
-$('#slimscrollTest').slimscroll({
-    height: '90px',
-    width: '350px',
-    distance: '3px',
-    size: '9px'
+$('#cmdDoAjaxSubmit').attr('name', 'cmdDoAjaxSubmit');
+$('#cmdDoAjaxSubmit').attr('type', 'button');
+$('#cmdDoAjaxSubmit').blur(function() {$(this).removeClass('oaError');}); 
+$('#cmdDoAjaxSubmit').addClass('oaSubmit');
+$('#cmdDoAjaxSubmit').click(function() {
+  $('#oacommand').val('cmdDoAjaxSubmit');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
 });
 
-    $('#stxtaTest').removeClass('oaDebug');
-$('#stxtaTest').summernote({
-height: 144,
-toolbar: [
-   // [groupName, [list of button]]
-   ['style', ['bold', 'italic', 'underline', 'clear']],
-   ['font', ['strikethrough', 'superscript', 'subscript']],
-   ['fontsize', ['fontsize']],
-   ['color', ['color']],
-   ['para', ['ul', 'ol', 'paragraph']],
-   ['insert', ['table', 'hr']],
-   ['view', ['fullscreen', 'codeview', 'help']],
-   ['height', ['height']]
- ]
+$('#eleId').attr('name', 'eleId');
+$('#eleId').blur(function() {$(this).removeClass('oaError');}); 
+$('#eleId').addClass('oaSubmit');
+$('#eleId').click(function() {
+  $('#oacommand').val('eleId');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
 });
-$('#stxtaTest').blur(function() {$(this).removeClass('oaError');}); 
-$('#stxtaTest').attr('name', 'stxtaTest_93');
-$('#stxtaTest').val('jdoe@bing.com');
-$('#stxtaTest').summernote('enable');
-$('#stxtaTest').summernote('code', "jdoe@bing.com");
 
-    $('#SpanAaa').removeClass('oaDebug');
-$('#SpanAaa').show();
-$('#SpanAaa').css({'font-size':'36pt'});
+$('#eleValue').attr('name', 'eleValue');
+$('#eleValue').blur(function() {$(this).removeClass('oaError');}); 
 
-    $('#tabTest').removeClass('oaDebug');
-$('form').prepend("<input id='tabTestIndex' type='hidden' name='oahiddentabTest' value='0'>");
-$('#tabTest').addClass('container');
-$('#tabTest').html("<ul class='nav nav-tabs'><li><a href='#' tabIndex='0'>Tab1</a></li><li><a href='#' tabIndex='1'>Tab2</a></li><li><a href='#' tabIndex='2'>Tab3</a></li></ul><div id='tabTestContent'>content here</div>");
-$('#tabTest1').addClass('oaHide');
-$('#tabTest ul li a').click(function(e) { $('#tabTestIndex').val($(this).attr('tabIndex'));$('#oacommand').val('tabTest');ajaxSubmit(); e.stopPropagation(); $(this).blur();return false; });
-$('#tabTest ul li').removeClass('active');
-$('#tabTest ul li:eq(0)').addClass('active');
-$('#tabTestContent').html($('#tabTest1').html());
+$('#txtLabelId').attr('name', 'txtLabelId');
+$('#txtLabelId').attr('type', 'text');
+$('#txtLabelId').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtLabelId').addClass('oaSubmit');
+$('#lblLabelId').attr('for', 'txtLabelId');
+$('#txtLabelId').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtLabelId');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
 
-$('#oaFormMessage').hide();$('#oaFormErrorMessage').hide();$('#oaFormHiddenMessage').hide();
-    $('#demoJsp').on('submit', oaSubmit);
-    var oaSubmitCancelled;
-    function oaSubmit(event) {
-        oaSubmitCancelled = true;
-        var errors = [];
-        var requires = [];
-        var regex;
-        var val;
-    if ($('#txtFirstName').val().length > 25) { errors.push('length greater then 25 characters for txtFirstName'); $('#txtFirstName').addClass('oaError');}
+$('#txtFloatLabel').attr('name', 'txtFloatLabel');
+$('#txtFloatLabel').attr('type', 'text');
+$('#txtFloatLabel').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtFloatLabel').addClass('oaSubmit');
+$('#lblFloatLabel').attr('for', 'txtFloatLabel');
+$('#txtFloatLabel').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtFloatLabel');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
 
-    if ($('#txtLastName').val() == '') { requires.push('txtLastName'); $('#txtLastName').addClass('oaError');}
-if ($('#txtLastName').val().length > 35) { errors.push('length greater then 35 characters for txtLastName'); $('#txtLastName').addClass('oaError');}
+$('#txtPlaceHolder').attr('name', 'txtPlaceHolder');
+$('#txtPlaceHolder').attr('type', 'text');
+$('#txtPlaceHolder').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtPlaceHolder').addClass('oaSubmit');
+$('#lblPlaceHolder').attr('for', 'txtPlaceHolder');
+$('#txtPlaceHolder').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtPlaceHolder');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
 
-    if ($('#ptxtPassword').val().length > 35) { errors.push('length greater then 35 characters for ptxtPassword'); $('#ptxtPassword').addClass('oaError');}
+$('#txtTitle').attr('name', 'txtTitle');
+$('#txtTitle').attr('type', 'text');
+$('#txtTitle').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtTitle').addClass('oaSubmit');
+$('#lblTitle').attr('for', 'txtTitle');
+$('#txtTitle').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtTitle');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
 
-    if ($('#txtInactiveDate').val().length > 35) { errors.push('length greater then 35 characters for txtInactiveDate'); $('#txtInactiveDate').addClass('oaError');}
+$('#txtToolTipText').attr('name', 'txtToolTipText');
+$('#txtToolTipText').attr('type', 'text');
+$('#txtToolTipText').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtToolTipText').addClass('oaSubmit');
+$('#lblToolTipText').attr('for', 'txtToolTipText');
+$('#txtToolTipText').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtToolTipText');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
 
-    if ($('#txtFirstNameAjax').val().length > 25) { errors.push('length greater then 25 characters for txtFirstNameAjax'); $('#txtFirstNameAjax').addClass('oaError');}
+$('#txtPattern').attr('name', 'txtPattern');
+$('#txtPattern').attr('type', 'text');
+$('#txtPattern').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtPattern').addClass('oaSubmit');
+$('#lblPattern').attr('for', 'txtPattern');
+$('#txtPattern').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtPattern');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
 
-    if ($('#AppUserLoginstxtCreated').val().length > 35) { errors.push('length greater then 35 characters for AppUserLoginstxtCreated'); $('#AppUserLoginstxtCreated').addClass('oaError');}
-if ($('#AppUserLoginstxtCreated').val().length > 0) $('#AppUserLoginstxtCreated_ts').val(Date.parse($('#AppUserLoginstxtCreated').val()));
+$('#txtAutoComplete').attr('name', 'txtAutoComplete');
+$('#txtAutoComplete').attr('type', 'text');
+$('#txtAutoComplete').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtAutoComplete').addClass('oaSubmit');
+$('#lblAutoComplete').attr('for', 'txtAutoComplete');
+$('#txtAutoComplete').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtAutoComplete');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
 
-    if ($('#txta').val().length > 25) { errors.push('length greater then 25 characters for txta'); $('#txta').addClass('oaError');}
+$('#chkFormDebug').attr('name', 'chkFormDebug');
+$('#chkFormDebug').attr('type', 'checkbox');
+$('#chkFormDebug').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkFormDebug').addClass('oaSubmit');
+$('#lblFormDebug').attr('for', 'chkFormDebug');
+$('#chkFormDebug').change(function() {
+  $('#oacommand').val('chkFormDebug');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
 
-    if ($('#oalistlist').val() == '') { requires.push('list'); $('#list').addClass('oaError');}
+$('#chkRequired').attr('name', 'chkRequired');
+$('#chkRequired').attr('type', 'checkbox');
+$('#chkRequired').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkRequired').addClass('oaSubmit');
+$('#lblRequired').attr('for', 'chkRequired');
+$('#chkRequired').change(function() {
+  $('#oacommand').val('chkRequired');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
 
-    if ($('#oalistlistAppUserLogins').val() == '') { requires.push('listAppUserLogins'); $('#listAppUserLogins').addClass('oaError');}
+$('#chkEnabled').attr('name', 'chkEnabled');
+$('#chkEnabled').attr('type', 'checkbox');
+$('#chkEnabled').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkEnabled').addClass('oaSubmit');
+$('#lblEnabled').attr('for', 'chkEnabled');
+$('#chkEnabled').change(function() {
+  $('#oacommand').val('chkEnabled');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
 
-if (requires.length > 0) {
+$('#chkReadOnly').attr('name', 'chkReadOnly');
+$('#chkReadOnly').attr('type', 'checkbox');
+$('#chkReadOnly').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkReadOnly').addClass('oaSubmit');
+$('#lblReadOnly').attr('for', 'chkReadOnly');
+$('#chkReadOnly').change(function() {
+  $('#oacommand').val('chkReadOnly');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkVisible').attr('name', 'chkVisible');
+$('#chkVisible').attr('type', 'checkbox');
+$('#chkVisible').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkVisible').addClass('oaSubmit');
+$('#lblVisible').attr('for', 'chkVisible');
+$('#chkVisible').change(function() {
+  $('#oacommand').val('chkVisible');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkHidden').attr('name', 'chkHidden');
+$('#chkHidden').attr('type', 'checkbox');
+$('#chkHidden').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkHidden').addClass('oaSubmit');
+$('#lblHidden').attr('for', 'chkHidden');
+$('#chkHidden').change(function() {
+  $('#oacommand').val('chkHidden');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkAjaxSubmit').attr('name', 'chkAjaxSubmit');
+$('#chkAjaxSubmit').attr('type', 'checkbox');
+$('#chkAjaxSubmit').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkAjaxSubmit').addClass('oaSubmit');
+$('#lblAjaxSubmit').attr('for', 'chkAjaxSubmit');
+$('#chkAjaxSubmit').change(function() {
+  $('#oacommand').val('chkAjaxSubmit');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkSubmit').attr('name', 'chkSubmit');
+$('#chkSubmit').attr('type', 'checkbox');
+$('#chkSubmit').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkSubmit').addClass('oaSubmit');
+$('#lblSubmit').attr('for', 'chkSubmit');
+$('#chkSubmit').change(function() {
+  $('#oacommand').val('chkSubmit');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkSpellCheck').attr('name', 'chkSpellCheck');
+$('#chkSpellCheck').attr('type', 'checkbox');
+$('#chkSpellCheck').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkSpellCheck').addClass('oaSubmit');
+$('#lblSpellCheck').attr('for', 'chkSpellCheck');
+$('#chkSpellCheck').change(function() {
+  $('#oacommand').val('chkSpellCheck');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtHeight').attr('name', 'txtHeight');
+$('#txtHeight').attr('type', 'text');
+$('#txtHeight').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtHeight').addClass('oaSubmit');
+$('#lblHeight').attr('for', 'txtHeight');
+$('#txtHeight').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtHeight');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtWidth').attr('name', 'txtWidth');
+$('#txtWidth').attr('type', 'text');
+$('#txtWidth').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtWidth').addClass('oaSubmit');
+$('#lblWidth').attr('for', 'txtWidth');
+$('#txtWidth').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtWidth');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtMinHeight').attr('name', 'txtMinHeight');
+$('#txtMinHeight').attr('type', 'text');
+$('#txtMinHeight').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMinHeight').addClass('oaSubmit');
+$('#lblMinHeight').attr('for', 'txtMinHeight');
+$('#txtMinHeight').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMinHeight');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtMinWidth').attr('name', 'txtMinWidth');
+$('#txtMinWidth').attr('type', 'text');
+$('#txtMinWidth').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMinWidth').addClass('oaSubmit');
+$('#lblMinWidth').attr('for', 'txtMinWidth');
+$('#txtMinWidth').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMinWidth');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtMaxHeight').attr('name', 'txtMaxHeight');
+$('#txtMaxHeight').attr('type', 'text');
+$('#txtMaxHeight').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMaxHeight').addClass('oaSubmit');
+$('#lblMaxHeight').attr('for', 'txtMaxHeight');
+$('#txtMaxHeight').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMaxHeight');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtMaxWidth').attr('name', 'txtMaxWidth');
+$('#txtMaxWidth').attr('type', 'text');
+$('#txtMaxWidth').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMaxWidth').addClass('oaSubmit');
+$('#lblMaxWidth').attr('for', 'txtMaxWidth');
+$('#txtMaxWidth').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMaxWidth');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtSize').attr('name', 'txtSize');
+$('#txtSize').attr('type', 'number');
+$('#txtSize').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtSize').addClass('oaSubmit');
+$('#lblSize').attr('for', 'txtSize');
+$('#txtSize').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtSize');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+$('#txtSize').attr('inputmode', 'numeric');
+
+$('#txtMinLength').attr('name', 'txtMinLength');
+$('#txtMinLength').attr('type', 'number');
+$('#txtMinLength').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMinLength').addClass('oaSubmit');
+$('#lblMinLength').attr('for', 'txtMinLength');
+$('#txtMinLength').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMinLength');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+$('#txtMinLength').attr('inputmode', 'numeric');
+
+$('#txtMaxLength').attr('name', 'txtMaxLength');
+$('#txtMaxLength').attr('type', 'number');
+$('#txtMaxLength').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMaxLength').addClass('oaSubmit');
+$('#lblMaxLength').attr('for', 'txtMaxLength');
+$('#txtMaxLength').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMaxLength');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+$('#txtMaxLength').attr('inputmode', 'numeric');
+
+$('#txtDataList').attr('name', 'txtDataList');
+$('#txtDataList').attr('type', 'text');
+$('#txtDataList').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtDataList').addClass('oaSubmit');
+$('#lblDataList').attr('for', 'txtDataList');
+$('#txtDataList').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtDataList');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtMin').attr('name', 'txtMin');
+$('#txtMin').attr('type', 'text');
+$('#txtMin').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMin').addClass('oaSubmit');
+$('#lblMin').attr('for', 'txtMin');
+$('#txtMin').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMin');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtMax').attr('name', 'txtMax');
+$('#txtMax').attr('type', 'text');
+$('#txtMax').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMax').addClass('oaSubmit');
+$('#lblMax').attr('for', 'txtMax');
+$('#txtMax').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMax');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtStep').attr('name', 'txtStep');
+$('#txtStep').attr('type', 'text');
+$('#txtStep').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtStep').addClass('oaSubmit');
+$('#lblStep').attr('for', 'txtStep');
+$('#txtStep').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtStep');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkMultiple').attr('name', 'chkMultiple');
+$('#chkMultiple').attr('type', 'checkbox');
+$('#chkMultiple').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkMultiple').addClass('oaSubmit');
+$('#lblMultiple').attr('for', 'chkMultiple');
+$('#chkMultiple').change(function() {
+  $('#oacommand').val('chkMultiple');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtAccept').attr('name', 'txtAccept');
+$('#txtAccept').attr('type', 'text');
+$('#txtAccept').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtAccept').addClass('oaSubmit');
+$('#lblAccept').attr('for', 'txtAccept');
+$('#txtAccept').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtAccept');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtCapture').attr('name', 'txtCapture');
+$('#txtCapture').attr('type', 'text');
+$('#txtCapture').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtCapture').addClass('oaSubmit');
+$('#lblCapture').attr('for', 'txtCapture');
+$('#txtCapture').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtCapture');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtMaxFileSize').attr('name', 'txtMaxFileSize');
+$('#txtMaxFileSize').attr('type', 'number');
+$('#txtMaxFileSize').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMaxFileSize').addClass('oaSubmit');
+$('#lblMaxFileSize').attr('for', 'txtMaxFileSize');
+$('#txtMaxFileSize').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMaxFileSize');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+$('#txtMaxFileSize').attr('inputmode', 'numeric');
+
+$('#txtSrc').attr('name', 'txtSrc');
+$('#txtSrc').attr('type', 'text');
+$('#txtSrc').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtSrc').addClass('oaSubmit');
+$('#lblSrc').attr('for', 'txtSrc');
+$('#txtSrc').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtSrc');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtRows').attr('name', 'txtRows');
+$('#txtRows').attr('type', 'number');
+$('#txtRows').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtRows').addClass('oaSubmit');
+$('#lblRows').attr('for', 'txtRows');
+$('#txtRows').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtRows');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+$('#txtRows').attr('inputmode', 'numeric');
+
+$('#txtCols').attr('name', 'txtCols');
+$('#txtCols').attr('type', 'number');
+$('#txtCols').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtCols').addClass('oaSubmit');
+$('#lblCols').attr('for', 'txtCols');
+$('#txtCols').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtCols');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+$('#txtCols').attr('inputmode', 'numeric');
+
+$('#txtAccessKey').attr('name', 'txtAccessKey');
+$('#txtAccessKey').attr('type', 'text');
+$('#txtAccessKey').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtAccessKey').addClass('oaSubmit');
+$('#lblAccessKey').attr('for', 'txtAccessKey');
+$('#txtAccessKey').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtAccessKey');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtTabIndex').attr('name', 'txtTabIndex');
+$('#txtTabIndex').attr('type', 'number');
+$('#txtTabIndex').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtTabIndex').addClass('oaSubmit');
+$('#lblTabIndex').attr('for', 'txtTabIndex');
+$('#txtTabIndex').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtTabIndex');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+$('#txtTabIndex').attr('inputmode', 'numeric');
+
+$('#txtInnerHtml').attr('name', 'txtInnerHtml');
+$('#txtInnerHtml').attr('type', 'text');
+$('#txtInnerHtml').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtInnerHtml').addClass('oaSubmit');
+$('#lblInnerHtml').attr('for', 'txtInnerHtml');
+$('#txtInnerHtml').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtInnerHtml');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtHref').attr('name', 'txtHref');
+$('#txtHref').attr('type', 'text');
+$('#txtHref').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtHref').addClass('oaSubmit');
+$('#lblHref').attr('for', 'txtHref');
+$('#txtHref').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtHref');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtTarget').attr('name', 'txtTarget');
+$('#txtTarget').attr('type', 'text');
+$('#txtTarget').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtTarget').addClass('oaSubmit');
+$('#lblTarget').attr('for', 'txtTarget');
+$('#txtTarget').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtTarget');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtStyle').attr('name', 'txtStyle');
+$('#txtStyle').attr('type', 'text');
+$('#txtStyle').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtStyle').addClass('oaSubmit');
+$('#lblStyle').attr('for', 'txtStyle');
+$('#txtStyle').blur(function() {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtStyle');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+
+$('#oaHtmlTable').on('submit', oaSubmit);
+var oaSubmitCancelled;
+function oaSubmit(event) {
+  oaSubmitCancelled = true;
+  var errors = [];
+  var requires = [];
+  var regex;
+  var val;
+  if (requires.length > 0) {
     event.preventDefault();
     var msg = '';
     for (var i=0; i<requires.length; i++) {
-        if (i > 0) {
-            msg += ',<br>';
-        }
-        msg += requires[i];
+      if (i > 0) {
+        msg += ',<br>';
+      }
+      msg += requires[i];
     }
     oaShowMessage('Required fields are missing', msg);
     return false;
-}
-if (errors.length > 0) {
+  }
+  if (errors.length > 0) {
     event.preventDefault();
     var msg = '';
     for (var i=0; i<errors.length; i++) {
-        if (i > 0) {
-            msg += ', ';
-            if (i % 3 == 0) msg += '<br>';
-        }
-        msg += errors[i];
+      if (i > 0) {
+        msg += ', ';
+        msg += '<br>';
+      }
+      msg += errors[i];
     }
     oaShowMessage('Errors on page', msg);
     return false;
+  }
+  oaSubmitCancelled = false;
+  return true;
 }
-        oaSubmitCancelled = false;
-        return true;
-    }
 var cntAjaxSubmit = 0;
 function ajaxSubmit(cmdName) {
   cntAjaxSubmit++;
@@ -1177,495 +858,480 @@ function ajaxSubmit(cmdName) {
       $('#oaWait').hide();
     }
   }
-  var args = $('#demoJsp').serialize();
-  if (cmdName != undefined && cmdName) args = cmdName + '=1&' + args;
-  $.ajax({
-    type: 'POST',
-    url: 'oaajax.jsp',
-    data: args,
-    success: f1,
-    error: f2,
-    dataType: 'text',
+  var objAjax = {
+    method: 'POST',
+    url: 'oaajax.jsp?oaform=oaHtmlTable',
+    data: new FormData($('#oaHtmlTable')[0]),
+    processData: false,
+    contentType: false,
+    dataType: 'script',
     timeout: 30000,
-    async: bUseAsync  });
+    async: bUseAsync
+  };
+  $.ajax(objAjax).done(f1).fail(f2);
 }
 function ajaxSubmit2(cmdName) {
-  var args = $('#demoJsp').serialize();
+  var args = $('#oaHtmlTable').serialize();
   if (cmdName != undefined && cmdName) args = cmdName + '=1&' + args;
   $.ajax({
-    type: 'POST',
+    method: 'POST',
     data: args,
     url: 'oaajax.jsp',
-    success: function(data) {if (data) eval(data);},
-    dataType: 'text'
-  });
+    dataType: 'script'
+  }).done(function(data) {if (data) eval(data);});
 }
-    $('input:enabled:first').focus();
+$('input:enabled:first').focus();
+  $('#table').val('');
+$('#table')[0].oaPrevValue = $('#table').val();
+$('#table').addClass('oatable');
+$('#table').html(`<colgroup><col><col><col></colgroup><thead><tr><th>Counter</th><th>First Name</th><th>Last Name</th></tr></thead><tbody>
+<tr><td id='table_0_0'>1</td><td id='table_0_1'>Admin</td><td id='table_0_2'>TheAdmin</td></tr>
+<tr><td id='table_1_0'>2</td><td id='table_1_1'>Joey</td><td id='table_1_2'>aaa</td></tr>
+<tr><td id='table_2_0'>3</td><td id='table_2_1'>Mary</td><td id='table_2_2'>MaryLastNameHere</td></tr>
+</tbody>
+`);
+$('table#table tbody tr:even').each(function(i) { if (!$(this).hasClass('oatableDisable') && !$(this).hasClass('oatableSelected')) $(this).addClass('oatableEven');});$('table#table tbody tr:odd').each(function(i) { if (!$(this).hasClass('oatableDisable') && !$(this).hasClass('oatableSelected')) $(this).addClass('oatableOdd');});
+  $('#cmdReloadMessage').val('');
+$('#cmdReloadMessage')[0].oaPrevValue = $('#cmdReloadMessage').val();
+$('#cmdReloadMessage').css({'background-color':'yellow','font-weight':'bold'});
+$('#cmdReloadMessage').css('visibility', 'hidden');
+
+  $('#cmdOAReset').val('');
+$('#cmdOAReset')[0].oaPrevValue = $('#cmdOAReset').val();
+$('#cmdOAReset').tooltip();
+$('#cmdOAReset').data('bs.tooltip').options.title = 're-create form and components';
+$('#cmdOAReset').data('bs.tooltip').options.placement = 'top';
+
+  $('#cmdDoAjaxSubmit').val('ajaxSubmit');
+$('#cmdDoAjaxSubmit')[0].oaPrevValue = $('#cmdDoAjaxSubmit').val();
+
+  $('#eleId').val('');
+$('#eleId')[0].oaPrevValue = $('#eleId').val();
+$('#eleId').html('table');
+
+  $('#eleValue').val('');
+$('#eleValue')[0].oaPrevValue = $('#eleValue').val();
+$('#eleValue').prop('hidden', true);
+
+  $('#txtLabelId').val('');
+$('#txtLabelId')[0].oaPrevValue = $('#txtLabelId').val();
+$('#lblLabelId').prop('disabled', true);
+$('#txtLabelId').prop('disabled', true);
+$('#txtLabelId').prop('hidden', true);
+$('#lblLabelId').prop('hidden', true);
+
+  $('#txtFloatLabel').val('');
+$('#txtFloatLabel')[0].oaPrevValue = $('#txtFloatLabel').val();
+$('#lblFloatLabel').prop('disabled', true);
+$('#txtFloatLabel').prop('disabled', true);
+$('#txtFloatLabel').prop('hidden', true);
+$('#lblFloatLabel').prop('hidden', true);
+
+  $('#txtPlaceHolder').val('');
+$('#txtPlaceHolder')[0].oaPrevValue = $('#txtPlaceHolder').val();
+$('#lblPlaceHolder').prop('disabled', true);
+$('#txtPlaceHolder').prop('disabled', true);
+$('#txtPlaceHolder').prop('hidden', true);
+$('#lblPlaceHolder').prop('hidden', true);
+
+  $('#txtTitle').val('');
+$('#txtTitle')[0].oaPrevValue = $('#txtTitle').val();
+
+  $('#txtToolTipText').val('');
+$('#txtToolTipText')[0].oaPrevValue = $('#txtToolTipText').val();
+
+  $('#txtPattern').val('');
+$('#txtPattern')[0].oaPrevValue = $('#txtPattern').val();
+$('#lblPattern').prop('disabled', true);
+$('#txtPattern').prop('disabled', true);
+$('#txtPattern').prop('hidden', true);
+$('#lblPattern').prop('hidden', true);
+
+  $('#txtAutoComplete').val('');
+$('#txtAutoComplete')[0].oaPrevValue = $('#txtAutoComplete').val();
+$('#lblAutoComplete').prop('disabled', true);
+$('#txtAutoComplete').prop('disabled', true);
+$('#txtAutoComplete').prop('hidden', true);
+$('#lblAutoComplete').prop('hidden', true);
+
+  $('#chkFormDebug').val('chkFormDebug');
+$('#chkFormDebug')[0].oaPrevValue = $('#chkFormDebug').val();
+
+  $('#chkRequired').val('chkRequired');
+$('#chkRequired')[0].oaPrevValue = $('#chkRequired').val();
+$('#lblRequired').prop('disabled', true);
+$('#chkRequired').prop('disabled', true);
+$('#chkRequired').prop('hidden', true);
+$('#lblRequired').prop('hidden', true);
+
+  $('#chkEnabled').val('chkEnabled');
+$('#chkEnabled')[0].oaPrevValue = $('#chkEnabled').val();
+$('#lblEnabled').prop('disabled', true);
+$('#chkEnabled').prop('disabled', true);
+$('#chkEnabled').prop('checked', true);
+
+  $('#chkReadOnly').val('chkReadOnly');
+$('#chkReadOnly')[0].oaPrevValue = $('#chkReadOnly').val();
+$('#lblReadOnly').prop('disabled', true);
+$('#chkReadOnly').prop('disabled', true);
+$('#chkReadOnly').prop('hidden', true);
+$('#lblReadOnly').prop('hidden', true);
+
+  $('#chkVisible').val('chkVisible');
+$('#chkVisible')[0].oaPrevValue = $('#chkVisible').val();
+$('#lblVisible').prop('disabled', true);
+$('#chkVisible').prop('disabled', true);
+$('#chkVisible').prop('checked', true);
+
+  $('#chkHidden').val('chkHidden');
+$('#chkHidden')[0].oaPrevValue = $('#chkHidden').val();
+
+  $('#chkAjaxSubmit').val('chkAjaxSubmit');
+$('#chkAjaxSubmit')[0].oaPrevValue = $('#chkAjaxSubmit').val();
+$('#chkAjaxSubmit').prop('checked', true);
+
+  $('#chkSubmit').val('chkSubmit');
+$('#chkSubmit')[0].oaPrevValue = $('#chkSubmit').val();
+
+  $('#chkSpellCheck').val('chkSpellCheck');
+$('#chkSpellCheck')[0].oaPrevValue = $('#chkSpellCheck').val();
+$('#lblSpellCheck').prop('disabled', true);
+$('#chkSpellCheck').prop('disabled', true);
+$('#chkSpellCheck').prop('hidden', true);
+$('#lblSpellCheck').prop('hidden', true);
+
+  $('#txtHeight').val('');
+$('#txtHeight')[0].oaPrevValue = $('#txtHeight').val();
+$('#txtHeight').attr('size', 8);
+
+  $('#txtWidth').val('');
+$('#txtWidth')[0].oaPrevValue = $('#txtWidth').val();
+$('#txtWidth').attr('size', 8);
+
+  $('#txtMinHeight').val('');
+$('#txtMinHeight')[0].oaPrevValue = $('#txtMinHeight').val();
+$('#txtMinHeight').attr('size', 8);
+
+  $('#txtMinWidth').val('');
+$('#txtMinWidth')[0].oaPrevValue = $('#txtMinWidth').val();
+$('#txtMinWidth').attr('size', 8);
+
+  $('#txtMaxHeight').val('');
+$('#txtMaxHeight')[0].oaPrevValue = $('#txtMaxHeight').val();
+$('#txtMaxHeight').attr('size', 8);
+
+  $('#txtMaxWidth').val('');
+$('#txtMaxWidth')[0].oaPrevValue = $('#txtMaxWidth').val();
+$('#txtMaxWidth').attr('size', 8);
+
+  $('#txtSize').val('');
+$('#txtSize')[0].oaPrevValue = $('#txtSize').val();
+$('#txtSize').css({'width':'5em'});
+$('#lblSize').prop('disabled', true);
+$('#txtSize').prop('disabled', true);
+$('#txtSize').prop('hidden', true);
+$('#lblSize').prop('hidden', true);
+
+  $('#txtMinLength').val('');
+$('#txtMinLength')[0].oaPrevValue = $('#txtMinLength').val();
+$('#txtMinLength').css({'width':'5em'});
+$('#lblMinLength').prop('disabled', true);
+$('#txtMinLength').prop('disabled', true);
+$('#txtMinLength').prop('hidden', true);
+$('#lblMinLength').prop('hidden', true);
+
+  $('#txtMaxLength').val('');
+$('#txtMaxLength')[0].oaPrevValue = $('#txtMaxLength').val();
+$('#txtMaxLength').css({'width':'5em'});
+$('#lblMaxLength').prop('disabled', true);
+$('#txtMaxLength').prop('disabled', true);
+$('#txtMaxLength').prop('hidden', true);
+$('#lblMaxLength').prop('hidden', true);
+
+  $('#txtDataList').val('');
+$('#txtDataList')[0].oaPrevValue = $('#txtDataList').val();
+$('#txtDataList').attr('size', 40);
+$('#lblDataList').prop('disabled', true);
+$('#txtDataList').prop('disabled', true);
+$('#txtDataList').prop('hidden', true);
+$('#lblDataList').prop('hidden', true);
+
+  $('#txtMin').val('null');
+$('#txtMin')[0].oaPrevValue = $('#txtMin').val();
+$('#txtMin').attr('size', 12);
+$('#lblMin').prop('disabled', true);
+$('#txtMin').prop('disabled', true);
+$('#txtMin').prop('hidden', true);
+$('#lblMin').prop('hidden', true);
+
+  $('#txtMax').val('null');
+$('#txtMax')[0].oaPrevValue = $('#txtMax').val();
+$('#txtMax').attr('size', 12);
+$('#lblMax').prop('disabled', true);
+$('#txtMax').prop('disabled', true);
+$('#txtMax').prop('hidden', true);
+$('#lblMax').prop('hidden', true);
+
+  $('#txtStep').val('');
+$('#txtStep')[0].oaPrevValue = $('#txtStep').val();
+$('#txtStep').attr('size', 12);
+$('#lblStep').prop('disabled', true);
+$('#txtStep').prop('disabled', true);
+$('#txtStep').prop('hidden', true);
+$('#lblStep').prop('hidden', true);
+
+  $('#chkMultiple').val('chkMultiple');
+$('#chkMultiple')[0].oaPrevValue = $('#chkMultiple').val();
+$('#lblMultiple').prop('disabled', true);
+$('#chkMultiple').prop('disabled', true);
+$('#chkMultiple').prop('hidden', true);
+$('#lblMultiple').prop('hidden', true);
+
+  $('#txtAccept').val('');
+$('#txtAccept')[0].oaPrevValue = $('#txtAccept').val();
+$('#txtAccept').attr('size', 12);
+$('#lblAccept').prop('disabled', true);
+$('#txtAccept').prop('disabled', true);
+$('#txtAccept').prop('hidden', true);
+$('#lblAccept').prop('hidden', true);
+
+  $('#txtCapture').val('');
+$('#txtCapture')[0].oaPrevValue = $('#txtCapture').val();
+$('#txtCapture').attr('size', 12);
+$('#txtCapture').tooltip();
+$('#txtCapture').data('bs.tooltip').options.title = 'off, name, etc';
+$('#txtCapture').data('bs.tooltip').options.placement = 'top';
+$('#lblCapture').prop('disabled', true);
+$('#txtCapture').prop('disabled', true);
+$('#txtCapture').prop('hidden', true);
+$('#lblCapture').prop('hidden', true);
+
+  $('#txtMaxFileSize').val('');
+$('#txtMaxFileSize')[0].oaPrevValue = $('#txtMaxFileSize').val();
+$('#txtMaxFileSize').css({'width':'7em'});
+$('#lblMaxFileSize').prop('disabled', true);
+$('#txtMaxFileSize').prop('disabled', true);
+$('#txtMaxFileSize').prop('hidden', true);
+$('#lblMaxFileSize').prop('hidden', true);
+
+  $('#txtSrc').val('');
+$('#txtSrc')[0].oaPrevValue = $('#txtSrc').val();
+$('#lblSrc').prop('disabled', true);
+$('#txtSrc').prop('disabled', true);
+$('#txtSrc').prop('hidden', true);
+$('#lblSrc').prop('hidden', true);
+
+  $('#txtRows').val('');
+$('#txtRows')[0].oaPrevValue = $('#txtRows').val();
+$('#txtRows').css({'width':'4em'});
+$('#lblRows').prop('disabled', true);
+$('#txtRows').prop('disabled', true);
+$('#txtRows').prop('hidden', true);
+$('#lblRows').prop('hidden', true);
+
+  $('#txtCols').val('');
+$('#txtCols')[0].oaPrevValue = $('#txtCols').val();
+$('#txtCols').css({'width':'4em'});
+$('#lblCols').prop('disabled', true);
+$('#txtCols').prop('disabled', true);
+$('#txtCols').prop('hidden', true);
+$('#lblCols').prop('hidden', true);
+
+  $('#txtAccessKey').val('');
+$('#txtAccessKey')[0].oaPrevValue = $('#txtAccessKey').val();
+$('#txtAccessKey').attr('size', 2);
+
+  $('#txtTabIndex').val('');
+$('#txtTabIndex')[0].oaPrevValue = $('#txtTabIndex').val();
+$('#txtTabIndex').css({'width':'4em'});
+
+  $('#txtInnerHtml').val('');
+$('#txtInnerHtml')[0].oaPrevValue = $('#txtInnerHtml').val();
+
+  $('#txtHref').val('');
+$('#txtHref')[0].oaPrevValue = $('#txtHref').val();
+$('#lblHref').prop('disabled', true);
+$('#txtHref').prop('disabled', true);
+$('#txtHref').prop('hidden', true);
+$('#lblHref').prop('hidden', true);
+
+  $('#txtTarget').val('');
+$('#txtTarget')[0].oaPrevValue = $('#txtTarget').val();
+$('#txtTarget').tooltip();
+$('#txtTarget').data('bs.tooltip').options.title = '_self, _blank, _parent, _top, or a named frame/window';
+$('#txtTarget').data('bs.tooltip').options.placement = 'top';
+$('#lblTarget').prop('disabled', true);
+$('#txtTarget').prop('disabled', true);
+$('#txtTarget').prop('hidden', true);
+$('#lblTarget').prop('hidden', true);
+
+  $('#txtStyle').val('');
+$('#txtStyle')[0].oaPrevValue = $('#txtStyle').val();
 
 });
 </script>
-
+</head>
 
 <body>
+    <form id="oaHtmlTable">
+<style>
+body {
+  margin-left: 15px;
+}
+
+#div {
+  border: solid thin;
+}
+</style>
+
+<span id="cmdReloadMessage">Page reload is needed</span>
+<a id="cmdOAReset" href="oareset.jsp">oareset</a>
+&nbsp;&nbsp;&nbsp;
+<input type=submit value="submit">
+<input id="cmdDoAjaxSubmit" type=button value="xxx">
+debug
+<input id="chkFormDebug" type="checkbox">
+
+<fieldset>
+  <legend>Demo HtmlTable</legend>
+  <label id="lbl">Test HtmlTable
+    <table id="table" border="2">
+    </table>
+  </label> <br>
+
+  <p>
+    <br> <br>
+    <legend>Property Editor</legend>
+
+<label id="lblId">Id <span id="eleId"></span></label><p>
+
+<label id="lblValue">Value <span id="eleValue"></span></label><p>
+
+<label id="lblLabelId">Label Id <input id="txtLabelId" type="text" size=10></label><p>
 
-  <!-- map id to oaform -->
-  <form id="demoJsp">
-
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">Project name</a>
-        </div>
-        <div id="navbar" class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-        </div>
-        <!--/.nav-collapse -->
-      </div>
-    </nav>
-
-
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <li class="active"><a href="#">Overview</a></li>
-            <li><a href="#">Reports</a></li>
-            <li><a href="#">Analytics</a></li>
-            <li><a href="#">Export</a></li>
-          </ul>
-          <ul class="nav nav-sidebar">
-            <li><a href="">Nav item</a></li>
-            <li><a href="">Nav item again</a></li>
-            <li><a href="">One more nav</a></li>
-            <li><a href="">Another nav item</a></li>
-            <li><a href="">More navigation</a></li>
-          </ul>
-          <ul class="nav nav-sidebar">
-            <li><a href="">Nav item again</a></li>
-            <li><a href="">One more nav</a></li>
-            <li><a href="">Another nav item</a></li>
-          </ul>
-        </div>
-      </div>
-
-
-
-      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-
-<br><br>
-<span id="SpanAaa">
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-</span>
-<br>
-<br>XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>
-
-
-<br> 
-<br>
-
-
-
-<select id="selTest" class="" data-live-search="true">
-<option>Mustard</option><option>Ketchup</option><option>Relish</option><option>Mustard1</option><option>Ketchup1</option><option>Relish1</option><option>Mustard2</option>
-<option>Ketchup2</option><option>Relish2</option><option>Mustard3</option><option>Ketchup3</option><option>Relish3</option><option>Mustard</option><option>Ketchup</option><option>Relish</option><option>Mustard1</option><option>Ketchup1</option>
-<option>Relish1</option><option>Mustard2</option><option>Ketchup2</option><option>Relish2</option><option>Mustard3</option><option>Ketchup3</option><option>Relish3</option><option>Mustard</option>
-<option>Ketchup</option><option>Relish</option><option>Mustard1</option><option>Ketchup1</option><option>Relish1</option><option>Mustard2</option><option>Ketchup2</option><option>Relish2</option><option>Mustard3</option><option>Ketchup3</option><option>Relish3</option>
-</select>
-
-<script type="text/javascript">
-
-$('#selTest').selectpicker({
-    style: 'btn-default',
-    header: 'search for state',
-    noneSelectedText:'please select a value',
-    size: 8
-  });
-
-
-</script>
-
-        <div style="border: 1px yellow solid;">
-          OAButtonList1 - no cols<br>
-          <button id="cmdButtonList1" class="btn btn-default">cmdButtonList1 here</button>
-          <br><br>OAButtonList2 - 20 cols<br>
-          <button id="cmdButtonList2" class="btn btn-default">cmdButtonList2 here</button>
-          <br><br>OAButtonList3 - no columns<br>
-          <button id="cmdButtonList3" class="btn btn-default">cmdButtonList3 here</button>
-          <br><br>OAButtonList4 - width=30%, popup width=100%<br>
-          <button id="cmdButtonList4" class="btn btn-default">cmdButtonList4 here</button>
-        </div>
-<br><br><br>
-
-
-<!-- OATabbedPane qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq -->
-
-        <div id="tabTest" class="container"></div>
-
-        <div id="tabTest1" class="XXoaHide">This is tabTest1 data here</div>
-
-
-        <br><br><br>
-<!-- tabPane -->
-        <div id="tabMain" class="container" style="border: red 3px solid;">
-          <ul class="nav nav-tabs">
-            <li><a href="#tabMain1" Xdata-toggle="tab">Overview</a></li>
-            <li class="active"><a href="#tabMain2" Xdata-toggle="tab">Using nav-pills</a></li>
-            <li><a href="#tabMain3" Xdata-toggle="tab">Applying clearfix</a></li>
-            <li><a href="#tabMain4" Xdata-toggle="tab">Background color</a></li>
-          </ul>
-
-          <div class="tab-content clearfix">
-            <div class="tab-pane active" id="tabMain1">
-              <h3>Content's background color is the same for the tab</h3>
-            </div>
-            <div class="tab-pane" id="tabMain2">
-              <h3>We use the class nav-pills instead of nav-tabs which automatically creates a background color for the tab</h3>
-            </div>
-            <div class="tab-pane" id="tabMain3">
-              <h3>We applied clearfix to the tab-content to rid of the gap between the tab and the content</h3>
-            </div>
-            <div class="tab-pane" id="tabMain4">
-              <h3>We use css to change the background color of the content to be equal to the tab</h3>
-            </div>
-          </div>
-        </div>
-
-
-
-
-
-        <script>
-        
-        $('#tabMain ul li a').click(function (e) {
-            e.preventDefault();
-            // ajaxSubmit();
-            $(this).tab('show');
-        })        
-        
-        </script>
-
-
-        <br>
-        <br>
-        <br> OAStyledTextArea<br>
-        <textarea cols="40" id="stxtaTest" rows="10"></textarea>
-
-        <br>
-        <br>
-        <br>
-
-        <!-- qqqqqq
-Summernote<br>
-<textarea cols="80" id="txtaSummernote" rows="10" ></textarea>
-<script>
-/*
-$('#txtaSummernote').summernote({
-    toolbar: [
-      // [groupName, [list of button]]
-      ['style', ['bold', 'italic', 'underline', 'clear']],
-      ['font', ['strikethrough', 'superscript', 'subscript']],
-      ['fontsize', ['fontsize']],
-      ['color', ['color']],
-      ['para', ['ul', 'ol', 'paragraph']],
-      ['height', ['height']]
-    ]
-  });
-*/
-</script>
-
-<br><br><br>
-
-CKEditor<br>
-<textarea cols="80" id="editor1" name="editor1" rows="10" >&lt;p&gt;This is some &lt;strong&gt;sample text&lt;/strong&gt;. You are using &lt;a href="http://ckeditor.com/"&gt;CKEditor&lt;/a&gt;.&lt;/p&gt;
-</textarea>
-<script>
-/*
-  CKEDITOR.replace( 'editor1', {
-      height: 260,
-      width: 700,
-  } );
-*/  
-</script>
-qqqqqq  -->
-
-        <br>
-        <br>
-        <br>
-
-
-        <button id="cmdPopover">Hover over for a popover</button>
-
-        <button id="cmdPopover2">Hover over for a popover2</button>
-
-
-        <div id="slimscrollTest" style="border: 2px red solid;">
-          lots of text lots of text lots of text lots of text lots of text<br> lots of text lots<br>lots of text lots of text lots of text lots of text lots of
-          text<br>lots of text lots of text lots of text lots of text lots of text<br> lots of text lots of text lots of text lots of text lots of text<br>lots
-          of text lots of text lots of text lots of text lots of text<br> lots of text lots of text lots of text lots of text lots of text<br>lots of text lots of
-          text lots of text lots of text lots of text<br> lots of text lots<br>lots of text lots<br>lots of text lots<br>lots of text lots<br>lots
-          of text lots<br>lots of text lots<br>lots of text lots<br> lots of text lots of text lots of text lots of text lots of text
-        </div>
-
-
-        <br>
-        <br>
-        <br>
-
-        <button id="cmdTt" type="button" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Tooltip test text here">Tooltip test</button>
-
-
-        <script>
-                                    /*
-                                     $('#slimscrollTest').slimscroll({
-                                     height: '100px',
-                                     width: '400px',
-                                     size: '9px'
-                                     });
-                                     */
-
-                                    var objx = $('#cmdPopover2');
-                                    $('#cmdPopover2').popover({
-                                        content : 'This is a popover2 message',
-                                        placement : 'top',
-                                        title : 'Popover2 test',
-                                        trigger : 'hover'
-                                    });
-
-                                    $(function() {
-                                        $('#cmdTt').tooltip();
-                                    });
-                                </script>
-
-
-
-        <button id="cmdSpin" type="button" class="btn btn-primary ladda-button" data-style="slide-right" data-toggle="tooltip" data-placement="top" title="Tooltip here">
-          <span class="ladda-label">Slide Right</span> <span class="ladda-spinner"></span>
-        </button>
-
-        <script>
-                                    $(function() {
-                                        $('#cmdSpin').click(function(e) {
-                                            e.preventDefault();
-                                            var l = Ladda.create(this);
-                                            l.start();
-                                            setTimeout(function() {
-                                                alert("==>" + $('#cmdSpin'));
-                                                //Ladda.create($('#cmdSpin')).stop();
-                                                l.stop();
-                                            }, 1000);
-                                            return false;
-                                        });
-                                    });
-                                </script>
-
-        <br>
-        <br>
-        <br> zzzzzzzzzzzzzzzzzzzzzzzzzzzz <br>
-        <br>
-        <br>
-
-        <div class="oaMouseOverShadow" style="margin-left: 25px; padding: 25px; display: inline-block;">
-          (click on Full Name to display) <br> #oaFormMessage: <span id="oaFormMessage">Messages will show here</span> <br> #oaFormErrorMessage: <span
-            id="oaFormErrorMessage">Error Messages will show here</span> <br> #oaHiddenFormMessage: <span id="oaFormHiddenMessage">Hidden Messages will show
-            here</span>
-        </div>
-
-        <br>
-
-
-        <div>
-          <button id="cmdCreateOAProcess">create form process</button>
-          <button id="cmdHideOAProcessDialog">hide process dialog</button>
-          <button id="cmdShowOAProcessDialog">show process dialog</button>
-          <button id="cmdCancelOAProcesses">cancel process</button>
-          <button id="cmdClearOAProcesses">clear form process</button>
-        </div>
-
-        <div>
-          Active UserID: <span id="badgeId">99999</span>
-        </div>
-
-
-
-        UserId:
-        <div id="lblId">ID should be here</div>
-
-        First Name: <input id="txtFirstName" type="text" value="test" size="15" maxlength="3"> 
-        
-        <br> 
-        First Name+ajax: <input id="txtFirstNameAjax" type="text" value="test" size="15" maxlength="30"> <br> 
-        
-        
-        Last Name: <input id="txtLastName" type="text" value="test" size="12" maxlength="3"> <br>
-        Password: <input id="ptxtPassword" type="password"></input> <br> Fullname+ajax (click to see messages): <span id="lblFullNameAjax"
-          style="border: 1px solid green;">XXXX</span> <br> <br> Admin: <input id="chkAdmin" type="checkbox" name="abc" value="def" checked> <br> <input
-          id="radAdminTrue" type="radio"> Admin Yes <input id="radAdminFalse" type="radio"> Admin No <br> Inactive date: <input id="txtInactiveDate"
-          type="text"> 
-          
-<br>Select of all AppUsers: <select id="cbo">
-          <option value="x">none</option>
-        </select> 
-        
-
-<br>Select of user Logins: <select id="AppUserLoginscbo">
-          <option value="x">none</option>
-        </select> <br> <br>Created datetime: <input id="AppUserLoginstxtCreated" type="text"> <br>jquiSelectMenu of all AppUsers: <select id="sm"></select> <br>jquiSelectMenu
-        of user Logins: <select id="sm2"></select> <br>
-
-        <br>bsComboBox of all AppUsers: <select id="bscbo"></select> <br>bsComboBox of user Logins: <select id="bscbo2"></select> <br> <br>HtmlSelect+ajax:<br>
-        <select id="select">
-        </select> <br> <br> <input id="cmdSubmit" type="submit" value="Submit"> <br>
-        <Button id="cmdSubmitAjax">Ajax Submit Button w/Spinner</Button>
-        <br> Fullname in a div:
-
-
-        <div id="lblTest"></div>
-        <br>
-
-        <textarea id="txta"></textarea>
-        <br>
-
-        <div>
-          OAListing<br>
-          <ol id="XXXXqqqqqqqqqqqXXXlisting"></ol>
-        </div>
-
-        <div>
-          OAList appUser<br>
-          <div>
-            <ol id="list"></ol>
-          </div>
-        </div>
-
-        <div>
-          OAList appUserLogin<br>
-          <div>
-            <ol id="listAppUserLogins">
-              <li>appUserLogin OAList here
-            </ol>
-          </div>
-        </div>
-
-        <div id="table">table will be placed here</div>
-
-        <div id="tableAppUserLogins">tableAppUserLogins will be placed here</div>
-  </form>
-
-  <div id='dlgTest'>
-    This is the text <br> for the Dialog box, it can have anything in it.
-    <button>Like custom buttons</button>
-    Text Field: <input type="text">
-  </div>
-
-  <br>
-  <div id="grid" style="width: 70%;">grid will be placed here</div>
-
-  <button onclick="oaShowMessage('title goes here', 'your message goes here'); return false;">test popup modal message</button>
-
-  <br>
-  <button onclick="$('#oaDialogdlgTest').modal({keyboard: true}); return false;">test dialog</button>
-
-  <br>
-  <button id="cmdSnackbar">show snackbar message</button>
-
-  <br>
-
-  <div style="border: 2px black solid; padding: 15px;">
-    <button id="popupCommandA">popup top</button>
-    <button id="popupCommandB">popup bottom</button>
-    <button id="popupCommand1">popup top-right</button>
-    <button id="popupCommand2">popup bottom-right</button>
-    <button id="popupCommand3">popup bottom-left</button>
-    <button id="popupCommand4">popup top-left</button>
-    <button id="popupCommand7">popup middle-right</button>
-    <button id="popupCommand5">popup center</button>
-    <button id="popupCommand6">popup other</button>
-  </div>
-
-  <br>
-  <div id="popupDivA" class="oaHide" style="min-width: 20vw; min-height: 20vh;">popup div top</div>
-  <div id="popupDivB" class="oaHide" style="min-width: 20vw; min-height: 20vh;">popup div bottom</div>
-  <div id="popupDiv1" class="oaHide">
-    popup div top-right<br>
-    <h1>this is a long text to display the popup text that needs to be be hidden</h1>
-    here's the bottom text.
-  </div>
-  <div id="popupDiv2" class="oaHide">
-    popup div bottom-right<br>
-    <h1>this is a long text to display the popup text that needs to be be hidden</h1>
-    here's the bottom text.
-  </div>
-  <div id="popupDiv3" class="oaHide">popup div bottom-left</div>
-  <div id="popupDiv4" class="oaHide" style="min-width: 20vw; min-height: 20vh;">popup div top-left</div>
-  <div id="popupDiv5" class="oaHide" style="min-width: 20vw; min-height: 20vh;">popup div center</div>
-  <div id="popupDiv6" class="oaHide" style="min-width: 20vw; min-height: 20vh;">popup div other</div>
-  <div id="popupDiv7" class="oaHide" style="min-width: 20vw; min-height: 20vh;">popup div right-middle</div>
-  <br>
-
-
-  <button id="expanderCommand">click to Expand</button>
-  <br>
-
-  <div id="expanderDiv" class="oaHide" style="border: 2px blue solid; text-align: left;">
-    this is expanded or collapsed<br> using another <br> button or html element;
-  </div>
-  some text after expand/collapse.
-
-  <div style="height: 50px;">&nbsp;</div>
-
-
-  TREE HERE:
-  <div id="tree" style="width: 400px; height: 400px; border: 2px green solid; overflow: scroll;">tree here</div>
-
-  <script>
-            function xclick() {
-                $('#tree').remove();
-            }
-        </script>
-  <button onclick="xclick(); return false;">Update Tree</button>
-
-  </div>
-
-
-    <ul id="list"></ul>
-
-
-  <br>
-  <br>
-  <br>
-  <br>
-  <br> Bottom of the page ... Bottom of the page ... Bottom of the page ...
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-
-  </div>
-
-
-  <footer class="footer">
-    <div class="container-fluid">Place sticky footer content here.</div>
-  </footer>
+<style>
+    table tr td {
+        padding-right: 20px;
+    }
+</style>
+
+<table>
+<tr>
+<td>
+<label id="lblVisible"><input id="chkVisible" type="checkbox"> Visible</label>
+<td>
+<label id="lblHidden"><input id="chkHidden" type="checkbox"> Hidden</label>
+<td>
+<label id="lblEnabled"><input id="chkEnabled" type="checkbox"> Enabled</label>
+<td>
+<label id="lblReadOnly"><input id="chkReadOnly" type="checkbox"> ReadOnly</label>
+<tr>
+<td>
+<label id="lblSubmit"><input id="chkSubmit" type="checkbox"> Submit</label>
+<td>
+<label id="lblAjaxSubmit"><input id="chkAjaxSubmit" type="checkbox"> AjaxSubmit</label>
+<tr>
+<td>
+<label id="lblRequired"><input id="chkRequired" type="checkbox"> Required</label>
+<td>
+<label id="lblSpellCheck"><input id="chkSpellCheck" type="checkbox"> SpellCheck</label>
+
+<tr>
+<td>
+<!-- file, select -->
+<label id="lblMultiple">Multiple <input id="chkMultiple" type="checkbox"></label><p>
+
+</table>
+<p>
+
+<label id="lblAccessKey">AccessKey <input id="txtAccessKey" type="text" autocomplete="off"></label><p>
+<label id="lblTabIndex">TabIndex <input id="txtTabIndex" type="text"></label><p>
+
+
+<!-- text -->
+<table>
+<tr>
+<td>
+<label id="lblSize">Size <input id="txtSize" type="text"></label><p>
+<tr>
+<td>
+<label id="lblMinLength">MinLength <input id="txtMinLength" type="text"></label><p>
+<td>
+<label id="lblMaxLength">MaxLength <input id="txtMaxLength" type="text"></label><p>
+</table>
+
+
+<label id="lblTitle">Title <input id="txtTitle" type="text" size=20></label><p>
+<label id="lblFloatLabel">Float Label <input id="txtFloatLabel" type="text" size=20></label><p>
+<label id="lblPlaceHolder">PlaceHolder <input id="txtPlaceHolder" type="text" size=20></label><p>
+<label id="lblToolTipText">ToolTipText <input id="txtToolTipText" type="text" size=20></label><p>
+
+<!-- text -->
+<label id="lblPattern">Pattern (regex) <input id="txtPattern" type="text" size=20></label><p>
+<label id="lblAutoComplete">AutoComplete <input id="txtAutoComplete" type="text" size=20></label><p>
+
+<label id="lblStyle">Add Style <input id="txtStyle" type="text" size=20></label><p>
+
+
+
+<!-- range* -->
+<label id="lblMin">min <input id="txtMin" type="text"></label><p>
+<label id="lblMax">max <input id="txtMax" type="text"></label><p>
+<label id="lblStep">step <input id="txtStep" type="text"></label><p>
 
+<!-- text, textarea -->
+<label id="lblDataList">DataList <input id="txtDataList" type="text"></label><p>
 
+<!-- img -->
+<label id="lblSrc">Src <input id="txtSrc" type="text"></label><p>
 
+
+
+<!-- textarea -->
+<label id="lblCols">Cols <input id="txtCols" type="number"></label><p>
+<label id="lblRows">Rows <input id="txtRows" type="number"></label><p>
+
+
+
+<!-- file -->
+<label id="lblAccept">Accept <input id="txtAccept" type="text"></label><p>
+<label id="lblCapture">Capture <input id="txtCapture" type="text"></label><p>
+<label id="lblMaxFileSize">MaxFileSize <input id="txtMaxFileSize" type="number"></label><p>
+
+
+<!-- text -->
+<label id="lblInnerHtml">InnerHtml <input id="txtInnerHtml" type="text"></label><p>
+
+<!-- link -->
+<label id="lblHref">Href <input id="txtHref" type="text"></label><p>
+<label id="lblTarget">Target <input id="txtTarget" type="text"></label><p>
+
+
+<legend>CSS / Style</legend>
+<!-- css -->
+<table>
+<tr>
+<td>
+<label id="lblHeight">Height <input id="txtHeight" type="text"></label>
+<td>
+<label id="lblWidth">Width <input id="txtWidth" type="text"></label>
+<tr>
+<td>
+<label id="lblMinHeight">MinHeight <input id="txtMinHeight" type="text"></label>
+<td>
+<label id="lblMinWidth">MinWidth <input id="txtMinWidth" type="text"></label>
+<tr>
+<td>
+<label id="lblMaxHeight">MaxHeight <input id="txtMaxHeight" type="text"></label><p>
+<td>
+<label id="lblMaxWidth">MaxWidth <input id="txtMaxWidth" type="text"></label>
+</table>
+
+<p><br><br>
+
+
+</fieldset>
+
+</form>
 </body>
 </html>
-
-
-
-
-

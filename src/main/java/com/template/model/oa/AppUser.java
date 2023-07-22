@@ -260,5 +260,30 @@ public class AppUser extends OAObject {
         changedFlag = false;
         newFlag = false;
     }
+    
+//qqqqqqqqqqqq used for OAWeb component testing qqqqqqqqqqqqqqqqqqq    
+    
+    public static final String P_CurrentTime = "CurrentTime";
+    public OATime getCurrentTime() {
+        return new OATime();
+    }
+    public void setCurrentTime(OATime t) {
+    }
+
+    public static final String P_Now = "Now";
+    public OADateTime getNow() {
+        return new OADateTime();
+    }
+    public void setNow(OADateTime dt) {
+    }
+
+    private int testNumber;
+    public static final String P_TestNumber = "TestNumber";
+    public int getTestNumber() {
+        return testNumber;
+    }
+    public void setTestNumber(int x) {
+        this.testNumber = x;
+    }
 }
  
