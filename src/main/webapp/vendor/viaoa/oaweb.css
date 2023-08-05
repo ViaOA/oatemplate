@@ -138,23 +138,31 @@ oaMissingImage {
     OATable.java -  
     =====================================  
 */
+
 table.oatable {
-    width: 100%;
+/*qqq     width: 100%; */
     color: #333;
     cursor: default;
     font-size: 11pt;
     font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse; 
 }
 
 table.oatable thead {
     left: 0px;  
 }
 
+table.oatable thead {
+  position: sticky;
+  top: 0;
+}
+
+
 table.oatable tr {
     font-size: 10pt;
 }
 
-table.oatable tr.oatableDisable { /* qqqqqqqqqqqq new */
+table.oatable tr.oatableDisable {
     cursor: not-allowed;
 }
 
@@ -164,58 +172,76 @@ table.oatable th {
     font-weight: bold;
     padding: 5px 2px;
     text-align: left;    
-    font-size:  larger;
+    font-size:  11pt; /* larger; */
     text-indent: 2px;
 }
-
 
 table.oatable td {
     padding: 1px 2px;
 }
 
-/* selected row */
-table.oatable tr.oatableSelected {
-    background: #eee; 
-    border: thin red solid;
-}
-table.oatable tr.oatableSelected:hover { /* qqqqqqqqq new */
-    background: #f2f2f2;
-    cursor: pointer;
-    color: #000;
+table.oatable tbody tr td.oaNoTextOverflow {
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
+/* table td editor components */
+table.oatable tbody tr td .oaFitColumnSize {
+    width: 100%; height: 100%; border: none; box-sizing: border-box; padding: 2px; color: black;
+}
+/* table td bs editor with (calendar) popup
+table.oatable tbody tr td .oaZIndexOnTop {
+   qqqqqqqqq ?? test this 
+  z-index: 99;
+}
+*/
 
-table.oatable tr.oatableOdd {
-    background: #f7f7f7;
+
+table.oatable tbody tr:nth-child(odd) {
+    background: rgb(250, 250, 250);
 }
-table.oatable tr.oatableOdd:hover {
-    background: #f2f2f2;
-    cursor: pointer;
-    color: #000;
+table.oatable tbody tr:nth-child(even)  {
+    background: rgb(240, 240, 240);
 }
-table.oatable tr.oatableEven {
-    background: #f9f9f9;
-}
-table.oatable tr.oatableEven:hover {
-    background: #f5f5f5;
-    cursor: pointer;
-    color: #000;
-}
-table.oatable td.oatableColumnCount {
-    padding: 0;
-    background: #ddd;
-    height: 22px;
+
+table.oatable tbody tr td.oatableColumnCount {
     text-align:center;
     font-weight:bold;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    border-radius: 5px; 
-    -khtml-border-radius: 5px; 
 }
-table.oatable th.oatableColumnCount {
+table.oatable thead th.oatableColumnCount {
     text-align:center;
     padding: 0;
 }
+
+
+table.oatable tbody tr.oatableSelected {
+    background: rgb(173, 216, 230); 
+    color: black;
+}
+
+table.oatable tbody tr:focus-within {
+    background: rgb(123, 166, 180); 
+    color: black;
+}
+
+table.oatable tbody tr td:focus-within {
+    background-color: rgb(123, 166, 180);
+    border: 1px solid black;
+}
+
+
+table.oatable tbody tr td:hover { 
+    background: rgb(100,100,100);
+    cursor: pointer;
+    color: white;
+}
+
+table.oatable tbody tr td:hover input { 
+    color: black;
+}
+
+
 
 
 /*  =====================================  
@@ -577,5 +603,6 @@ input.tt-input {
 .oaFloatLabel:focus + span.active {
     color: #66afe9;
 }
+
 
 

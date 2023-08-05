@@ -7,39 +7,87 @@ form = oasession.getRequestForm(formId);
 if (form == null) {
     form = oasession.createRequestForm(formId);
 
-    Hub<AppUser> hub = ModelDelegate.getAppUsers();
+    Hub<AppUser> hubAppUser = ModelDelegate.getAppUsers();
+    hubAppUser.DEBUG = true;
 
-    String compId = "table";
-    OAHtmlTable comp = new OAHtmlTable(compId, hub) {
+    OAHtmlTable table = new OAHtmlTable("tableAppUser", hubAppUser) {
         int cnt;
-
         public void onSubmitCompleted(OAFormSubmitEvent formSubmitEvent) {
-    System.out.println((++cnt) + ") onSubmitCompleted");
+             System.out.println((++cnt) + ") onSubmitCompleted");
         }
     };
-    form.add(comp);
-    HtmlElementPropertyEditor hpe = new HtmlElementPropertyEditor(form, comp);
+  
+//qqqqqqqqqqqqqqq    
+//    HtmlElementPropertyEditor hpe = new HtmlElementPropertyEditor(form, table);
+    
+    form.add(table);
+    table.addCounterColumn("#");
 
-    comp.addCounterColumn("Counter");
+    OAInputText txt = new OAInputText("tableAppUserFirstName", hubAppUser, AppUser.P_FirstName);
+    table.addColumn("First", txt, 12);
 
-    HtmlCol htmlCol;
-    HtmlTH htmlTh;
-    htmlCol = new HtmlCol();
-    htmlTh = new HtmlTH();
-    htmlTh.setInnerHtml("First Name");
+    txt = new OAInputText("tableAppUserLastName", hubAppUser, AppUser.P_LastName);
+    table.addColumn("Last", txt, 15);
+ 
+    OAHtmlElement ele = new OAHtmlElement("tableAppUserFullName", hubAppUser, AppUser.P_FullName);
+    table.addColumn("Full Name", ele, 28);
 
-    OAHtmlElement ele = new OAHtmlElement("tcFullName", hub, AppUser.P_FullName);
-    comp.addColumn(htmlCol, htmlTh, ele);
+    
+    // second table
+    
+    Hub<AppUserLogin> hubUserLogin = hubAppUser.getDetailHub(AppUser.P_AppUserLogins);
+    table = new OAHtmlTable("tableAppUserLogin", hubUserLogin);
+    form.add(table);
 
-    htmlCol = new HtmlCol();
-    htmlTh = new HtmlTH();
-    htmlTh.setInnerHtml("Full Name");
+    table.addCounterColumn("#");
 
-    ele = new OAHtmlElement("tcFirstName", hub, AppUser.P_FirstName);
-    comp.addColumn(htmlCol, htmlTh, ele);
+    txt = new OAInputText("tableAppUserLoginHostName", hubUserLogin, AppUserLogin.P_HostName);
+    table.addColumn("Host Name", txt, 14);
 
-    OAInputText txt = new OAInputText("tcLastName", hub, AppUser.P_LastName);
-    comp.addColumn("Last Name", txt);
+    ele = new OAHtmlElement("tableAppUserLoginCreated", hubUserLogin, AppUserLogin.P_Created);
+    // ele.setToolTip("display/readonly version");
+    table.addColumn("Created", ele, 14);
+
+    OAInputDateTime dt = new OAInputDateTime("tableAppUserLoginCreated2", hubUserLogin, AppUserLogin.P_Created);
+    // dt.setToolTip("html input datetime");
+    table.addColumn("Created2", dt, 14);
+
+/*    
+    OABsDateTime bsdt = new OABsDateTime("tableAppUserLoginCreated", hubUserLogin, AppUserLogin.P_Created);
+    bsdt.setToolTip("bootstrap datetime");
+    table.addColumn("bsCreated", bsdt, 14);
+*/    
+    
+/* qqqqqqqqq    
+OABsDateTime bsdt2 = new OABsDateTime("tcbdtzCreated2", hubUserLogin, AppUserLogin.P_Created);
+form.add(bsdt2);
+
+for (int i=0; hubUserLogin.size()<5; i++) {
+    AppUserLogin ul = new AppUserLogin();
+    ul.setConnectionId(i);
+    ul.setCreated(new OADateTime());
+    hubUserLogin.add(ul);
+}
+*/
+/*
+    ele = new OAHtmlElement("tableAppUserLoginConnectionId", hubUserLogin, AppUserLogin.P_ConnectionId); 
+    table.addColumn("ConnectId#", ele, 12);
+*/
+
+OAInputButton comp = new OAInputButton("cmdAddNewUserLogin", hubUserLogin, OAUICommandController.Command.AddNew);
+comp.setAjaxSubmit(true);
+comp.setButtonText("New");
+form.add(comp);
+
+
+    Hub<AppUser> hub = hubAppUser.createShared();
+    hub.setLinkHub(hubUserLogin, AppUserLogin.P_AppUser);
+    
+    OAHtmlSelect sel = new OAHtmlSelect("tableAppUserLoginAppUser", hub, AppUser.P_FullName);
+    table.addColumn("User", sel, 20);
+    
+    form.add(table);
+
 }
 %>
 
@@ -62,12 +110,25 @@ body {
 debug
 <input id="chkFormDebug" type="checkbox">
 
+
 <fieldset>
-  <legend>Demo HtmlTable</legend>
-  <label id="lbl">Test HtmlTable
-    <table id="table" border="2">
+  <legend>Demo HtmlTable - wrapped in Div that scrolls, with sticky header</legend>
+  Test HtmlTable
+  
+<div style="overflow: scroll; width:500px; height:175px; margin: 20px; border: 1px solid black;">
+    <table id="tableAppUser" border="2">
     </table>
-  </label> <br>
+</div>
+
+
+<div style="overflow: scroll; width:820px; height:145px; margin: 20px; border: 1px solid black; position: relative;">
+    <table id="tableAppUserLogin" border="2">
+    </table>
+</div>
+
+  <label id="lbl5">Add New UserLogin<input type=button id="cmdAddNewUserLogin" value="New"></label> <br>
+
+
 
   <p>
     <br> <br>

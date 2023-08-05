@@ -38,9 +38,9 @@ if (form == null) {
     if (OAStr.isNotEmpty(s)) {
         comp.setInputMask(s);
         comp.setPattern(null);
-        form.getComponent("txtPattern").setValue(null);                
+        form.getInputText("txtPattern", false).setValue(null);                
         comp.setToolTip("MaskedInput is "+ s);
-        form.getComponent("txtToolTipText").setValue(comp.getToolTip());                
+        form.getInputText("txtToolTipText", false).setValue(comp.getToolTip());                
     }
 }%>
 

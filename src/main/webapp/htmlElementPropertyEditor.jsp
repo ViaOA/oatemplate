@@ -8,12 +8,13 @@
 <label id="lblLabelId">Label Id <input id="txtLabelId" type="text" size=10></label><p>
 
 <style>
-    table tr td {
+    table#tablePE tr td {
+        padding-left: 20px;
         padding-right: 20px;
     }
 </style>
 
-<table>
+<table id="tablePE">
 <tr>
 <td>
 <label id="lblVisible"><input id="chkVisible" type="checkbox"> Visible</label>
