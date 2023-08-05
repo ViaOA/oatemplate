@@ -21,7 +21,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="vendor/jquery-ui-1.12.1/jquery-ui.css">
 <link rel="stylesheet" type="text/css" href="vendor/bootstrap-3.3.7/css/bootstrap.css">
-<link rel="stylesheet" type="text/css" href="vendor/viaoa/oajsp.css">
+<link rel="stylesheet" type="text/css" href="vendor/viaoa/oaweb.css">
 <script type="text/javascript" language="javascript" src="vendor/jquery-3.1.1/jquery.js"></script>
 <script type="text/javascript" language="javascript" src="vendor/jquery-ui-1.12.1/jquery-ui.js"></script>
 <script type="text/javascript" language="javascript" src="vendor/bootstrap-3.3.7/js/bootstrap.js"></script>
@@ -53,6 +53,90 @@ function oaShowSnackbarMessage(msg) {
     );
   }, 2000);
 }
+var oaSubmitCancelled;
+function oaSubmit(event) {
+  oaSubmitCancelled = true;
+  var errors = [];
+  var requires = [];
+  var regex;
+  var val;
+  if ($('#tableAppUserFirstName').val().length > 30) {    errors.push('Field tableAppUserFirstName can not be longer than 30 characters');    $('#tableAppUserFirstName').addClass('oaError');}
+
+  if ($('#tableAppUserLastName').val().length > 55) {    errors.push('Field tableAppUserLastName can not be longer than 55 characters');    $('#tableAppUserLastName').addClass('oaError');}
+
+  if ($('#tableAppUserLoginHostName').val().length > 35) {    errors.push('Field tableAppUserLoginHostName can not be longer than 35 characters');    $('#tableAppUserLoginHostName').addClass('oaError');}
+
+  if (requires.length > 0) {
+    event.preventDefault();
+    var msg = '';
+    for (var i=0; i<requires.length; i++) {
+      if (i > 0) {
+        msg += ',<br>';
+      }
+      msg += requires[i];
+    }
+    oaShowMessage('Required fields are missing', msg);
+    return false;
+  }
+  if (errors.length > 0) {
+    event.preventDefault();
+    var msg = '';
+    for (var i=0; i<errors.length; i++) {
+      if (i > 0) {
+        msg += ', ';
+        msg += '<br>';
+      }
+      msg += errors[i];
+    }
+    oaShowMessage('Errors on page', msg);
+    return false;
+  }
+  oaSubmitCancelled = false;
+  return true;
+}
+var cntAjaxSubmit = 0;
+function ajaxSubmit(cmdName) {
+  cntAjaxSubmit++;
+  var bUseAsync = (cntAjaxSubmit == 1);
+  if (bUseAsync && cntAjaxSubmit == 1) {
+    $('#oaWait').fadeIn(200, function(){ if (cntAjaxSubmit < 1) {cntAjaxSubmit=0;$('#oaWait').hide();}});
+  }
+  var f1 = function(data) {
+    if (--cntAjaxSubmit < 1) {
+      cntAjaxSubmit=0; 
+      $('#oaWait').hide();
+    }
+    if (data) eval(data);
+  }
+  var f2 = function() {
+    if (--cntAjaxSubmit < 1) {
+      cntAjaxSubmit=0; 
+      $('#oaWait').hide();
+    }
+  }
+  var objAjax = {
+    method: 'POST',
+    url: 'oaajax.jsp?oaform=oaHtmlTable',
+    data: new FormData($('#oaHtmlTable')[0]),
+    processData: false,
+    contentType: false,
+    dataType: 'script',
+    timeout: 30000,
+    async: bUseAsync
+  };
+  $.ajax(objAjax).done(f1).fail(f2);
+}
+function ajaxSubmit2(cmdName) {
+  var args = $('#oaHtmlTable').serialize();
+  if (cmdName != undefined && cmdName) args = cmdName + '=1&' + args;
+  $.ajax({
+    method: 'POST',
+    data: args,
+    url: 'oaajax.jsp',
+    dataType: 'script'
+  }).done(function(data) {if (data) eval(data);});
+}
+var oaFocusValue = '';
 $(document).ready(function() {
   if ($().modal) {
     $('#oaHtmlTable').prepend(
@@ -133,668 +217,212 @@ $('#oaHtmlTable').prepend("<input id='oachanged' type='hidden' name='oachanged' 
   $('#oaHtmlTable').prepend("<input id='jsTzRawOffset' type='hidden' name='jsTzRawOffset' value='"+Math.max(tzOffsetJan,tzOffsetJul)+"'>");
   $('#oaHtmlTable').prepend("<input id='jsDateSupportsDST' type='hidden' name='jsDateSupportsDST' value='"+(tzOffsetJan != tzOffsetJul)+"'>");
 })();
-$('#table').attr('name', 'table');
-$('#table').blur(function() {$(this).removeClass('oaError');}); 
-$('#table').addClass('oaSubmit');
-$('#table').click(function() {
-  $('#oacommand').val('table');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
+$('#tableAppUser').attr('name', 'tableAppUser');
 
-$('#table').on('click', 'tr td', function() {
+$('#tableAppUser').on('focus', 'tbody tr td', function(event) {
+  if ($(this).parent().hasClass('oatableSelected')) return true;
   $('#oacommand').val($(this).attr('id'));
   ajaxSubmit();
   $('#oacommand').val('');
-  $('#oaparam').val('');
+  return true;
+});
+$('#tableAppUser').on('keydown', 'tr td', function(event) {
+  var ss = $(this).attr('id').split('_');
+  if (ss == undefined) return true;
+  var row = ss[ss.length -2];
+  var col = ss[ss.length -1];
+  const totalRows = event.delegateTarget.tBodies[0].rows.length;
+  const totalCols = event.delegateTarget.tBodies[0].rows[0].cells.length;
+  var keys = '';
+  if (event.shiftKey) keys += '[SHIFT]';
+  if (event.ctrlKey) keys += '[CTRL]';
+  if (event.altKey) keys += '[ALT]';
+  if (keys.length > 0) {
+    keys = 'KEYS='+keys;
+  }
+  var bEnd = true;
+  var bBeg = true;
+  if (event.target.tagName === 'INPUT' && event.target.type === 'text') {
+    var p1 = event.target.selectionStart;
+    var p2 = event.target.selectionEnd;
+    if (p2 < p1) {
+      var p3 = p1;
+      p1 = p2;
+      p2 = p3;
+    }
+    bBeg = p1 == 0 && p2 == 0;
+    bEnd = p2 == event.target.value.length && p1 == p2;
+  }
+  switch (event.which) {
+  case 38: keys += '[UP]';
+    if (row == 0) return false;
+    row--;
+    break
+  case 33: keys += '[PGUP]';
+    if (row == 0) return false;
+    row=0;
+    break;
+  case 40: keys += '[DOWN]';
+    if (row+1 == totalRows) return false;
+    row++;
+    break;
+  case 34: keys += '[PGDN]';
+    if (row+1 == totalRows) return false;
+    row = totalRows-1;
+    break;
+  case 39: keys += '[RIGHT]';
+    if (col+1 == totalCols) return true;
+    if (!bEnd) return true;
+    col++;
+    break;
+  case 35: keys += '[END]';
+    if (col+1 == totalCols) return true;
+    if (!bEnd) return true;
+    col = totalCols-1;
+    break;
+  case 36: keys += '[HOME]';
+    if (col == 0) return false;
+    if (!bBeg) return true;
+    col = 0;
+    break;
+  case 37: keys += '[LEFT]';
+    if (col == 0) return false;
+    if (!bBeg) return true;
+    col--;
+    break;
+  default:
+    return true;
+  }  
+  $('#tableAppUser_'+row+'_'+col).focus();
   return false;
 });
+$('#tableAppUser').html(`<colgroup><col style='width: 3rem;width:3rem;'><col style='width: 12rem;width:12rem;'><col style='width: 15rem;width:15rem;'><col style='width: 28rem;width:28rem;'></colgroup><thead><tr><th class='oatableColumnCount'>#</th><th>First</th><th>Last</th><th>Full Name</th></tr></thead><tbody>
+<tr id='tableAppUser_0' class='oatableSelected'><td id='tableAppUser_0_0' tabindex=0>1</td><td id='tableAppUser_0_1' tabindex=0><input type='text' id='tableAppUserFirstName' class='oaFitColumnSize'></td><td id='tableAppUser_0_2' tabindex=0><input type='text' id='tableAppUserLastName' class='oaFitColumnSize'></td><td id='tableAppUser_0_3' class='oaNoTextOverflow' tabindex=0>admin admin</td></tr>
+<tr id='tableAppUser_1'><td id='tableAppUser_1_0' tabindex=0>2</td><td id='tableAppUser_1_1' class='oaNoTextOverflow' tabindex=0>test1</td><td id='tableAppUser_1_2' class='oaNoTextOverflow' tabindex=0>test1</td><td id='tableAppUser_1_3' class='oaNoTextOverflow' tabindex=0>test1 test1</td></tr>
+<tr id='tableAppUser_2'><td id='tableAppUser_2_0' tabindex=0>3</td><td id='tableAppUser_2_1' class='oaNoTextOverflow' tabindex=0>test2 dfadf</td><td id='tableAppUser_2_2' class='oaNoTextOverflow' tabindex=0>last2</td><td id='tableAppUser_2_3' class='oaNoTextOverflow' tabindex=0>test2 dfadf last2</td></tr>
+<tr id='tableAppUser_3'><td id='tableAppUser_3_0' tabindex=0>4</td><td id='tableAppUser_3_1' class='oaNoTextOverflow' tabindex=0>test3</td><td id='tableAppUser_3_2' class='oaNoTextOverflow' tabindex=0>last3</td><td id='tableAppUser_3_3' class='oaNoTextOverflow' tabindex=0>test3 last3</td></tr>
+</tbody>
+`);
 
-$('#cmdReloadMessage').attr('name', 'cmdReloadMessage');
-$('#cmdReloadMessage').blur(function() {$(this).removeClass('oaError');}); 
+$('#tableAppUserFirstName').attr('name', 'tableAppUserFirstName');
+$('#tableAppUserFirstName').attr('type', 'text');
+$('#tableAppUserFirstName').blur(function() {$(this).removeClass('oaError');}); 
 
-$('#cmdOAReset').attr('name', 'cmdOAReset');
-$('#cmdOAReset').blur(function() {$(this).removeClass('oaError');}); 
+$('#tableAppUserLastName').attr('name', 'tableAppUserLastName');
+$('#tableAppUserLastName').attr('type', 'text');
+$('#tableAppUserLastName').blur(function() {$(this).removeClass('oaError');}); 
 
-$('#cmdDoAjaxSubmit').attr('name', 'cmdDoAjaxSubmit');
-$('#cmdDoAjaxSubmit').attr('type', 'button');
-$('#cmdDoAjaxSubmit').blur(function() {$(this).removeClass('oaError');}); 
-$('#cmdDoAjaxSubmit').addClass('oaSubmit');
-$('#cmdDoAjaxSubmit').click(function() {
-  $('#oacommand').val('cmdDoAjaxSubmit');
+$('#tableAppUserFullName').attr('name', 'tableAppUserFullName');
+
+$('#tableAppUserLogin').attr('name', 'tableAppUserLogin');
+
+$('#tableAppUserLogin').on('focus', 'tbody tr td', function(event) {
+  if ($(this).parent().hasClass('oatableSelected')) return true;
+  $('#oacommand').val($(this).attr('id'));
   ajaxSubmit();
   $('#oacommand').val('');
-  $('#oaparam').val('');
+  return true;
+});
+$('#tableAppUserLogin').on('keydown', 'tr td', function(event) {
+  var ss = $(this).attr('id').split('_');
+  if (ss == undefined) return true;
+  var row = ss[ss.length -2];
+  var col = ss[ss.length -1];
+  const totalRows = event.delegateTarget.tBodies[0].rows.length;
+  const totalCols = event.delegateTarget.tBodies[0].rows[0].cells.length;
+  var keys = '';
+  if (event.shiftKey) keys += '[SHIFT]';
+  if (event.ctrlKey) keys += '[CTRL]';
+  if (event.altKey) keys += '[ALT]';
+  if (keys.length > 0) {
+    keys = 'KEYS='+keys;
+  }
+  var bEnd = true;
+  var bBeg = true;
+  if (event.target.tagName === 'INPUT' && event.target.type === 'text') {
+    var p1 = event.target.selectionStart;
+    var p2 = event.target.selectionEnd;
+    if (p2 < p1) {
+      var p3 = p1;
+      p1 = p2;
+      p2 = p3;
+    }
+    bBeg = p1 == 0 && p2 == 0;
+    bEnd = p2 == event.target.value.length && p1 == p2;
+  }
+  switch (event.which) {
+  case 38: keys += '[UP]';
+    if (row == 0) return false;
+    row--;
+    break
+  case 33: keys += '[PGUP]';
+    if (row == 0) return false;
+    row=0;
+    break;
+  case 40: keys += '[DOWN]';
+    if (row+1 == totalRows) return false;
+    row++;
+    break;
+  case 34: keys += '[PGDN]';
+    if (row+1 == totalRows) return false;
+    row = totalRows-1;
+    break;
+  case 39: keys += '[RIGHT]';
+    if (col+1 == totalCols) return true;
+    if (!bEnd) return true;
+    col++;
+    break;
+  case 35: keys += '[END]';
+    if (col+1 == totalCols) return true;
+    if (!bEnd) return true;
+    col = totalCols-1;
+    break;
+  case 36: keys += '[HOME]';
+    if (col == 0) return false;
+    if (!bBeg) return true;
+    col = 0;
+    break;
+  case 37: keys += '[LEFT]';
+    if (col == 0) return false;
+    if (!bBeg) return true;
+    col--;
+    break;
+  default:
+    return true;
+  }  
+  $('#tableAppUserLogin_'+row+'_'+col).focus();
   return false;
 });
+$('#tableAppUserLogin').html(`<colgroup><col style='width: 3rem;width:3rem;'><col style='width: 14rem;width:14rem;'><col style='width: 14rem;width:14rem;'><col style='width: 14rem;width:14rem;'><col style='width: 20rem;width:20rem;'></colgroup><thead><tr><th class='oatableColumnCount'>#</th><th>Host Name</th><th>Created</th><th>Created2</th><th>User</th></tr></thead><tbody>
+<tr id='tableAppUserLogin_0'><td id='tableAppUserLogin_0_0' tabindex=0>1</td><td id='tableAppUserLogin_0_1' class='oaNoTextOverflow' tabindex=0>DESKTOP-OR6LQK4</td><td id='tableAppUserLogin_0_2' class='oaNoTextOverflow' tabindex=0>08/04/23 08:36 PM</td><td id='tableAppUserLogin_0_3' class='oaNoTextOverflow' tabindex=0>2023-08-216T20:36</td><td id='tableAppUserLogin_0_4' class='oaNoTextOverflow' tabindex=0>admin admin</td></tr>
+<tr id='tableAppUserLogin_1'><td id='tableAppUserLogin_1_0' tabindex=0>2</td><td id='tableAppUserLogin_1_1' class='oaNoTextOverflow' tabindex=0>DESKTOP-OR6LQK4</td><td id='tableAppUserLogin_1_2' class='oaNoTextOverflow' tabindex=0>08/04/23 08:39 PM</td><td id='tableAppUserLogin_1_3' class='oaNoTextOverflow' tabindex=0>2023-08-216T20:39</td><td id='tableAppUserLogin_1_4' class='oaNoTextOverflow' tabindex=0>admin admin</td></tr>
+<tr id='tableAppUserLogin_2' class='oatableSelected'><td id='tableAppUserLogin_2_0' tabindex=0>3</td><td id='tableAppUserLogin_2_1' tabindex=0><input type='text' id='tableAppUserLoginHostName' class='oaFitColumnSize'></td><td id='tableAppUserLogin_2_2' class='oaNoTextOverflow' tabindex=0>08/04/23 08:40 PM</td><td id='tableAppUserLogin_2_3' tabindex=0><input id='tableAppUserLoginCreated2' class='oaFitColumnSize'></td><td id='tableAppUserLogin_2_4' tabindex=0><select id='tableAppUserLoginAppUser' name='tableAppUserLoginAppUser' class='oaFitColumnSize'></select></td></tr>
+</tbody>
+`);
 
-$('#eleId').attr('name', 'eleId');
-$('#eleId').blur(function() {$(this).removeClass('oaError');}); 
-$('#eleId').addClass('oaSubmit');
-$('#eleId').click(function() {
-  $('#oacommand').val('eleId');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
+$('#tableAppUserLoginHostName').attr('name', 'tableAppUserLoginHostName');
+$('#tableAppUserLoginHostName').attr('type', 'text');
+$('#tableAppUserLoginHostName').blur(function() {$(this).removeClass('oaError');}); 
 
-$('#eleValue').attr('name', 'eleValue');
-$('#eleValue').blur(function() {$(this).removeClass('oaError');}); 
+$('#tableAppUserLoginCreated').attr('name', 'tableAppUserLoginCreated');
 
-$('#txtLabelId').attr('name', 'txtLabelId');
-$('#txtLabelId').attr('type', 'text');
-$('#txtLabelId').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtLabelId').addClass('oaSubmit');
-$('#lblLabelId').attr('for', 'txtLabelId');
-$('#txtLabelId').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtLabelId');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
+$('#tableAppUserLoginCreated2').attr('name', 'tableAppUserLoginCreated2');
+$('#tableAppUserLoginCreated2').attr('type', 'datetime-local');
+$('#tableAppUserLoginCreated2').blur(function() {$(this).removeClass('oaError');}); 
 
-$('#txtFloatLabel').attr('name', 'txtFloatLabel');
-$('#txtFloatLabel').attr('type', 'text');
-$('#txtFloatLabel').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtFloatLabel').addClass('oaSubmit');
-$('#lblFloatLabel').attr('for', 'txtFloatLabel');
-$('#txtFloatLabel').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtFloatLabel');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
+$('#tableAppUserLoginAppUser').attr('name', 'tableAppUserLoginAppUser');
 
-$('#txtPlaceHolder').attr('name', 'txtPlaceHolder');
-$('#txtPlaceHolder').attr('type', 'text');
-$('#txtPlaceHolder').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtPlaceHolder').addClass('oaSubmit');
-$('#lblPlaceHolder').attr('for', 'txtPlaceHolder');
-$('#txtPlaceHolder').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtPlaceHolder');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtTitle').attr('name', 'txtTitle');
-$('#txtTitle').attr('type', 'text');
-$('#txtTitle').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtTitle').addClass('oaSubmit');
-$('#lblTitle').attr('for', 'txtTitle');
-$('#txtTitle').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtTitle');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtToolTipText').attr('name', 'txtToolTipText');
-$('#txtToolTipText').attr('type', 'text');
-$('#txtToolTipText').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtToolTipText').addClass('oaSubmit');
-$('#lblToolTipText').attr('for', 'txtToolTipText');
-$('#txtToolTipText').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtToolTipText');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtPattern').attr('name', 'txtPattern');
-$('#txtPattern').attr('type', 'text');
-$('#txtPattern').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtPattern').addClass('oaSubmit');
-$('#lblPattern').attr('for', 'txtPattern');
-$('#txtPattern').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtPattern');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtAutoComplete').attr('name', 'txtAutoComplete');
-$('#txtAutoComplete').attr('type', 'text');
-$('#txtAutoComplete').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtAutoComplete').addClass('oaSubmit');
-$('#lblAutoComplete').attr('for', 'txtAutoComplete');
-$('#txtAutoComplete').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtAutoComplete');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#chkFormDebug').attr('name', 'chkFormDebug');
-$('#chkFormDebug').attr('type', 'checkbox');
-$('#chkFormDebug').blur(function() {$(this).removeClass('oaError');}); 
-$('#chkFormDebug').addClass('oaSubmit');
-$('#lblFormDebug').attr('for', 'chkFormDebug');
-$('#chkFormDebug').change(function() {
-  $('#oacommand').val('chkFormDebug');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#chkRequired').attr('name', 'chkRequired');
-$('#chkRequired').attr('type', 'checkbox');
-$('#chkRequired').blur(function() {$(this).removeClass('oaError');}); 
-$('#chkRequired').addClass('oaSubmit');
-$('#lblRequired').attr('for', 'chkRequired');
-$('#chkRequired').change(function() {
-  $('#oacommand').val('chkRequired');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#chkEnabled').attr('name', 'chkEnabled');
-$('#chkEnabled').attr('type', 'checkbox');
-$('#chkEnabled').blur(function() {$(this).removeClass('oaError');}); 
-$('#chkEnabled').addClass('oaSubmit');
-$('#lblEnabled').attr('for', 'chkEnabled');
-$('#chkEnabled').change(function() {
-  $('#oacommand').val('chkEnabled');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#chkReadOnly').attr('name', 'chkReadOnly');
-$('#chkReadOnly').attr('type', 'checkbox');
-$('#chkReadOnly').blur(function() {$(this).removeClass('oaError');}); 
-$('#chkReadOnly').addClass('oaSubmit');
-$('#lblReadOnly').attr('for', 'chkReadOnly');
-$('#chkReadOnly').change(function() {
-  $('#oacommand').val('chkReadOnly');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#chkVisible').attr('name', 'chkVisible');
-$('#chkVisible').attr('type', 'checkbox');
-$('#chkVisible').blur(function() {$(this).removeClass('oaError');}); 
-$('#chkVisible').addClass('oaSubmit');
-$('#lblVisible').attr('for', 'chkVisible');
-$('#chkVisible').change(function() {
-  $('#oacommand').val('chkVisible');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#chkHidden').attr('name', 'chkHidden');
-$('#chkHidden').attr('type', 'checkbox');
-$('#chkHidden').blur(function() {$(this).removeClass('oaError');}); 
-$('#chkHidden').addClass('oaSubmit');
-$('#lblHidden').attr('for', 'chkHidden');
-$('#chkHidden').change(function() {
-  $('#oacommand').val('chkHidden');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#chkAjaxSubmit').attr('name', 'chkAjaxSubmit');
-$('#chkAjaxSubmit').attr('type', 'checkbox');
-$('#chkAjaxSubmit').blur(function() {$(this).removeClass('oaError');}); 
-$('#chkAjaxSubmit').addClass('oaSubmit');
-$('#lblAjaxSubmit').attr('for', 'chkAjaxSubmit');
-$('#chkAjaxSubmit').change(function() {
-  $('#oacommand').val('chkAjaxSubmit');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#chkSubmit').attr('name', 'chkSubmit');
-$('#chkSubmit').attr('type', 'checkbox');
-$('#chkSubmit').blur(function() {$(this).removeClass('oaError');}); 
-$('#chkSubmit').addClass('oaSubmit');
-$('#lblSubmit').attr('for', 'chkSubmit');
-$('#chkSubmit').change(function() {
-  $('#oacommand').val('chkSubmit');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#chkSpellCheck').attr('name', 'chkSpellCheck');
-$('#chkSpellCheck').attr('type', 'checkbox');
-$('#chkSpellCheck').blur(function() {$(this).removeClass('oaError');}); 
-$('#chkSpellCheck').addClass('oaSubmit');
-$('#lblSpellCheck').attr('for', 'chkSpellCheck');
-$('#chkSpellCheck').change(function() {
-  $('#oacommand').val('chkSpellCheck');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtHeight').attr('name', 'txtHeight');
-$('#txtHeight').attr('type', 'text');
-$('#txtHeight').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtHeight').addClass('oaSubmit');
-$('#lblHeight').attr('for', 'txtHeight');
-$('#txtHeight').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtHeight');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtWidth').attr('name', 'txtWidth');
-$('#txtWidth').attr('type', 'text');
-$('#txtWidth').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtWidth').addClass('oaSubmit');
-$('#lblWidth').attr('for', 'txtWidth');
-$('#txtWidth').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtWidth');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtMinHeight').attr('name', 'txtMinHeight');
-$('#txtMinHeight').attr('type', 'text');
-$('#txtMinHeight').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtMinHeight').addClass('oaSubmit');
-$('#lblMinHeight').attr('for', 'txtMinHeight');
-$('#txtMinHeight').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtMinHeight');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtMinWidth').attr('name', 'txtMinWidth');
-$('#txtMinWidth').attr('type', 'text');
-$('#txtMinWidth').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtMinWidth').addClass('oaSubmit');
-$('#lblMinWidth').attr('for', 'txtMinWidth');
-$('#txtMinWidth').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtMinWidth');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtMaxHeight').attr('name', 'txtMaxHeight');
-$('#txtMaxHeight').attr('type', 'text');
-$('#txtMaxHeight').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtMaxHeight').addClass('oaSubmit');
-$('#lblMaxHeight').attr('for', 'txtMaxHeight');
-$('#txtMaxHeight').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtMaxHeight');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtMaxWidth').attr('name', 'txtMaxWidth');
-$('#txtMaxWidth').attr('type', 'text');
-$('#txtMaxWidth').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtMaxWidth').addClass('oaSubmit');
-$('#lblMaxWidth').attr('for', 'txtMaxWidth');
-$('#txtMaxWidth').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtMaxWidth');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtSize').attr('name', 'txtSize');
-$('#txtSize').attr('type', 'number');
-$('#txtSize').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtSize').addClass('oaSubmit');
-$('#lblSize').attr('for', 'txtSize');
-$('#txtSize').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtSize');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-$('#txtSize').attr('inputmode', 'numeric');
-
-$('#txtMinLength').attr('name', 'txtMinLength');
-$('#txtMinLength').attr('type', 'number');
-$('#txtMinLength').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtMinLength').addClass('oaSubmit');
-$('#lblMinLength').attr('for', 'txtMinLength');
-$('#txtMinLength').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtMinLength');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-$('#txtMinLength').attr('inputmode', 'numeric');
-
-$('#txtMaxLength').attr('name', 'txtMaxLength');
-$('#txtMaxLength').attr('type', 'number');
-$('#txtMaxLength').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtMaxLength').addClass('oaSubmit');
-$('#lblMaxLength').attr('for', 'txtMaxLength');
-$('#txtMaxLength').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtMaxLength');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-$('#txtMaxLength').attr('inputmode', 'numeric');
-
-$('#txtDataList').attr('name', 'txtDataList');
-$('#txtDataList').attr('type', 'text');
-$('#txtDataList').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtDataList').addClass('oaSubmit');
-$('#lblDataList').attr('for', 'txtDataList');
-$('#txtDataList').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtDataList');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtMin').attr('name', 'txtMin');
-$('#txtMin').attr('type', 'text');
-$('#txtMin').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtMin').addClass('oaSubmit');
-$('#lblMin').attr('for', 'txtMin');
-$('#txtMin').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtMin');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtMax').attr('name', 'txtMax');
-$('#txtMax').attr('type', 'text');
-$('#txtMax').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtMax').addClass('oaSubmit');
-$('#lblMax').attr('for', 'txtMax');
-$('#txtMax').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtMax');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtStep').attr('name', 'txtStep');
-$('#txtStep').attr('type', 'text');
-$('#txtStep').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtStep').addClass('oaSubmit');
-$('#lblStep').attr('for', 'txtStep');
-$('#txtStep').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtStep');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#chkMultiple').attr('name', 'chkMultiple');
-$('#chkMultiple').attr('type', 'checkbox');
-$('#chkMultiple').blur(function() {$(this).removeClass('oaError');}); 
-$('#chkMultiple').addClass('oaSubmit');
-$('#lblMultiple').attr('for', 'chkMultiple');
-$('#chkMultiple').change(function() {
-  $('#oacommand').val('chkMultiple');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtAccept').attr('name', 'txtAccept');
-$('#txtAccept').attr('type', 'text');
-$('#txtAccept').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtAccept').addClass('oaSubmit');
-$('#lblAccept').attr('for', 'txtAccept');
-$('#txtAccept').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtAccept');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtCapture').attr('name', 'txtCapture');
-$('#txtCapture').attr('type', 'text');
-$('#txtCapture').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtCapture').addClass('oaSubmit');
-$('#lblCapture').attr('for', 'txtCapture');
-$('#txtCapture').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtCapture');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtMaxFileSize').attr('name', 'txtMaxFileSize');
-$('#txtMaxFileSize').attr('type', 'number');
-$('#txtMaxFileSize').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtMaxFileSize').addClass('oaSubmit');
-$('#lblMaxFileSize').attr('for', 'txtMaxFileSize');
-$('#txtMaxFileSize').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtMaxFileSize');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-$('#txtMaxFileSize').attr('inputmode', 'numeric');
-
-$('#txtSrc').attr('name', 'txtSrc');
-$('#txtSrc').attr('type', 'text');
-$('#txtSrc').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtSrc').addClass('oaSubmit');
-$('#lblSrc').attr('for', 'txtSrc');
-$('#txtSrc').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtSrc');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtRows').attr('name', 'txtRows');
-$('#txtRows').attr('type', 'number');
-$('#txtRows').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtRows').addClass('oaSubmit');
-$('#lblRows').attr('for', 'txtRows');
-$('#txtRows').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtRows');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-$('#txtRows').attr('inputmode', 'numeric');
-
-$('#txtCols').attr('name', 'txtCols');
-$('#txtCols').attr('type', 'number');
-$('#txtCols').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtCols').addClass('oaSubmit');
-$('#lblCols').attr('for', 'txtCols');
-$('#txtCols').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtCols');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-$('#txtCols').attr('inputmode', 'numeric');
-
-$('#txtAccessKey').attr('name', 'txtAccessKey');
-$('#txtAccessKey').attr('type', 'text');
-$('#txtAccessKey').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtAccessKey').addClass('oaSubmit');
-$('#lblAccessKey').attr('for', 'txtAccessKey');
-$('#txtAccessKey').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtAccessKey');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtTabIndex').attr('name', 'txtTabIndex');
-$('#txtTabIndex').attr('type', 'number');
-$('#txtTabIndex').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtTabIndex').addClass('oaSubmit');
-$('#lblTabIndex').attr('for', 'txtTabIndex');
-$('#txtTabIndex').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtTabIndex');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-$('#txtTabIndex').attr('inputmode', 'numeric');
-
-$('#txtInnerHtml').attr('name', 'txtInnerHtml');
-$('#txtInnerHtml').attr('type', 'text');
-$('#txtInnerHtml').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtInnerHtml').addClass('oaSubmit');
-$('#lblInnerHtml').attr('for', 'txtInnerHtml');
-$('#txtInnerHtml').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtInnerHtml');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtHref').attr('name', 'txtHref');
-$('#txtHref').attr('type', 'text');
-$('#txtHref').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtHref').addClass('oaSubmit');
-$('#lblHref').attr('for', 'txtHref');
-$('#txtHref').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtHref');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtTarget').attr('name', 'txtTarget');
-$('#txtTarget').attr('type', 'text');
-$('#txtTarget').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtTarget').addClass('oaSubmit');
-$('#lblTarget').attr('for', 'txtTarget');
-$('#txtTarget').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtTarget');
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
-});
-
-$('#txtStyle').attr('name', 'txtStyle');
-$('#txtStyle').attr('type', 'text');
-$('#txtStyle').blur(function() {$(this).removeClass('oaError');}); 
-$('#txtStyle').addClass('oaSubmit');
-$('#lblStyle').attr('for', 'txtStyle');
-$('#txtStyle').blur(function() {
-if (this.value === this.oaPrevValue) return false;
-this.oaPrevValue = this.value;
-  $('#oacommand').val('txtStyle');
+$('#cmdAddNewUserLogin').attr('name', 'cmdAddNewUserLogin');
+$('#cmdAddNewUserLogin').attr('type', 'button');
+$('#cmdAddNewUserLogin').blur(function() {$(this).removeClass('oaError');}); 
+$('#cmdAddNewUserLogin').addClass('oaSubmit');
+$('#cmdAddNewUserLogin').click(function(event) {
+  $('#oacommand').val('cmdAddNewUserLogin');
+  var keys = 'KEYS=';
+  if (event.shiftKey) keys += '[SHIFT]';
+  if (event.ctrlKey) keys += '[CTRL]';
+  if (event.altKey) keys += '[ALT]';
+  $('#oaparam').val(keys);
   ajaxSubmit();
   $('#oacommand').val('');
   $('#oaparam').val('');
@@ -803,370 +431,46 @@ this.oaPrevValue = this.value;
 
 
 $('#oaHtmlTable').on('submit', oaSubmit);
-var oaSubmitCancelled;
-function oaSubmit(event) {
-  oaSubmitCancelled = true;
-  var errors = [];
-  var requires = [];
-  var regex;
-  var val;
-  if (requires.length > 0) {
-    event.preventDefault();
-    var msg = '';
-    for (var i=0; i<requires.length; i++) {
-      if (i > 0) {
-        msg += ',<br>';
-      }
-      msg += requires[i];
-    }
-    oaShowMessage('Required fields are missing', msg);
-    return false;
-  }
-  if (errors.length > 0) {
-    event.preventDefault();
-    var msg = '';
-    for (var i=0; i<errors.length; i++) {
-      if (i > 0) {
-        msg += ', ';
-        msg += '<br>';
-      }
-      msg += errors[i];
-    }
-    oaShowMessage('Errors on page', msg);
-    return false;
-  }
-  oaSubmitCancelled = false;
-  return true;
-}
-var cntAjaxSubmit = 0;
-function ajaxSubmit(cmdName) {
-  cntAjaxSubmit++;
-  var bUseAsync = (cntAjaxSubmit == 1);
-  if (bUseAsync && cntAjaxSubmit == 1) {
-    $('#oaWait').fadeIn(200, function(){ if (cntAjaxSubmit < 1) {cntAjaxSubmit=0;$('#oaWait').hide();}});
-  }
-  var f1 = function(data) {
-    if (--cntAjaxSubmit < 1) {
-      cntAjaxSubmit=0; 
-      $('#oaWait').hide();
-    }
-    if (data) eval(data);
-  }
-  var f2 = function() {
-    if (--cntAjaxSubmit < 1) {
-      cntAjaxSubmit=0; 
-      $('#oaWait').hide();
-    }
-  }
-  var objAjax = {
-    method: 'POST',
-    url: 'oaajax.jsp?oaform=oaHtmlTable',
-    data: new FormData($('#oaHtmlTable')[0]),
-    processData: false,
-    contentType: false,
-    dataType: 'script',
-    timeout: 30000,
-    async: bUseAsync
-  };
-  $.ajax(objAjax).done(f1).fail(f2);
-}
-function ajaxSubmit2(cmdName) {
-  var args = $('#oaHtmlTable').serialize();
-  if (cmdName != undefined && cmdName) args = cmdName + '=1&' + args;
-  $.ajax({
-    method: 'POST',
-    data: args,
-    url: 'oaajax.jsp',
-    dataType: 'script'
-  }).done(function(data) {if (data) eval(data);});
-}
-$('input:enabled:first').focus();
-  $('#table').val('');
-$('#table')[0].oaPrevValue = $('#table').val();
-$('#table').addClass('oatable');
-$('#table').html(`<colgroup><col><col><col></colgroup><thead><tr><th>Counter</th><th>First Name</th><th>Last Name</th></tr></thead><tbody>
-<tr><td id='table_0_0'>1</td><td id='table_0_1'>Admin</td><td id='table_0_2'>TheAdmin</td></tr>
-<tr><td id='table_1_0'>2</td><td id='table_1_1'>Joey</td><td id='table_1_2'>aaa</td></tr>
-<tr><td id='table_2_0'>3</td><td id='table_2_1'>Mary</td><td id='table_2_2'>MaryLastNameHere</td></tr>
-</tbody>
-`);
-$('table#table tbody tr:even').each(function(i) { if (!$(this).hasClass('oatableDisable') && !$(this).hasClass('oatableSelected')) $(this).addClass('oatableEven');});$('table#table tbody tr:odd').each(function(i) { if (!$(this).hasClass('oatableDisable') && !$(this).hasClass('oatableSelected')) $(this).addClass('oatableOdd');});
-  $('#cmdReloadMessage').val('');
-$('#cmdReloadMessage')[0].oaPrevValue = $('#cmdReloadMessage').val();
-$('#cmdReloadMessage').css({'background-color':'yellow','font-weight':'bold'});
-$('#cmdReloadMessage').css('visibility', 'hidden');
+  $('#tableAppUser').addClass('oatable');$('#tableAppUser').css({'table-layout':'fixed','width':'58rem'});
 
-  $('#cmdOAReset').val('');
-$('#cmdOAReset')[0].oaPrevValue = $('#cmdOAReset').val();
-$('#cmdOAReset').tooltip();
-$('#cmdOAReset').data('bs.tooltip').options.title = 're-create form and components';
-$('#cmdOAReset').data('bs.tooltip').options.placement = 'top';
+  $('#tableAppUserFirstName').val('admin');
+$('#tableAppUserFirstName')[0].oaPrevValue = $('#tableAppUserFirstName').val();
+$('#tableAppUserFirstName').attr('size', 12);
+$('#tableAppUserFirstName').attr('maxlength', 30);
 
-  $('#cmdDoAjaxSubmit').val('ajaxSubmit');
-$('#cmdDoAjaxSubmit')[0].oaPrevValue = $('#cmdDoAjaxSubmit').val();
+  $('#tableAppUserLastName').val('admin');
+$('#tableAppUserLastName')[0].oaPrevValue = $('#tableAppUserLastName').val();
+$('#tableAppUserLastName').attr('size', 12);
+$('#tableAppUserLastName').attr('maxlength', 55);
 
-  $('#eleId').val('');
-$('#eleId')[0].oaPrevValue = $('#eleId').val();
-$('#eleId').html('table');
+  $('#tableAppUserFullName').html('admin admin');
 
-  $('#eleValue').val('');
-$('#eleValue')[0].oaPrevValue = $('#eleValue').val();
-$('#eleValue').prop('hidden', true);
+  $('#tableAppUserLogin').addClass('oatable');$('#tableAppUserLogin').css({'table-layout':'fixed','width':'65rem'});
 
-  $('#txtLabelId').val('');
-$('#txtLabelId')[0].oaPrevValue = $('#txtLabelId').val();
-$('#lblLabelId').prop('disabled', true);
-$('#txtLabelId').prop('disabled', true);
-$('#txtLabelId').prop('hidden', true);
-$('#lblLabelId').prop('hidden', true);
+  $('#tableAppUserLoginHostName').val('');
+$('#tableAppUserLoginHostName')[0].oaPrevValue = $('#tableAppUserLoginHostName').val();
+$('#tableAppUserLoginHostName').attr('size', 14);
+$('#tableAppUserLoginHostName').attr('maxlength', 35);
+$('#tableAppUserLoginHostName').prop('disabled', true);
 
-  $('#txtFloatLabel').val('');
-$('#txtFloatLabel')[0].oaPrevValue = $('#txtFloatLabel').val();
-$('#lblFloatLabel').prop('disabled', true);
-$('#txtFloatLabel').prop('disabled', true);
-$('#txtFloatLabel').prop('hidden', true);
-$('#lblFloatLabel').prop('hidden', true);
+  $('#tableAppUserLoginCreated').html('08/04/23 08:40 PM');
+$('#tableAppUserLoginCreated').tooltip();
+$('#tableAppUserLoginCreated').data('bs.tooltip').options.title = 'display/readonly version';
+$('#tableAppUserLoginCreated').data('bs.tooltip').options.placement = 'top';
 
-  $('#txtPlaceHolder').val('');
-$('#txtPlaceHolder')[0].oaPrevValue = $('#txtPlaceHolder').val();
-$('#lblPlaceHolder').prop('disabled', true);
-$('#txtPlaceHolder').prop('disabled', true);
-$('#txtPlaceHolder').prop('hidden', true);
-$('#lblPlaceHolder').prop('hidden', true);
+  $('#tableAppUserLoginCreated2').val('2023-08-216T20:40');
+$('#tableAppUserLoginCreated2')[0].oaPrevValue = $('#tableAppUserLoginCreated2').val();
+$('#tableAppUserLoginCreated2').tooltip();
+$('#tableAppUserLoginCreated2').data('bs.tooltip').options.title = 'html input datetime';
+$('#tableAppUserLoginCreated2').data('bs.tooltip').options.placement = 'top';
+$('#tableAppUserLoginCreated2').prop('disabled', true);
 
-  $('#txtTitle').val('');
-$('#txtTitle')[0].oaPrevValue = $('#txtTitle').val();
+  $('#tableAppUserLoginAppUser').val('3');
+$('#tableAppUserLoginAppUser')[0].oaPrevValue = $('#tableAppUserLoginAppUser').val();
+$('#tableAppUserLoginAppUser').html('<option value=\'3\' selected>admin admin</option><option value=\'6\'>test1 test1</option><option value=\'7\'>test2 dfadf last2</option><option value=\'8\'>test3 last3</option><option value=\'oanull\'> </option>');
 
-  $('#txtToolTipText').val('');
-$('#txtToolTipText')[0].oaPrevValue = $('#txtToolTipText').val();
-
-  $('#txtPattern').val('');
-$('#txtPattern')[0].oaPrevValue = $('#txtPattern').val();
-$('#lblPattern').prop('disabled', true);
-$('#txtPattern').prop('disabled', true);
-$('#txtPattern').prop('hidden', true);
-$('#lblPattern').prop('hidden', true);
-
-  $('#txtAutoComplete').val('');
-$('#txtAutoComplete')[0].oaPrevValue = $('#txtAutoComplete').val();
-$('#lblAutoComplete').prop('disabled', true);
-$('#txtAutoComplete').prop('disabled', true);
-$('#txtAutoComplete').prop('hidden', true);
-$('#lblAutoComplete').prop('hidden', true);
-
-  $('#chkFormDebug').val('chkFormDebug');
-$('#chkFormDebug')[0].oaPrevValue = $('#chkFormDebug').val();
-
-  $('#chkRequired').val('chkRequired');
-$('#chkRequired')[0].oaPrevValue = $('#chkRequired').val();
-$('#lblRequired').prop('disabled', true);
-$('#chkRequired').prop('disabled', true);
-$('#chkRequired').prop('hidden', true);
-$('#lblRequired').prop('hidden', true);
-
-  $('#chkEnabled').val('chkEnabled');
-$('#chkEnabled')[0].oaPrevValue = $('#chkEnabled').val();
-$('#lblEnabled').prop('disabled', true);
-$('#chkEnabled').prop('disabled', true);
-$('#chkEnabled').prop('checked', true);
-
-  $('#chkReadOnly').val('chkReadOnly');
-$('#chkReadOnly')[0].oaPrevValue = $('#chkReadOnly').val();
-$('#lblReadOnly').prop('disabled', true);
-$('#chkReadOnly').prop('disabled', true);
-$('#chkReadOnly').prop('hidden', true);
-$('#lblReadOnly').prop('hidden', true);
-
-  $('#chkVisible').val('chkVisible');
-$('#chkVisible')[0].oaPrevValue = $('#chkVisible').val();
-$('#lblVisible').prop('disabled', true);
-$('#chkVisible').prop('disabled', true);
-$('#chkVisible').prop('checked', true);
-
-  $('#chkHidden').val('chkHidden');
-$('#chkHidden')[0].oaPrevValue = $('#chkHidden').val();
-
-  $('#chkAjaxSubmit').val('chkAjaxSubmit');
-$('#chkAjaxSubmit')[0].oaPrevValue = $('#chkAjaxSubmit').val();
-$('#chkAjaxSubmit').prop('checked', true);
-
-  $('#chkSubmit').val('chkSubmit');
-$('#chkSubmit')[0].oaPrevValue = $('#chkSubmit').val();
-
-  $('#chkSpellCheck').val('chkSpellCheck');
-$('#chkSpellCheck')[0].oaPrevValue = $('#chkSpellCheck').val();
-$('#lblSpellCheck').prop('disabled', true);
-$('#chkSpellCheck').prop('disabled', true);
-$('#chkSpellCheck').prop('hidden', true);
-$('#lblSpellCheck').prop('hidden', true);
-
-  $('#txtHeight').val('');
-$('#txtHeight')[0].oaPrevValue = $('#txtHeight').val();
-$('#txtHeight').attr('size', 8);
-
-  $('#txtWidth').val('');
-$('#txtWidth')[0].oaPrevValue = $('#txtWidth').val();
-$('#txtWidth').attr('size', 8);
-
-  $('#txtMinHeight').val('');
-$('#txtMinHeight')[0].oaPrevValue = $('#txtMinHeight').val();
-$('#txtMinHeight').attr('size', 8);
-
-  $('#txtMinWidth').val('');
-$('#txtMinWidth')[0].oaPrevValue = $('#txtMinWidth').val();
-$('#txtMinWidth').attr('size', 8);
-
-  $('#txtMaxHeight').val('');
-$('#txtMaxHeight')[0].oaPrevValue = $('#txtMaxHeight').val();
-$('#txtMaxHeight').attr('size', 8);
-
-  $('#txtMaxWidth').val('');
-$('#txtMaxWidth')[0].oaPrevValue = $('#txtMaxWidth').val();
-$('#txtMaxWidth').attr('size', 8);
-
-  $('#txtSize').val('');
-$('#txtSize')[0].oaPrevValue = $('#txtSize').val();
-$('#txtSize').css({'width':'5em'});
-$('#lblSize').prop('disabled', true);
-$('#txtSize').prop('disabled', true);
-$('#txtSize').prop('hidden', true);
-$('#lblSize').prop('hidden', true);
-
-  $('#txtMinLength').val('');
-$('#txtMinLength')[0].oaPrevValue = $('#txtMinLength').val();
-$('#txtMinLength').css({'width':'5em'});
-$('#lblMinLength').prop('disabled', true);
-$('#txtMinLength').prop('disabled', true);
-$('#txtMinLength').prop('hidden', true);
-$('#lblMinLength').prop('hidden', true);
-
-  $('#txtMaxLength').val('');
-$('#txtMaxLength')[0].oaPrevValue = $('#txtMaxLength').val();
-$('#txtMaxLength').css({'width':'5em'});
-$('#lblMaxLength').prop('disabled', true);
-$('#txtMaxLength').prop('disabled', true);
-$('#txtMaxLength').prop('hidden', true);
-$('#lblMaxLength').prop('hidden', true);
-
-  $('#txtDataList').val('');
-$('#txtDataList')[0].oaPrevValue = $('#txtDataList').val();
-$('#txtDataList').attr('size', 40);
-$('#lblDataList').prop('disabled', true);
-$('#txtDataList').prop('disabled', true);
-$('#txtDataList').prop('hidden', true);
-$('#lblDataList').prop('hidden', true);
-
-  $('#txtMin').val('null');
-$('#txtMin')[0].oaPrevValue = $('#txtMin').val();
-$('#txtMin').attr('size', 12);
-$('#lblMin').prop('disabled', true);
-$('#txtMin').prop('disabled', true);
-$('#txtMin').prop('hidden', true);
-$('#lblMin').prop('hidden', true);
-
-  $('#txtMax').val('null');
-$('#txtMax')[0].oaPrevValue = $('#txtMax').val();
-$('#txtMax').attr('size', 12);
-$('#lblMax').prop('disabled', true);
-$('#txtMax').prop('disabled', true);
-$('#txtMax').prop('hidden', true);
-$('#lblMax').prop('hidden', true);
-
-  $('#txtStep').val('');
-$('#txtStep')[0].oaPrevValue = $('#txtStep').val();
-$('#txtStep').attr('size', 12);
-$('#lblStep').prop('disabled', true);
-$('#txtStep').prop('disabled', true);
-$('#txtStep').prop('hidden', true);
-$('#lblStep').prop('hidden', true);
-
-  $('#chkMultiple').val('chkMultiple');
-$('#chkMultiple')[0].oaPrevValue = $('#chkMultiple').val();
-$('#lblMultiple').prop('disabled', true);
-$('#chkMultiple').prop('disabled', true);
-$('#chkMultiple').prop('hidden', true);
-$('#lblMultiple').prop('hidden', true);
-
-  $('#txtAccept').val('');
-$('#txtAccept')[0].oaPrevValue = $('#txtAccept').val();
-$('#txtAccept').attr('size', 12);
-$('#lblAccept').prop('disabled', true);
-$('#txtAccept').prop('disabled', true);
-$('#txtAccept').prop('hidden', true);
-$('#lblAccept').prop('hidden', true);
-
-  $('#txtCapture').val('');
-$('#txtCapture')[0].oaPrevValue = $('#txtCapture').val();
-$('#txtCapture').attr('size', 12);
-$('#txtCapture').tooltip();
-$('#txtCapture').data('bs.tooltip').options.title = 'off, name, etc';
-$('#txtCapture').data('bs.tooltip').options.placement = 'top';
-$('#lblCapture').prop('disabled', true);
-$('#txtCapture').prop('disabled', true);
-$('#txtCapture').prop('hidden', true);
-$('#lblCapture').prop('hidden', true);
-
-  $('#txtMaxFileSize').val('');
-$('#txtMaxFileSize')[0].oaPrevValue = $('#txtMaxFileSize').val();
-$('#txtMaxFileSize').css({'width':'7em'});
-$('#lblMaxFileSize').prop('disabled', true);
-$('#txtMaxFileSize').prop('disabled', true);
-$('#txtMaxFileSize').prop('hidden', true);
-$('#lblMaxFileSize').prop('hidden', true);
-
-  $('#txtSrc').val('');
-$('#txtSrc')[0].oaPrevValue = $('#txtSrc').val();
-$('#lblSrc').prop('disabled', true);
-$('#txtSrc').prop('disabled', true);
-$('#txtSrc').prop('hidden', true);
-$('#lblSrc').prop('hidden', true);
-
-  $('#txtRows').val('');
-$('#txtRows')[0].oaPrevValue = $('#txtRows').val();
-$('#txtRows').css({'width':'4em'});
-$('#lblRows').prop('disabled', true);
-$('#txtRows').prop('disabled', true);
-$('#txtRows').prop('hidden', true);
-$('#lblRows').prop('hidden', true);
-
-  $('#txtCols').val('');
-$('#txtCols')[0].oaPrevValue = $('#txtCols').val();
-$('#txtCols').css({'width':'4em'});
-$('#lblCols').prop('disabled', true);
-$('#txtCols').prop('disabled', true);
-$('#txtCols').prop('hidden', true);
-$('#lblCols').prop('hidden', true);
-
-  $('#txtAccessKey').val('');
-$('#txtAccessKey')[0].oaPrevValue = $('#txtAccessKey').val();
-$('#txtAccessKey').attr('size', 2);
-
-  $('#txtTabIndex').val('');
-$('#txtTabIndex')[0].oaPrevValue = $('#txtTabIndex').val();
-$('#txtTabIndex').css({'width':'4em'});
-
-  $('#txtInnerHtml').val('');
-$('#txtInnerHtml')[0].oaPrevValue = $('#txtInnerHtml').val();
-
-  $('#txtHref').val('');
-$('#txtHref')[0].oaPrevValue = $('#txtHref').val();
-$('#lblHref').prop('disabled', true);
-$('#txtHref').prop('disabled', true);
-$('#txtHref').prop('hidden', true);
-$('#lblHref').prop('hidden', true);
-
-  $('#txtTarget').val('');
-$('#txtTarget')[0].oaPrevValue = $('#txtTarget').val();
-$('#txtTarget').tooltip();
-$('#txtTarget').data('bs.tooltip').options.title = '_self, _blank, _parent, _top, or a named frame/window';
-$('#txtTarget').data('bs.tooltip').options.placement = 'top';
-$('#lblTarget').prop('disabled', true);
-$('#txtTarget').prop('disabled', true);
-$('#txtTarget').prop('hidden', true);
-$('#lblTarget').prop('hidden', true);
-
-  $('#txtStyle').val('');
-$('#txtStyle')[0].oaPrevValue = $('#txtStyle').val();
+  $('#cmdAddNewUserLogin').val('New');
+$('#cmdAddNewUserLogin')[0].oaPrevValue = $('#cmdAddNewUserLogin').val();
 
 });
 </script>
@@ -1192,12 +496,25 @@ body {
 debug
 <input id="chkFormDebug" type="checkbox">
 
+
 <fieldset>
-  <legend>Demo HtmlTable</legend>
-  <label id="lbl">Test HtmlTable
-    <table id="table" border="2">
+  <legend>Demo HtmlTable - wrapped in Div that scrolls, with sticky header</legend>
+  Test HtmlTable
+  
+<div style="overflow: scroll; width:500px; height:175px; margin: 20px; border: 1px solid black;">
+    <table id="tableAppUser" border="2">
     </table>
-  </label> <br>
+</div>
+
+
+<div style="overflow: scroll; width:820px; height:145px; margin: 20px; border: 1px solid black; position: relative;">
+    <table id="tableAppUserLogin" border="2">
+    </table>
+</div>
+
+  <label id="lbl5">Add New UserLogin<input type=button id="cmdAddNewUserLogin" value="New"></label> <br>
+
+
 
   <p>
     <br> <br>
@@ -1210,12 +527,13 @@ debug
 <label id="lblLabelId">Label Id <input id="txtLabelId" type="text" size=10></label><p>
 
 <style>
-    table tr td {
+    table#tablePE tr td {
+        padding-left: 20px;
         padding-right: 20px;
     }
 </style>
 
-<table>
+<table id="tablePE">
 <tr>
 <td>
 <label id="lblVisible"><input id="chkVisible" type="checkbox"> Visible</label>

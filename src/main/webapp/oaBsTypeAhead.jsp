@@ -1,14 +1,20 @@
 <%@ include file="include/jspHeader.jspf"%>
 
 <%
-
 formId = "oaBsTypeAhead";
 form = oasession.getRequestForm(formId);
 
 if (form == null) {
     form = oasession.createRequestForm(formId);
 
-    // demo: to show using typeahead to set the AO in hub
+    Hub<AppUserLogin> hubAppUserLogin = new Hub(AppUserLogin.class);
+    hubAppUserLogin.select();
+
+    OAHtmlSelect compx = new OAHtmlSelect("selx", hubAppUserLogin, AppUserLogin.P_HostName);
+    compx.setAjaxSubmit(true);
+    form.add(compx);
+
+    
     
     OATypeAhead.OATypeAheadParams tp = new OATypeAhead.OATypeAheadParams();
     tp.finderPropertyPath = "";
@@ -19,32 +25,29 @@ if (form == null) {
     tp.maxResults = 35;
     tp.showHint = true;
 
+    // hub to use searches
     OATypeAhead typeAhead = new OATypeAhead(ModelDelegate.getAppUsers(), tp);
 
-    OABsTypeAhead comp = new OABsTypeAhead("txtta", ModelDelegate.getAppUsers(), typeAhead) {
+    OABsTypeAhead comp = new OABsTypeAhead("txtta", hubAppUserLogin, AppUserLogin.P_AppUser, typeAhead) {
         int cnt;
         public void onSubmitCompleted(OAFormSubmitEvent formSubmitEvent) {
             processOnSubmitCompleted(formSubmitEvent, this, ++cnt);
         }
     };
-    comp.setMultiValue(false);
-//    comp.setAjaxSubmit(true); //qqqqqqqqqqqq if true then sends id ... if not true, then it sends text.value=fullname ......qqqqqqqqq
-    
+
     // comp.setValue(""); 
     comp.setLabelId("lbl");
     // comp.setDebug(true);
     form.add(comp);
 
-    HtmlElementPropertyEditor hpe = new HtmlElementPropertyEditor(form, comp); 
+    // HtmlElementPropertyEditor hpe = new HtmlElementPropertyEditor(form, comp); 
 }
 %>
 
-<%!
-public void processOnSubmitCompleted(OAFormSubmitEvent formSubmitEvent, BsTypeAhead comp, int cnt) {
-    System.out.println((++cnt)+") onSubmitCompleted, value=" + comp.getValue() );
+<%!public void processOnSubmitCompleted(OAFormSubmitEvent formSubmitEvent, BsTypeAhead comp, int cnt) {
+    System.out.println((++cnt) + ") onSubmitCompleted, value=" + comp.getValue());
     OAForm form = formSubmitEvent.getForm();
-}
-%>
+}%>
 
 
 
@@ -59,18 +62,25 @@ body {
 }
 </style>
 
-<span id="cmdReloadMessage">Page reload is needed</span> 
-<a id="cmdOAReset" href="oareset.jsp">oareset</a> &nbsp;&nbsp;&nbsp;
+<span id="cmdReloadMessage">Page reload is needed</span>
+<a id="cmdOAReset" href="oareset.jsp">oareset</a>
+&nbsp;&nbsp;&nbsp;
 <input type=submit value="submit">
 <input id="cmdDoAjaxSubmit" type=button value="xxx">
-debug <input id="chkFormDebug" type="checkbox">
+debug
+<input id="chkFormDebug" type="checkbox">
 
 <fieldset>
   <legend>Demo OABsTypeAhead</legend>
-  <label id="lbl">Test OABsTypeAhead <input id="txtta" type="Text"></label> <br>
+  <d>demo: to show using typeahead change Hub.AO.linkProperty</d><p>
 
-<p><br><br>
-<%@ include file="htmlElementPropertyEditor.jsp"%>
+  <label id="lbl">Select AppUserLogin <select id="selx"></select></label> <br> <br> <label id="lbl">Test OABsTypeAhead <input id="txtta" type="Text"></label>
+  <br>
+
+  <p>
+    <br>
+    <br>
+    <%@ include file="htmlElementPropertyEditor.jsp"%>
 </fieldset>
 
 <%@ include file="include/htmlFooter.jspf"%>

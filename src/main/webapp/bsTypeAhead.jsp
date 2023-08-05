@@ -1,7 +1,6 @@
 <%@ include file="include/jspHeader.jspf"%>
 
 <%
-
 formId = "bsTypeAhead";
 form = oasession.getRequestForm(formId);
 
@@ -13,49 +12,64 @@ if (form == null) {
         public void onSubmitCompleted(OAFormSubmitEvent formSubmitEvent) {
             processOnSubmitCompleted(formSubmitEvent, this, ++cnt);
         }
-
-        protected String onGetJson(OASession session) {
-            return processGetJson(session.getRequest().getParameter("term"));
+        protected ArrayList<TypeAheadValue> getTypeAheadValues(String search) {
+            return onGetTypeAheadValues(search);
         }
     };
+    form.add(comp);
     comp.setMultiValue(false);
+    comp.setLabelId("lbl");
     // comp.setValue("a,b,c");
-    
+
     OATypeAhead ta = new OATypeAhead(Arrays.asList(new OAObject()));
     ta.setMinimumInputLength(3);
     ta.setMaxResults(35);
     ta.setShowHint(true);
-    
     comp.setTypeAhead(ta);
-    
-    // comp.setValue(""); 
-    comp.setLabelId("lbl");
     // comp.setDebug(true);
-    form.add(comp);
 
-    HtmlElementPropertyEditor hpe = new HtmlElementPropertyEditor(form, comp); 
+    
+    HtmlElementPropertyEditor hpe = new HtmlElementPropertyEditor(form, comp);
+
+    
+    
+    comp = new BsTypeAhead("txtta2") {
+        protected ArrayList<TypeAheadValue> getTypeAheadValues(String search) {
+            return onGetTypeAheadValues(search);
+        }
+    };
+    form.add(comp);
+    comp.setMultiValue(true);
+    comp.setLabelId("lbl2");
+
+    ta = new OATypeAhead(Arrays.asList(new OAObject()));
+    ta.setMinimumInputLength(3);
+    ta.setMaxResults(35);
+    ta.setShowHint(true);
+    comp.setTypeAhead(ta);
 }
 %>
 
 <%!public void processOnSubmitCompleted(OAFormSubmitEvent formSubmitEvent, BsTypeAhead comp, int cnt) {
-    System.out.println((++cnt)+") onSubmitCompleted, value=" + comp.getValue() );
+    System.out.println((++cnt) + ") onSubmitCompleted, value=" + comp.getValue());
     OAForm form = formSubmitEvent.getForm();
 }
 
 // overwrite matching values
-protected String processGetJson(String term) {
-    String id = "id."+term;
-    String displayValue = term + " display value here ";
-    String dd = term + " dropdown <br><b>display</> here ";
-    
-    String json = "";
-    int x = (int) (Math.random() * 54);
-    for (int i=0; i<x; i++) {
-        if (json.length() > 0) json += ", ";
-        json += "{\"id\":\"" + (id + i) + "\",\"display\":\"" + (displayValue + i) + "\",\"dropdowndisplay\":\"" + (dd + i) + "\"}";
+protected ArrayList<BsTypeAhead.TypeAheadValue> onGetTypeAheadValues(String term) {
+    ArrayList<BsTypeAhead.TypeAheadValue> al =  new ArrayList<>(); 
+
+    int x = (int) (Math.random() * 10) + 1;
+    for (int i = 0; i < x; i++) {
+        String id = "id." + i + term;
+        String displayValue = term + " display value here "+i;
+        String dd = term + " dropdown <br><b>display</> here "+i;
+
+        BsTypeAhead.TypeAheadValue tav = new BsTypeAhead.TypeAheadValue(""+(id+i), displayValue, dd);
+        al.add(tav);
     }
 
-    return "[" + json + "]";
+    return al;
 }%>
 
 
@@ -71,18 +85,25 @@ body {
 }
 </style>
 
-<span id="cmdReloadMessage">Page reload is needed</span> 
-<a id="cmdOAReset" href="oareset.jsp">oareset</a> &nbsp;&nbsp;&nbsp;
+<span id="cmdReloadMessage">Page reload is needed</span>
+<a id="cmdOAReset" href="oareset.jsp">oareset</a>
+&nbsp;&nbsp;&nbsp;
 <input type=submit value="submit">
 <input id="cmdDoAjaxSubmit" type=button value="xxx">
-debug <input id="chkFormDebug" type="checkbox">
+debug
+<input id="chkFormDebug" type="checkbox">
 
 <fieldset>
   <legend>Demo BsTypeAhead</legend>
-  <label id="lbl">Test BsTypeAhead <input id="txtta" type="Text"></label> <br>
+  
+  <label id="lbl">Test BsTypeAhead (MultiValue=false)<input id="txtta" type="Text"></label> <br> <br> <label id="lbl2">Test BsTypeAhead
+    (MultiValue=true)<input id="txtta2" type="Text">
+  </label> <br>
 
-<p><br><br>
-<%@ include file="htmlElementPropertyEditor.jsp"%>
+  <p>
+    <br>
+    <br>
+    <%@ include file="htmlElementPropertyEditor.jsp"%>
 </fieldset>
 
 <%@ include file="include/htmlFooter.jspf"%>

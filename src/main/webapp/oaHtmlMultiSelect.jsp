@@ -1,34 +1,30 @@
 <%@ include file="include/jspHeader.jspf"%>
 
 <%
-
-formId = "bsDateTime";
+formId = "oaHtmlMultiSelect";
 form = oasession.getRequestForm(formId);
 
 if (form == null) {
     form = oasession.createRequestForm(formId);
 
-    BsDateTime comp = new BsDateTime("txtdt") {
+    Hub<AppUser> hub = ModelDelegate.getAppUsers();
+    Hub<AppUser> hubSelect = new Hub<>();
+    
+    OAHtmlMultiSelect comp = new OAHtmlMultiSelect("sel", hub, hubSelect, AppUser.P_FullName) {
         int cnt;
         public void onSubmitCompleted(OAFormSubmitEvent formSubmitEvent) {
-    processOnSubmitCompleted(formSubmitEvent, this, ++cnt);
+            System.out.println((++cnt)+") onSubmitCompleted"); 
         }
     };
-    
-    // comp.setValue(""); 
     comp.setLabelId("lbl");
-    // comp.setDebug(true);
+    comp.setDisplayRows(8);
+    comp.setDebug(true);
+    // comp.setAjaxSubmit(true);
     form.add(comp);
 
-    HtmlElementPropertyEditor hpe = new HtmlElementPropertyEditor(form, comp); 
+    HtmlElementPropertyEditor hpe = new HtmlElementPropertyEditor(form, comp);
 }
 %>
-
-<%!public void processOnSubmitCompleted(OAFormSubmitEvent formSubmitEvent, BsDateTime comp, int cnt) {
-    System.out.println((++cnt)+") onSubmitCompleted, value=" + comp.getValue() );
-    OAForm form = formSubmitEvent.getForm();
-}%>
-
 
 
 <%@ include file="include/htmlHeader.jspf"%>
@@ -47,16 +43,15 @@ body {
 <input type=submit value="submit">
 <input id="cmdDoAjaxSubmit" type=button value="xxx">
 debug <input id="chkFormDebug" type="checkbox">
-<fieldset>
-  <legend>Demo BsDateTime</legend>
-  
-<!-- note:  needs to be in container that is relative qqqqq -->
 
-  <label id="lbl" style="position: relative">Test BsDateTime <input id="txtdt" type="Text"></label> <br>
+<fieldset>
+  <legend>Demo OAHtmlMultiSelect</legend>
+  <label id="lbl">Test OAHtmlMultiSelect <select id="sel"></select></label> <br>
 
 <p><br><br>
 <%@ include file="htmlElementPropertyEditor.jsp"%>
 </fieldset>
+
 <%@ include file="include/htmlFooter.jspf"%>
 
 
