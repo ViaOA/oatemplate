@@ -85,9 +85,9 @@ form.add(comp);
     
     OAHtmlSelect sel = new OAHtmlSelect("tableAppUserLoginAppUser", hub, AppUser.P_FullName);
     table.addColumn("User", sel, 20);
+    sel.setDebug(true);
     
     form.add(table);
-
 }
 %>
 
