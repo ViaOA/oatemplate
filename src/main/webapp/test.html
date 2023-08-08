@@ -21,10 +21,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="vendor/jquery-ui-1.12.1/jquery-ui.css">
 <link rel="stylesheet" type="text/css" href="vendor/bootstrap-3.3.7/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="vendor/bootstrap-typeahead/bootstrap-typeahead.css">
 <link rel="stylesheet" type="text/css" href="vendor/viaoa/oaweb.css">
 <script type="text/javascript" language="javascript" src="vendor/jquery-3.1.1/jquery.js"></script>
 <script type="text/javascript" language="javascript" src="vendor/jquery-ui-1.12.1/jquery-ui.js"></script>
 <script type="text/javascript" language="javascript" src="vendor/bootstrap-3.3.7/js/bootstrap.js"></script>
+<script type="text/javascript" language="javascript" src="vendor/bootstrap-typeahead/bootstrap-typeahead.js"></script>
 <script>
 
 var oaShowMessage;
@@ -60,12 +62,6 @@ function oaSubmit(event) {
   var requires = [];
   var regex;
   var val;
-  if ($('#tableAppUserFirstName').val().length > 30) {    errors.push('Field tableAppUserFirstName can not be longer than 30 characters');    $('#tableAppUserFirstName').addClass('oaError');}
-
-  if ($('#tableAppUserLastName').val().length > 55) {    errors.push('Field tableAppUserLastName can not be longer than 55 characters');    $('#tableAppUserLastName').addClass('oaError');}
-
-  if ($('#tableAppUserLoginHostName').val().length > 35) {    errors.push('Field tableAppUserLoginHostName can not be longer than 35 characters');    $('#tableAppUserLoginHostName').addClass('oaError');}
-
   if (requires.length > 0) {
     event.preventDefault();
     var msg = '';
@@ -116,8 +112,8 @@ function ajaxSubmit(cmdName) {
   }
   var objAjax = {
     method: 'POST',
-    url: 'oaajax.jsp?oaform=oaHtmlTable',
-    data: new FormData($('#oaHtmlTable')[0]),
+    url: 'oaajax.jsp?oaform=oaBsTypeAheadMultiSelect',
+    data: new FormData($('#oaBsTypeAheadMultiSelect')[0]),
     processData: false,
     contentType: false,
     dataType: 'script',
@@ -127,7 +123,7 @@ function ajaxSubmit(cmdName) {
   $.ajax(objAjax).done(f1).fail(f2);
 }
 function ajaxSubmit2(cmdName) {
-  var args = $('#oaHtmlTable').serialize();
+  var args = $('#oaBsTypeAheadMultiSelect').serialize();
   if (cmdName != undefined && cmdName) args = cmdName + '=1&' + args;
   $.ajax({
     method: 'POST',
@@ -139,7 +135,7 @@ function ajaxSubmit2(cmdName) {
 var oaFocusValue = '';
 $(document).ready(function() {
   if ($().modal) {
-    $('#oaHtmlTable').prepend(
+    $('#oaBsTypeAheadMultiSelect').prepend(
     "<div id='oaformDialog' class='modal fade' tabindex='-1'>" +
       "<div class='modal-dialog'>" +
         "<div class='modal-content'>" +
@@ -159,7 +155,7 @@ $(document).ready(function() {
   );
 }
 else {
-  $('#oaHtmlTable').prepend("<div id='oaformDialog'></div>");
+  $('#oaBsTypeAheadMultiSelect').prepend("<div id='oaformDialog'></div>");
   $('#oaformDialog').dialog({
     autoOpen : false,
     title : 'Message',
@@ -171,7 +167,7 @@ else {
     ]
   });
 }
-$('#oaHtmlTable').prepend(
+$('#oaBsTypeAheadMultiSelect').prepend(
   "<div id='oaFormProcess' class='modal fade' tabindex='-1'>" +
     "<div class='modal-dialog'>" +
       "<div class='modal-content'>" +
@@ -201,283 +197,72 @@ $('body').append(
   "<div id='oaFormSnackbarMessage'></div>"
 );
 $('body').append("<div id='oaWait'><img src='image/oawait.gif'></div>");
-$('#oaHtmlTable').attr('method', 'post');
-$('#oaHtmlTable').attr('action', 'oaform.jsp');
-$('#oaHtmlTable').prepend("<input type='hidden' name='oaform' value='oaHtmlTable'>");
-$('#oaHtmlTable').prepend("<input id='oaajaxid' type='hidden' name='oaajaxid' value='0'>");
-$('#oaHtmlTable').prepend("<input id='oaFormProcessClosed' type='hidden' name='oaFormProcessClosed' value=''>");
-$('#oaHtmlTable').prepend("<input id='oacommand' type='hidden' name='oacommand' value=''>");
-$('#oaHtmlTable').prepend("<input id='oaparam' type='hidden' name='oaparam' value=''>");
-$('#oaHtmlTable').prepend("<input id='oachanged' type='hidden' name='oachanged' value=''>");
+$('#oaBsTypeAheadMultiSelect').attr('method', 'post');
+$('#oaBsTypeAheadMultiSelect').attr('action', 'oaform.jsp');
+$('#oaBsTypeAheadMultiSelect').prepend("<input type='hidden' name='oaform' value='oaBsTypeAheadMultiSelect'>");
+$('#oaBsTypeAheadMultiSelect').prepend("<input id='oaajaxid' type='hidden' name='oaajaxid' value='0'>");
+$('#oaBsTypeAheadMultiSelect').prepend("<input id='oaFormProcessClosed' type='hidden' name='oaFormProcessClosed' value=''>");
+$('#oaBsTypeAheadMultiSelect').prepend("<input id='oacommand' type='hidden' name='oacommand' value=''>");
+$('#oaBsTypeAheadMultiSelect').prepend("<input id='oaparam' type='hidden' name='oaparam' value=''>");
+$('#oaBsTypeAheadMultiSelect').prepend("<input id='oachanged' type='hidden' name='oachanged' value=''>");
 (function() {
   var dtNow = new Date();
   var tzOffsetJan = (new Date(dtNow.getFullYear(),0,1)).getTimezoneOffset();
   var tzOffsetJul = (new Date(dtNow.getFullYear(),6,1)).getTimezoneOffset();
-  $('#oaHtmlTable').prepend("<input id='jsDate' type='hidden' name='jsDate' value='"+(dtNow.toString())+"'>");
-  $('#oaHtmlTable').prepend("<input id='jsTzRawOffset' type='hidden' name='jsTzRawOffset' value='"+Math.max(tzOffsetJan,tzOffsetJul)+"'>");
-  $('#oaHtmlTable').prepend("<input id='jsDateSupportsDST' type='hidden' name='jsDateSupportsDST' value='"+(tzOffsetJan != tzOffsetJul)+"'>");
+  $('#oaBsTypeAheadMultiSelect').prepend("<input id='jsDate' type='hidden' name='jsDate' value='"+(dtNow.toString())+"'>");
+  $('#oaBsTypeAheadMultiSelect').prepend("<input id='jsTzRawOffset' type='hidden' name='jsTzRawOffset' value='"+Math.max(tzOffsetJan,tzOffsetJul)+"'>");
+  $('#oaBsTypeAheadMultiSelect').prepend("<input id='jsDateSupportsDST' type='hidden' name='jsDateSupportsDST' value='"+(tzOffsetJan != tzOffsetJul)+"'>");
 })();
-$('#tableAppUser').attr('name', 'tableAppUser');
+$('#txtta').attr('name', 'txtta');
+$('#txtta').attr('type', 'text');
+$('#txtta').blur(function() {$(this).removeClass('oaError');}); 
+$('#lbl').attr('for', 'txtta');
 
-$('#tableAppUser').on('focus', 'tbody tr td', function(event) {
-  if ($(this).parent().hasClass('oatableSelected')) return true;
-  $('#oacommand').val($(this).attr('id'));
-  ajaxSubmit();
-  $('#oacommand').val('');
-  return true;
-});
-$('#tableAppUser').on('keydown', 'tr td', function(event) {
-  var ss = $(this).attr('id').split('_');
-  if (ss == undefined) return true;
-  var row = ss[ss.length -2];
-  var col = ss[ss.length -1];
-  const totalRows = event.delegateTarget.tBodies[0].rows.length;
-  const totalCols = event.delegateTarget.tBodies[0].rows[0].cells.length;
-  var keys = '';
-  if (event.shiftKey) keys += '[SHIFT]';
-  if (event.ctrlKey) keys += '[CTRL]';
-  if (event.altKey) keys += '[ALT]';
-  if (keys.length > 0) {
-    keys = 'KEYS='+keys;
+var txttaBloodhound = new Bloodhound({
+  datumTokenizer : Bloodhound.tokenizers.obj.whitespace('display'),
+  queryTokenizer : Bloodhound.tokenizers.whitespace,
+  remote : {
+    url : 'oagetjson.jsp?oaform=oaBsTypeAheadMultiSelect&id=txtta&term=%QUERY',
+    wildcard: '%QUERY'
   }
-  var bEnd = true;
-  var bBeg = true;
-  if (event.target.tagName === 'INPUT' && event.target.type === 'text') {
-    var p1 = event.target.selectionStart;
-    var p2 = event.target.selectionEnd;
-    if (p2 < p1) {
-      var p3 = p1;
-      p1 = p2;
-      p2 = p3;
+});
+txttaBloodhound.initialize();
+$('#txtta').tagsinput({
+  itemValue: 'id',
+  itemText: 'display',
+  freeInput: false,
+  typeaheadjs: [
+    {
+      minLength: 1,
+      hint: true,
+      highlight: true
+    },
+    {
+      name: 'txttaPopup',
+      limit: 400,
+      display: 'display',
+      templates: {
+        suggestion: function(data) {return '<p>'+data.dropdowndisplay+'</p>';}
+      },
+      source: txttaBloodhound.ttAdapter()
     }
-    bBeg = p1 == 0 && p2 == 0;
-    bEnd = p2 == event.target.value.length && p1 == p2;
-  }
-  switch (event.which) {
-  case 38: keys += '[UP]';
-    if (row == 0) return false;
-    row--;
-    break
-  case 33: keys += '[PGUP]';
-    if (row == 0) return false;
-    row=0;
-    break;
-  case 40: keys += '[DOWN]';
-    if (row+1 == totalRows) return false;
-    row++;
-    break;
-  case 34: keys += '[PGDN]';
-    if (row+1 == totalRows) return false;
-    row = totalRows-1;
-    break;
-  case 39: keys += '[RIGHT]';
-    if (col+1 == totalCols) return true;
-    if (!bEnd) return true;
-    col++;
-    break;
-  case 35: keys += '[END]';
-    if (col+1 == totalCols) return true;
-    if (!bEnd) return true;
-    col = totalCols-1;
-    break;
-  case 36: keys += '[HOME]';
-    if (col == 0) return false;
-    if (!bBeg) return true;
-    col = 0;
-    break;
-  case 37: keys += '[LEFT]';
-    if (col == 0) return false;
-    if (!bBeg) return true;
-    col--;
-    break;
-  default:
-    return true;
-  }  
-  $('#tableAppUser_'+row+'_'+col).focus();
-  return false;
-});
-$('#tableAppUser').html(`<colgroup><col style='width: 3rem;width:3rem;'><col style='width: 12rem;width:12rem;'><col style='width: 15rem;width:15rem;'><col style='width: 28rem;width:28rem;'></colgroup><thead><tr><th class='oatableColumnCount'>#</th><th>First</th><th>Last</th><th>Full Name</th></tr></thead><tbody>
-<tr id='tableAppUser_0' class='oatableSelected'><td id='tableAppUser_0_0' tabindex=0>1</td><td id='tableAppUser_0_1' tabindex=0><input type='text' id='tableAppUserFirstName' class='oaFitColumnSize'></td><td id='tableAppUser_0_2' tabindex=0><input type='text' id='tableAppUserLastName' class='oaFitColumnSize'></td><td id='tableAppUser_0_3' class='oaNoTextOverflow' tabindex=0>admin admin</td></tr>
-<tr id='tableAppUser_1'><td id='tableAppUser_1_0' tabindex=0>2</td><td id='tableAppUser_1_1' class='oaNoTextOverflow' tabindex=0>test1</td><td id='tableAppUser_1_2' class='oaNoTextOverflow' tabindex=0>test1</td><td id='tableAppUser_1_3' class='oaNoTextOverflow' tabindex=0>test1 test1</td></tr>
-<tr id='tableAppUser_2'><td id='tableAppUser_2_0' tabindex=0>3</td><td id='tableAppUser_2_1' class='oaNoTextOverflow' tabindex=0>test2 dfadf</td><td id='tableAppUser_2_2' class='oaNoTextOverflow' tabindex=0>last2</td><td id='tableAppUser_2_3' class='oaNoTextOverflow' tabindex=0>test2 dfadf last2</td></tr>
-<tr id='tableAppUser_3'><td id='tableAppUser_3_0' tabindex=0>4</td><td id='tableAppUser_3_1' class='oaNoTextOverflow' tabindex=0>test3</td><td id='tableAppUser_3_2' class='oaNoTextOverflow' tabindex=0>last3</td><td id='tableAppUser_3_3' class='oaNoTextOverflow' tabindex=0>test3 last3</td></tr>
-</tbody>
-`);
-
-$('#tableAppUserFirstName').attr('name', 'tableAppUserFirstName');
-$('#tableAppUserFirstName').attr('type', 'text');
-$('#tableAppUserFirstName').blur(function() {$(this).removeClass('oaError');}); 
-
-$('#tableAppUserLastName').attr('name', 'tableAppUserLastName');
-$('#tableAppUserLastName').attr('type', 'text');
-$('#tableAppUserLastName').blur(function() {$(this).removeClass('oaError');}); 
-
-$('#tableAppUserFullName').attr('name', 'tableAppUserFullName');
-
-$('#tableAppUserLogin').attr('name', 'tableAppUserLogin');
-
-$('#tableAppUserLogin').on('focus', 'tbody tr td', function(event) {
-  if ($(this).parent().hasClass('oatableSelected')) return true;
-  $('#oacommand').val($(this).attr('id'));
-  ajaxSubmit();
-  $('#oacommand').val('');
-  return true;
-});
-$('#tableAppUserLogin').on('keydown', 'tr td', function(event) {
-  var ss = $(this).attr('id').split('_');
-  if (ss == undefined) return true;
-  var row = ss[ss.length -2];
-  var col = ss[ss.length -1];
-  const totalRows = event.delegateTarget.tBodies[0].rows.length;
-  const totalCols = event.delegateTarget.tBodies[0].rows[0].cells.length;
-  var keys = '';
-  if (event.shiftKey) keys += '[SHIFT]';
-  if (event.ctrlKey) keys += '[CTRL]';
-  if (event.altKey) keys += '[ALT]';
-  if (keys.length > 0) {
-    keys = 'KEYS='+keys;
-  }
-  var bEnd = true;
-  var bBeg = true;
-  if (event.target.tagName === 'INPUT' && event.target.type === 'text') {
-    var p1 = event.target.selectionStart;
-    var p2 = event.target.selectionEnd;
-    if (p2 < p1) {
-      var p3 = p1;
-      p1 = p2;
-      p2 = p3;
-    }
-    bBeg = p1 == 0 && p2 == 0;
-    bEnd = p2 == event.target.value.length && p1 == p2;
-  }
-  switch (event.which) {
-  case 38: keys += '[UP]';
-    if (row == 0) return false;
-    row--;
-    break
-  case 33: keys += '[PGUP]';
-    if (row == 0) return false;
-    row=0;
-    break;
-  case 40: keys += '[DOWN]';
-    if (row+1 == totalRows) return false;
-    row++;
-    break;
-  case 34: keys += '[PGDN]';
-    if (row+1 == totalRows) return false;
-    row = totalRows-1;
-    break;
-  case 39: keys += '[RIGHT]';
-    if (col+1 == totalCols) return true;
-    if (!bEnd) return true;
-    col++;
-    break;
-  case 35: keys += '[END]';
-    if (col+1 == totalCols) return true;
-    if (!bEnd) return true;
-    col = totalCols-1;
-    break;
-  case 36: keys += '[HOME]';
-    if (col == 0) return false;
-    if (!bBeg) return true;
-    col = 0;
-    break;
-  case 37: keys += '[LEFT]';
-    if (col == 0) return false;
-    if (!bBeg) return true;
-    col--;
-    break;
-  default:
-    return true;
-  }  
-  $('#tableAppUserLogin_'+row+'_'+col).focus();
-  return false;
-});
-$('#tableAppUserLogin').html(`<colgroup><col style='width: 3rem;width:3rem;'><col style='width: 14rem;width:14rem;'><col style='width: 14rem;width:14rem;'><col style='width: 14rem;width:14rem;'><col style='width: 20rem;width:20rem;'></colgroup><thead><tr><th class='oatableColumnCount'>#</th><th>Host Name</th><th>Created</th><th>Created2</th><th>User</th></tr></thead><tbody>
-<tr id='tableAppUserLogin_0'><td id='tableAppUserLogin_0_0' tabindex=0>1</td><td id='tableAppUserLogin_0_1' class='oaNoTextOverflow' tabindex=0>DESKTOP-OR6LQK4</td><td id='tableAppUserLogin_0_2' class='oaNoTextOverflow' tabindex=0>08/04/23 08:36 PM</td><td id='tableAppUserLogin_0_3' class='oaNoTextOverflow' tabindex=0>2023-08-216T20:36</td><td id='tableAppUserLogin_0_4' class='oaNoTextOverflow' tabindex=0>admin admin</td></tr>
-<tr id='tableAppUserLogin_1'><td id='tableAppUserLogin_1_0' tabindex=0>2</td><td id='tableAppUserLogin_1_1' class='oaNoTextOverflow' tabindex=0>DESKTOP-OR6LQK4</td><td id='tableAppUserLogin_1_2' class='oaNoTextOverflow' tabindex=0>08/04/23 08:39 PM</td><td id='tableAppUserLogin_1_3' class='oaNoTextOverflow' tabindex=0>2023-08-216T20:39</td><td id='tableAppUserLogin_1_4' class='oaNoTextOverflow' tabindex=0>admin admin</td></tr>
-<tr id='tableAppUserLogin_2' class='oatableSelected'><td id='tableAppUserLogin_2_0' tabindex=0>3</td><td id='tableAppUserLogin_2_1' tabindex=0><input type='text' id='tableAppUserLoginHostName' class='oaFitColumnSize'></td><td id='tableAppUserLogin_2_2' class='oaNoTextOverflow' tabindex=0>08/04/23 08:40 PM</td><td id='tableAppUserLogin_2_3' tabindex=0><input id='tableAppUserLoginCreated2' class='oaFitColumnSize'></td><td id='tableAppUserLogin_2_4' tabindex=0><select id='tableAppUserLoginAppUser' name='tableAppUserLoginAppUser' class='oaFitColumnSize'></select></td></tr>
-</tbody>
-`);
-
-$('#tableAppUserLoginHostName').attr('name', 'tableAppUserLoginHostName');
-$('#tableAppUserLoginHostName').attr('type', 'text');
-$('#tableAppUserLoginHostName').blur(function() {$(this).removeClass('oaError');}); 
-
-$('#tableAppUserLoginCreated').attr('name', 'tableAppUserLoginCreated');
-
-$('#tableAppUserLoginCreated2').attr('name', 'tableAppUserLoginCreated2');
-$('#tableAppUserLoginCreated2').attr('type', 'datetime-local');
-$('#tableAppUserLoginCreated2').blur(function() {$(this).removeClass('oaError');}); 
-
-$('#tableAppUserLoginAppUser').attr('name', 'tableAppUserLoginAppUser');
-
-$('#cmdAddNewUserLogin').attr('name', 'cmdAddNewUserLogin');
-$('#cmdAddNewUserLogin').attr('type', 'button');
-$('#cmdAddNewUserLogin').blur(function() {$(this).removeClass('oaError');}); 
-$('#cmdAddNewUserLogin').addClass('oaSubmit');
-$('#cmdAddNewUserLogin').click(function(event) {
-  $('#oacommand').val('cmdAddNewUserLogin');
-  var keys = 'KEYS=';
-  if (event.shiftKey) keys += '[SHIFT]';
-  if (event.ctrlKey) keys += '[CTRL]';
-  if (event.altKey) keys += '[ALT]';
-  $('#oaparam').val(keys);
-  ajaxSubmit();
-  $('#oacommand').val('');
-  $('#oaparam').val('');
-  return false;
+  ]
 });
 
 
-$('#oaHtmlTable').on('submit', oaSubmit);
-  $('#tableAppUser').addClass('oatable');$('#tableAppUser').css({'table-layout':'fixed','width':'58rem'});
+$('#oaBsTypeAheadMultiSelect').on('submit', oaSubmit);
+$('input:enabled:first').focus();
+  $('#txtta').val('');
+$('#txtta')[0].oaPrevValue = $('#txtta').val();
 
-  $('#tableAppUserFirstName').val('admin');
-$('#tableAppUserFirstName')[0].oaPrevValue = $('#tableAppUserFirstName').val();
-$('#tableAppUserFirstName').attr('size', 12);
-$('#tableAppUserFirstName').attr('maxlength', 30);
-
-  $('#tableAppUserLastName').val('admin');
-$('#tableAppUserLastName')[0].oaPrevValue = $('#tableAppUserLastName').val();
-$('#tableAppUserLastName').attr('size', 12);
-$('#tableAppUserLastName').attr('maxlength', 55);
-
-  $('#tableAppUserFullName').html('admin admin');
-
-  $('#tableAppUserLogin').addClass('oatable');$('#tableAppUserLogin').css({'table-layout':'fixed','width':'65rem'});
-
-  $('#tableAppUserLoginHostName').val('');
-$('#tableAppUserLoginHostName')[0].oaPrevValue = $('#tableAppUserLoginHostName').val();
-$('#tableAppUserLoginHostName').attr('size', 14);
-$('#tableAppUserLoginHostName').attr('maxlength', 35);
-$('#tableAppUserLoginHostName').prop('disabled', true);
-
-  $('#tableAppUserLoginCreated').html('08/04/23 08:40 PM');
-$('#tableAppUserLoginCreated').tooltip();
-$('#tableAppUserLoginCreated').data('bs.tooltip').options.title = 'display/readonly version';
-$('#tableAppUserLoginCreated').data('bs.tooltip').options.placement = 'top';
-
-  $('#tableAppUserLoginCreated2').val('2023-08-216T20:40');
-$('#tableAppUserLoginCreated2')[0].oaPrevValue = $('#tableAppUserLoginCreated2').val();
-$('#tableAppUserLoginCreated2').tooltip();
-$('#tableAppUserLoginCreated2').data('bs.tooltip').options.title = 'html input datetime';
-$('#tableAppUserLoginCreated2').data('bs.tooltip').options.placement = 'top';
-$('#tableAppUserLoginCreated2').prop('disabled', true);
-
-  $('#tableAppUserLoginAppUser').val('3');
-$('#tableAppUserLoginAppUser')[0].oaPrevValue = $('#tableAppUserLoginAppUser').val();
-$('#tableAppUserLoginAppUser').html('<option value=\'3\' selected>admin admin</option><option value=\'6\'>test1 test1</option><option value=\'7\'>test2 dfadf last2</option><option value=\'8\'>test3 last3</option><option value=\'oanull\'> </option>');
-
-  $('#cmdAddNewUserLogin').val('New');
-$('#cmdAddNewUserLogin')[0].oaPrevValue = $('#cmdAddNewUserLogin').val();
+$('#txtta').tagsinput('removeAll');
 
 });
 </script>
 </head>
 
 <body>
-    <form id="oaHtmlTable">
+    <form id="oaBsTypeAheadMultiSelect">
 <style>
 body {
   margin-left: 15px;
@@ -488,37 +273,20 @@ body {
 }
 </style>
 
-<span id="cmdReloadMessage">Page reload is needed</span>
-<a id="cmdOAReset" href="oareset.jsp">oareset</a>
-&nbsp;&nbsp;&nbsp;
+<span id="cmdReloadMessage">Page reload is needed</span> 
+<a id="cmdOAReset" href="oareset.jsp">oareset</a> &nbsp;&nbsp;&nbsp;
 <input type=submit value="submit">
 <input id="cmdDoAjaxSubmit" type=button value="xxx">
-debug
-<input id="chkFormDebug" type="checkbox">
-
+debug <input id="chkFormDebug" type="checkbox">
 
 <fieldset>
-  <legend>Demo HtmlTable - wrapped in Div that scrolls, with sticky header</legend>
-  Test HtmlTable
+  <legend>Demo OABsTypeAheadMultiSelect</legend>
+  <d>demo: to show using typeahead for selecting multiple objects in a hub</d><p>
   
-<div style="overflow: scroll; width:500px; height:175px; margin: 20px; border: 1px solid black;">
-    <table id="tableAppUser" border="2">
-    </table>
-</div>
+  <label id="lbl">Test OABsTypeAheadMultiSelect <input id="txtta" type="Text"></label> <br>
 
-
-<div style="overflow: scroll; width:820px; height:145px; margin: 20px; border: 1px solid black; position: relative;">
-    <table id="tableAppUserLogin" border="2">
-    </table>
-</div>
-
-  <label id="lbl5">Add New UserLogin<input type=button id="cmdAddNewUserLogin" value="New"></label> <br>
-
-
-
-  <p>
-    <br> <br>
-    <legend>Property Editor</legend>
+<p><br><br>
+<legend>Property Editor</legend>
 
 <label id="lblId">Id <span id="eleId"></span></label><p>
 
