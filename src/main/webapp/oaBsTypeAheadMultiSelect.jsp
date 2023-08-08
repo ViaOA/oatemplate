@@ -28,7 +28,6 @@ if (form == null) {
             processOnSubmitCompleted(formSubmitEvent, this, ++cnt);
         }
     };
-    comp.setMultiValue(false);
 //    comp.setAjaxSubmit(true); //qqqqqqqqqqqq if true then sends id ... if not true, then it sends text.value=fullname ......qqqqqqqqq
     
     // comp.setValue(""); 

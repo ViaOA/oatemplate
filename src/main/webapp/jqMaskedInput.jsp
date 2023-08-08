@@ -32,7 +32,8 @@ if (form == null) {
     
     // allow using Pattern to change the inputMask
     String s = comp.getPattern();
-    System.out.println("txtPattern ===========> "+s);//qqqqqqqq            
+    System.out.println("txtPattern ===========> "+s);//qqqqqqqq
+    /*qq
     if (OAStr.isNotEmpty(s)) {
         comp.setInputMask(s);
         comp.setPattern(null);
@@ -40,6 +41,7 @@ if (form == null) {
         comp.setToolTip("MaskedInput is "+ s);
         form.getComponent("txtToolTipText").setValue(comp.getToolTip());                
     }
+    */
 }%>
 
 
