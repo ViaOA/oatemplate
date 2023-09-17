@@ -15,6 +15,7 @@ if (form == null) {
             System.out.println((++cnt)+") onSubmitCompleted " + getHub().getAO());
         }
     };
+    comp.setButtonText("Next Button here");
     comp.setAjaxSubmit(true);
     form.add(comp);
     
@@ -35,7 +36,7 @@ if (form == null) {
     comp.setButtonText(comp.getId());
     form.add(comp);
 
-    comp = new OAHtmlButton("cmdClearAO", hub, HtmlButton.Type.Submit, OAUICommandController.Command.ClearAO);
+    comp = new OAHtmlButton("cmdClearAO", hub, HtmlButton.Type.Button, OAUICommandController.Command.ClearAO);
     comp.setAjaxSubmit(true);
     comp.setButtonText(comp.getId());
     form.add(comp);
@@ -70,7 +71,7 @@ if (form == null) {
     comp.setAjaxSubmit(true);
     form.add(comp);
     
-    OAHtmlElement comp2 = new OAHtmlElement("ele", hub, AppUser.P_LastName);
+    OAHtmlElement comp2 = new OAHtmlElement("eleX", hub, AppUser.P_LastName);
     form.add(comp2);
     
 }
@@ -108,7 +109,7 @@ debug <input id="chkFormDebug" type="checkbox">
   <label id="lbl5">Test NewManual Button <button id="cmdNewManual" type="">AddNew</button></label> <br>
 
   
-  <label id="lbl7">OAHtmlElement LastName: <span id="ele">this should be replaced</span></label> <br>
+  <label id="lbl7">OAHtmlElement LastName: <span id="eleX">this should be replaced</span></label> <br>
   
   
   

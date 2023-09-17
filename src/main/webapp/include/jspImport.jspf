@@ -12,6 +12,7 @@
   com.viaoa.web.html.form.*, 
   com.viaoa.web.html.input.*, 
   com.viaoa.web.html.jquery.*, 
+  com.viaoa.web.html.js.*, 
   com.viaoa.web.html.bootstrap.*, 
   com.viaoa.web.html.summernote.*, 
   com.viaoa.web.html.oa.*, 
