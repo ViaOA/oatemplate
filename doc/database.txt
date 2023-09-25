@@ -13,6 +13,23 @@ linux:
 
 
 
+*****************************    
+Updating Derby Database with changes from model*.sql file
+    $proj = C:\Users\vvia\git\oatemplate
+    cd $proj
+    copy changes\model_yyyyMMdd.sql runtime\server 
+    cd runtime\server
+    ij
+    ij> connect 'database';
+    ij> autocommit off;
+    ij> run 'model_yyyyMMdd.sql';
+    ij> commit;
+    ij> quit;
+*****************************    
+
+
+
+
 
 20200331    
     https://builds.apache.org/job/Derby-docs/lastSuccessfulBuild/artifact/trunk/out/ref/rrefattribcollation.html
