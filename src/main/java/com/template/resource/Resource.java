@@ -26,9 +26,14 @@ import com.viaoa.util.OAString;
 import com.viaoa.util.OATime;
 
 /**
- * Used to setup Locale specific name/value pairs from runtime properties, System.properties, server.ini, client.ini, and resourceBundle.
- * see: values.properties file for list of name/value pairs. Note: as a convention, directory paths should not end with a pathSeparator
- * character. any value that is a file path should be converted to correct pathSeparator
+ * Used to setup Locale specific name/value pairs from 
+ * runtime properties, System.properties, 
+ * server.ini, client.ini, and resourceBundle.
+ * 
+ * see: values.properties file for list of name/value pairs. 
+ * 
+ * Note: as a convention, 
+ *     directory paths should not end with a pathSeparator character. any value that is a file path should be converted to correct pathSeparator
  */
 public class Resource {
 	private static Logger LOG = OALogger.getLogger(Resource.class);
@@ -115,6 +120,7 @@ public class Resource {
 	public static final String APP_WelcomePage = "WelcomePage";
 	public static final String APP_MainCardPanel = "MainCardPanel"; // for client UI
 
+	
 	public static final String APP_JarImageDirectory = "JarImageDirectory";
 	public static final String APP_JarImageDirectory2 = "JarImageDirectory2";
 	public static final String APP_FileImageDirectory = "FileImageDirectory";

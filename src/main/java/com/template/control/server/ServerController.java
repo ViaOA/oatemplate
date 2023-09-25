@@ -1,4 +1,3 @@
-// Copied from OATemplate project by OABuilder 02/13/19 10:11 AM
 package com.template.control.server;
 
 import java.awt.Cursor;

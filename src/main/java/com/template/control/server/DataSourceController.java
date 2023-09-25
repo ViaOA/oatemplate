@@ -1,4 +1,3 @@
-// Copied from OATemplate project by OABuilder 02/13/19 10:11 AM
 package com.template.control.server;
 
 import java.io.EOFException;
@@ -18,6 +17,7 @@ import com.template.model.oa.*;
 import com.template.model.oa.propertypath.*;
 import com.template.model.oa.filter.*;
 import com.template.model.oa.cs.*;
+import com.template.delegate.*;
 import com.template.resource.Resource;
 import com.viaoa.annotation.OAClass;
 import com.viaoa.comm.io.OAObjectInputStream;
@@ -33,6 +33,7 @@ import com.viaoa.sync.OASyncServer;
 import com.viaoa.transaction.OATransaction;
 import com.viaoa.util.*;
 import com.viaoa.xml.*;
+import com.viaoa.process.*;
 
 /**
  * Used to manage object persistence, includes serialization and OADataSource support.
@@ -126,7 +127,10 @@ public class DataSourceController {
 			dataSource = new DataSource();
 			dataSource.open();
 
-			dataSource.getOADataSource().setAssignIdOnCreate(false);
+			// NOTE: if using "false", then make sure that the primary key columns were set up to be auto-assigned by the datasource
+			//       this is done in OABuilder, by setting model.UseIdentifyPkey=true
+			dataSource.getOADataSource().setAssignIdOnCreate(true);
+			
 			if (!Resource.getBoolean(Resource.INI_SaveDataToDatabase, true) || Resource.getBoolean(Resource.DB_IgnoreWrites, false)) {
 				dataSource.getOADataSource().setIgnoreWrites(true);  // readonly
 			}

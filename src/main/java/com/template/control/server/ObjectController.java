@@ -1,4 +1,3 @@
-// Copied from OATemplate project by OABuilder 02/13/19 10:11 AM
 package com.template.control.server;
 
 import java.util.concurrent.*;
@@ -104,7 +103,9 @@ public class ObjectController {
                         if (d1.after(d2)) continue;
                     }
                 }
-                login.delete();
+                if (ModelDelegate.getAppServer().getAppUserLogin() != login) {                
+                    login.delete();
+                }
             }
         }
     }
