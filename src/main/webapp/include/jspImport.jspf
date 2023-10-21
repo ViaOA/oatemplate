@@ -4,7 +4,13 @@
 <%@page import="java.io.*,java.util.*"%>
 <%@page import="java.util.logging.*"%>
 
-<%@page import="com.viaoa.object.*,com.viaoa.hub.*,com.viaoa.util.*, com.viaoa.ds.*,com.viaoa.ds.jdbc.*,com.viaoa.jfc.image.*, com.viaoa.process.*"%>
+<%@page import="
+  com.viaoa.object.*,
+  com.viaoa.hub.*,
+  com.viaoa.util.*, 
+  com.viaoa.datasource.*,
+  com.viaoa.datasource.jdbc.*,
+  com.viaoa.process.*"%>
 
 <%@page import="com.viaoa.uicontroller.*,
   com.viaoa.web.server.*, 
@@ -12,7 +18,6 @@
   com.viaoa.web.html.form.*, 
   com.viaoa.web.html.input.*, 
   com.viaoa.web.html.jquery.*, 
-  com.viaoa.web.html.js.*, 
   com.viaoa.web.html.bootstrap.*, 
   com.viaoa.web.html.summernote.*, 
   com.viaoa.web.html.oa.*, 

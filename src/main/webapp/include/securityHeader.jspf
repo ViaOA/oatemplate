@@ -1,4 +1,4 @@
-<%@ include file="jspHeader.jsp" %>
+<%@ include file="jspHeader.jspf" %>
 <%
     // make sure USER is logged in amd role is manager
     
