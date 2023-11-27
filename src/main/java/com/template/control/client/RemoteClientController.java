@@ -145,11 +145,11 @@ public abstract class RemoteClientController {
                                     OAThreadLocalDelegate.addSiblingHelper(sh);
                                 }
                             }
-                            if (bForMerger) OAThreadLocalDelegate.setHubMergerIsChanging(true);
+                            if (bForMerger) OAThreadLocalDelegate.setHubMergerChanging(true);
                             obj = getDetail(masterObject, propertyName);
                         }
                         finally {
-                            if (bForMerger) OAThreadLocalDelegate.setHubMergerIsChanging(false);
+                            if (bForMerger) OAThreadLocalDelegate.setHubMergerChanging(false);
                             if (alSiblingHelperX != null) {
                                 for (OASiblingHelper sh : alSiblingHelperX) {
                                     OAThreadLocalDelegate.removeSiblingHelper(sh);
