@@ -33,7 +33,7 @@ public abstract class AboutDialog extends JDialog implements ActionListener {
     private JToggleButton cmdInfo;
 
     public AboutDialog(JFrame frm) {
-    	super(frm, "", true);
+    	super(frm, "", false);
         this.setResizable(true);
         
         icon = Resource.getJarIcon(Resource.IMG_Splash);

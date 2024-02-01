@@ -14,6 +14,7 @@ Process:
 		darker orange fc9a04
 		
 get icons		
+	www.iconbuddy.app
 	www.thenounproject.com
 
 
@@ -57,7 +58,7 @@ images need to be copied:
 	
 Note:  use ^+[F11] in the Client to be able to click labels on glassframe	
 	
-	
+	schoolsBar, Button, Splash.png
 
 	
 	
