@@ -1,26 +1,12 @@
 package com.template.control.server;
 
-import java.io.EOFException;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.*;
-import java.util.zip.*;
 
-import com.template.datasource.DataSource;
-import com.template.model.oa.*;
-import com.template.model.oa.propertypath.*;
-import com.template.model.oa.filter.*;
-import com.template.model.oa.cs.*;
-import com.template.delegate.*;
-import com.template.resource.Resource;
-import com.viaoa.annotation.OAClass;
-import com.viaoa.comm.io.OAObjectInputStream;
 import com.viaoa.concurrent.OAExecutorService;
 import com.viaoa.datasource.*;
 import com.viaoa.datasource.jdbc.OADataSourceJDBC;
@@ -33,131 +19,98 @@ import com.viaoa.sync.OASyncServer;
 import com.viaoa.transaction.OATransaction;
 import com.viaoa.util.*;
 import com.viaoa.xml.*;
-import com.viaoa.process.*;
+
+import com.template.datasource.DataSource;
+import com.template.model.oa.*;
+import com.template.model.oa.propertypath.*;
+import com.template.model.oa.filter.*;
+import com.template.model.oa.cs.*;
+import com.template.delegate.*;
+import com.template.resource.Resource;
 
 /**
  * Used to manage object persistence, includes serialization and OADataSource support.
  **/
 public class DataSourceController {
 	private static Logger LOG = OALogger.getLogger(DataSourceController.class);
-	private DataSource dataSource;
-	private OADataSourceObjectCache dsObjectCache;
-	private boolean bIsUsingDatabase;
 
-	private ServerRoot serverRoot;
-	private Hub<ClientRoot> hubClientRoot;
+    private final boolean bIsUsingDatabase;
+    private final DataSource dataSource;
+    private final OADataSourceObjectCache dsObjectCache;
 
-	private OADate dateLastSerialize;
-	private OATime timeLastSerialize;
-	private String cacheFileName;
-	private OADate dateLastXml;
-	private OATime timeLastXml;
-	private OADate dateLastJson;
-	private OATime timeLastJson;
+    private final ServerRoot serverRoot;
+    private final Hub<ClientRoot> hubClientRoot;
 
-	private OAExecutorService executorService;
-	private final AtomicInteger aiExecutor = new AtomicInteger();
-	private CopyOnWriteArrayList<String> alExecutorService = new CopyOnWriteArrayList<String>();
-	private CopyOnWriteArrayList<String> alSelectError = new CopyOnWriteArrayList<String>();
+    private OAExecutorService executorService;
+    private final AtomicInteger aiExecutor = new AtomicInteger();
+    private CopyOnWriteArrayList<String> alExecutorService = new CopyOnWriteArrayList<String>();
+    private CopyOnWriteArrayList<String> alSelectError = new CopyOnWriteArrayList<String>();
 
-	public DataSourceController(ServerRoot serverRoot, Hub<ClientRoot> hubClientRoot) throws Exception {
-		this.serverRoot = serverRoot;
-		this.hubClientRoot = hubClientRoot;
+    private OADate dateLastSerialize;
+    private OATime timeLastSerialize;
+    private OADate dateLastJson;
+    private OATime timeLastJson;
+    private OADate dateLastXml;
+    private OATime timeLastXml;
 
-		cacheFileName = Resource.getValue(Resource.DB_CacheFileName);
-		String driver = Resource.getValue(Resource.DB_JDBC_Driver);
+    public DataSourceController(ServerRoot serverRoot, Hub<ClientRoot> hubClientRoot) throws Exception {
+        this.serverRoot = serverRoot;
+        this.hubClientRoot = hubClientRoot;
 
-		bIsUsingDatabase = Resource.getBoolean(Resource.DB_Enabled, false);
-		if (!bIsUsingDatabase) {
-			String msg = "Note: Database is NOT being used, db.enabled=false";
+        bIsUsingDatabase = Resource.getBoolean(Resource.DB_IsUsingDatabase, false);
 
-			// make sure that it is saving to file
-			if (!Resource.getBoolean(Resource.INI_SaveDataToFile, false)) {
-				if (!Resource.getBoolean(Resource.INI_SaveDataToJsonFile, false)) {
-					if (!Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false)) {
-						msg += ", WARNING: NOT saving - not using database or data file(s) data.* (.bin, .json, .xml) **** WARNING ****";
-					}
-				}
-			}
-			LOG.warning(msg);
-			for (int i = 0; i < 10; i++) {
-				System.out.println(msg);
-			}
+        if (bIsUsingDatabase) {
+            dataSource = new DataSource();
+            dataSource.open();
 
-			// use DS OAObjectCache
-			String packageName = AppServer.class.getPackage().getName(); // model classes
-			final Set<Class> hsClass = new HashSet<>();
-			for (String fn : OAReflect.getClasses(packageName)) {
-				Class c = Class.forName(packageName + "." + fn);
-				hsClass.add(c);
-			}
+            if (Resource.getBoolean(Resource.DB_IgnoreWrites, false)) {
+                String msg = "Note: using Database, but NOT saving ... all writes are ignored (insert/update/delete)";
+                LOG.warning(msg);
+                for (int i = 0; i < 10; i++) {
+                    System.out.println(msg);
+                }
+                dataSource.getOADataSource().setIgnoreWrites(true); // readonly
+            }
+            dataSource.getOADataSource().setAssignIdOnCreate(false);
+        }
+        else {
+            String msg = "Note: Database is NOT being used, db.isUsingDatabase=false";
+            dataSource = null;
 
-			dsObjectCache = new OADataSourceObjectCache() {
-				@Override
-				public boolean isClassSupported(Class clazz, OAFilter filter) {
-					return hsClass.contains(clazz);
-				}
-			};
-		} else {
-			// put "non-db" classes into another DS
-			String packageName = AppServer.class.getPackage().getName(); // oa model classes
-			final Set<Class> hsClass = new HashSet<>();
-			for (String fn : OAReflect.getClasses(packageName)) {
-				Class c = Class.forName(packageName + "." + fn);
-				OAObjectInfo oi = OAObjectInfoDelegate.getOAObjectInfo(c);
-				if (!oi.getUseDataSource()) {
-					hsClass.add(c);
-				}
-			}
+            // make sure that it is saving to file
+            if (!Resource.getBoolean(Resource.INI_SaveDataToFile, false)) {
+                if (!Resource.getBoolean(Resource.INI_SaveDataToJsonFile, false)) {
+                    if (!Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false)) {
+                        msg += ", WARNING: NOT saving - not using database, file(s) data.* (.bin, .json, .xml) **** WARNING ****";
+                    }
+                }
+            }
+            LOG.warning(msg);
+            for (int i = 0; i < 10; i++) {
+                System.out.println(msg);
+            }
+        }
 
-			dsObjectCache = new OADataSourceObjectCache() {
-				@Override
-				public boolean isClassSupported(Class clazz, OAFilter filter) {
-					return hsClass.contains(clazz);
-				}
-			};
-
-			if (!Resource.getBoolean(Resource.INI_SaveDataToDatabase, true) || Resource.getBoolean(Resource.DB_IgnoreWrites, false)) {
-				String msg = "Note: using Database, but NOT saving ... all writes are ignored (insert/update/delete)";
-				LOG.warning(msg);
-				for (int i = 0; i < 20; i++) {
-					System.out.println(msg);
-				}
-			}
-			dataSource = new DataSource();
-			dataSource.open();
-
-			// NOTE: if using "false", then make sure that the primary key columns were set up to be auto-assigned by the datasource
-			//       this is done in OABuilder, by setting model.UseIdentifyPkey=true
-			dataSource.getOADataSource().setAssignIdOnCreate(true);
-			
-			if (!Resource.getBoolean(Resource.INI_SaveDataToDatabase, true) || Resource.getBoolean(Resource.DB_IgnoreWrites, false)) {
-				dataSource.getOADataSource().setIgnoreWrites(true);  // readonly
-			}
-		}
-		dsObjectCache.setAssignIdOnCreate(true);
-
-		if (OAString.isNotEmpty(cacheFileName)) {
-			cacheFileName = OAFile.convertFileName(cacheFileName);
-			File file = new File(cacheFileName);
-			if (file.exists()) {
-				LOG.info("OAObjectEmptyHubDelegate.load(" + cacheFileName + ");");
-				try {
-					OAObjectEmptyHubDelegate.load(file);
-				} catch (Exception e) {
-					LOG.log(Level.WARNING, "error loading cache file, " + cacheFileName + ", will continue", e);
-				}
-				file.delete();
-			}
-		}
-	}
+        // use OADataSourceObjectCache for model classes that are not already selected by OADS.
+        final Set<Class> hsClass = new HashSet<>();
+        String packageName = AppServer.class.getPackage().getName(); // oa model classes
+        for (String fn : OAReflect.getClasses(packageName)) {
+            Class c = Class.forName(packageName + "." + fn);
+            if (dataSource == null || !dataSource.getOADataSource().isClassSupported(c)) {
+                hsClass.add(c);
+            }
+        }
+        dsObjectCache = new OADataSourceObjectCache() {
+            @Override
+            public boolean isClassSupported(Class clazz, OAFilter filter) {
+                return hsClass.contains(clazz);
+            }
+        };
+        dsObjectCache.setAssignIdOnCreate(true);
+    }
 
 	public boolean isUsingDatabase() {
 		return bIsUsingDatabase;
-	}
-
-	public OADataSourceObjectCache getObjectCacheDataSource() {
-		return dsObjectCache;
 	}
 
 	public OADataSourceJDBC getOADataSourceJDBC() {
@@ -167,320 +120,273 @@ public class DataSourceController {
 		return this.dataSource.getOADataSource();
 	}
 
-	private void select(final Hub hub) {
-		select(hub, null, null);
-	}
-
-	private void select(final Hub hub, final String query, final String orderBy) {
-		if (hub == null) {
-			return;
-		}
-		aiExecutor.incrementAndGet();
-		String s = "selecting " + hub.getObjectClass().getSimpleName() + ", query=" + query + ", orderBy=" + orderBy;
-		LOG.fine(s);
-		try {
-			alExecutorService.add(s);
-			hub.select(query, orderBy);
-			hub.loadAllData();
-			alExecutorService.remove(s);
-		} finally {
-			aiExecutor.decrementAndGet();
-		}
-	}
-
+    public OADataSourceObjectCache getObjectCacheDataSource() {
+        return dsObjectCache;
+    }
+	
 	public boolean loadServerRoot() throws Exception {
-		// if (this.dataSource == null) return false;  // might need to use object cache filters
-		LOG.log(Level.CONFIG, "selecting Server data");
+        // if (this.dataSource == null) return false; // might need to use object cache filters
+        LOG.log(Level.CONFIG, "selecting startup data");
 
-		LOG.info("starting to select data");
-		executorService = new OAExecutorService("DataSourceController.startup");
+        LOG.info("starting to select data");
+        executorService = new OAExecutorService("DataSourceController.startup");
 
-		if (!isUsingDatabase()) {
-			boolean b = true;
-			if (!Resource.getBoolean(Resource.INI_SaveDataToFile, false) || !readFromSerializeFile()) {
-				if (!Resource.getBoolean(Resource.INI_SaveDataToJsonFile, false) || !readFromJsonFile()) {
-					if (!Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false) || !readFromXmlFile()) {
-						b = false;
-						LOG.log(Level.WARNING, "No data loaded");
-					}
-				}
-			}
-			if (b && !readObjectCacheDataSource()) {
-				OAObjectSaveDelegate.save(serverRoot, OAObject.CASCADE_ALL_LINKS, new OACascade() {
-					@Override
-					public boolean wasCascaded(OAObject oaObj, boolean bAdd) {
-						boolean b = super.wasCascaded(oaObj, bAdd);
-						if (!b && oaObj != serverRoot) {
-							dsObjectCache.addToStorage(oaObj, true);
-						}
-						return b;
-					}
-				});
-				writeObjectCacheDataSource();
-			}
-		} else {
-			readObjectCacheDataSource(); // non-DB
-		}
+        if (!isUsingDatabase()) {
+            boolean b = readFromSerializeFile();
+            if (!b) {
+                if (!Resource.getBoolean(Resource.INI_SaveDataToJsonFile, false) || !readFromJsonFile()) {
+                    if (!Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false) || !readFromXmlFile()) {
+                        LOG.log(Level.WARNING, "No options available to load data (database, serialized, JSON, XML)");
+                    }
+                }
+            }
+        }
 
 		/*$$Start: DatasourceController.loadServerRoot $$*/
-		aiExecutor.incrementAndGet();
-		executorService.submit(new Runnable() {
-			@Override
-			public void run() {
-				String msg = "serverRoot.getCreateOneAppServerHub()";
-				try {
-					alExecutorService.add(msg);
-					if (isUsingDatabase()) {
-						select(serverRoot.getCreateOneAppServerHub(), "", null);
-					}
-					if (serverRoot.getCreateOneAppServerHub().getAt(0) == null) {
-						// createOne=true
-						serverRoot.getCreateOneAppServerHub().add(new AppServer());
-					} else {
-						serverRoot.getCreateOneAppServerHub().cancelSelect();
-					}
-				} catch (Exception e) {
-					String s = "DataSourceController error selecting AppServers, exception=" + e;
-					alSelectError.add(s);
-					LOG.log(Level.WARNING, s, e);
-				} finally {
-					aiExecutor.decrementAndGet();
-					alExecutorService.remove(msg);
-				}
-			}
-		});
-		aiExecutor.incrementAndGet();
-		executorService.submit(new Runnable() {
-			@Override
-			public void run() {
-				String msg = "serverRoot.getAppUsers()";
-				try {
-					alExecutorService.add(msg);
-					if (isUsingDatabase()) {
-						select(serverRoot.getAppUsers(), "", null);
-						serverRoot.getAppUsers().loadAllData();
-					}
-				} catch (Exception e) {
-					String s = "DataSourceController error selecting AppUsers, exception=" + e;
-					alSelectError.add(s);
-					LOG.log(Level.WARNING, s, e);
-				} finally {
-					aiExecutor.decrementAndGet();
-					alExecutorService.remove(msg);
-				}
-			}
-		});
-
+        // this will be replaced 
+        aiExecutor.incrementAndGet();
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                String msg = "serverRoot.getCreateOneAppServerHub()";
+                try {
+                    alExecutorService.add(msg);
+                    if (isUsingDatabase()) {
+                        select(serverRoot.getCreateOneAppServerHub(), "", null);
+                    }
+                    if (serverRoot.getCreateOneAppServerHub().getAt(0) == null) {
+                        // createOne=true
+                        serverRoot.getCreateOneAppServerHub().add(new AppServer());
+                    } else {
+                        serverRoot.getCreateOneAppServerHub().cancelSelect();
+                    }
+                } catch (Exception e) {
+                    String s = "DataSourceController error selecting AppServers, exception=" + e;
+                    alSelectError.add(s);
+                    LOG.log(Level.WARNING, s, e);
+                } finally {
+                    aiExecutor.decrementAndGet();
+                    alExecutorService.remove(msg);
+                }
+            }
+        });
+        aiExecutor.incrementAndGet();
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                String msg = "serverRoot.getAppUsers()";
+                try {
+                    alExecutorService.add(msg);
+                    if (isUsingDatabase()) {
+                        select(serverRoot.getAppUsers(), "", null);
+                        serverRoot.getAppUsers().loadAllData();
+                    }
+                } catch (Exception e) {
+                    String s = "DataSourceController error selecting AppUsers, exception=" + e;
+                    alSelectError.add(s);
+                    LOG.log(Level.WARNING, s, e);
+                } finally {
+                    aiExecutor.decrementAndGet();
+                    alExecutorService.remove(msg);
+                }
+            }
+        });
 		/*$$End: DatasourceController.loadServerRoot $$*/
 
-		int max = Resource.getInt(Resource.DB_MaxWaitForSelects, 300);
-		for (int i = 0; i < max; i++) {
-			if (aiExecutor.get() == 0) {
-				break;
-			}
-			Thread.sleep(1000);
-			LOG.fine(i + ") waiting for data to be selected, remaining=" + aiExecutor.get());
-			if (i >= 15) {
-				String s = "Open queries";
-				for (String s2 : alExecutorService) {
-					s += "\n" + s2;
-				}
-				LOG.fine(s);
-			}
-		}
+        int max = Resource.getInt(Resource.DB_MaxWaitForSelects, 300);
+        for (int i = 0; i < max; i++) {
+            if (aiExecutor.get() == 0) {
+                break;
+            }
+            Thread.sleep(1000);
+            LOG.fine(i + ") waiting for data to be selected, remaining=" + aiExecutor.get());
+            if (i >= 15) {
+                String s = "Open queries";
+                for (String s2 : alExecutorService) {
+                    s += "\n" + s2;
+                }
+                LOG.fine(s);
+            }
+        }
 
-		for (String s : alSelectError) {
-			LOG.warning("Error during select: " + s);
-		}
+        for (String s : alSelectError) {
+            LOG.warning("Error during select: " + s);
+        }
 
-		// dont need to have these Hubs as selectAll in objectCache
-		OAObjectCacheDelegate.removeSelectAllHub(serverRoot.getAppUsers());
+        // dont need to have these Hubs as selectAll in objectCache
+        OAObjectCacheDelegate.removeSelectAllHub(serverRoot.getAppUsers());
 
-		LOG.info("completed selecting data");
-		executorService.close();
-		return (alSelectError.size() == 0);
+        LOG.info("completed selecting startup data");
+        executorService.close();
+
+        return (alSelectError.size() == 0);
 	}
 
-	public void saveData() {
-		OATransaction trans = new OATransaction();
-		trans.setUseBatch(true);
-		trans.start();
+    private void select(final Hub hub) {
+        select(hub, null, null);
+    }
 
-		long ms = System.currentTimeMillis();
-		try {
-			OACascade cascade = new OACascade();
-			OAObjectSaveDelegate.save(serverRoot, OAObject.CASCADE_ALL_LINKS, cascade);
+    private void select(final Hub hub, final String query, final String orderBy) {
+        if (hub == null) {
+            return;
+        }
+        aiExecutor.incrementAndGet();
+        String s = "selecting " + hub.getObjectClass().getSimpleName() + ", query=" + query + ", orderBy=" + orderBy;
+        LOG.fine(s);
+        try {
+            alExecutorService.add(s);
+            hub.select(query, orderBy);
+            hub.loadAllData();
+            alExecutorService.remove(s);
+        }
+        finally {
+            aiExecutor.decrementAndGet();
+        }
+    }
+	
+    public void saveData() throws Exception {
+        OATransaction trans = new OATransaction();
+        trans.setUseBatch(true);
+        trans.start();
 
-			HubSaveDelegate.saveAll(hubClientRoot, OAObject.CASCADE_ALL_LINKS, cascade);
+        long ms = System.currentTimeMillis();
+        try {
+            OACascade cascade = new OACascade();
+            OAObjectSaveDelegate.save(serverRoot, OAObject.CASCADE_ALL_LINKS, cascade);
 
-			OASyncServer ss = OASyncDelegate.getSyncServer();
-			if (ss != null) {
-				OASyncDelegate.getSyncServer().saveCache(cascade, OAObject.CASCADE_ALL_LINKS);
-				OASyncDelegate.getSyncServer().performDGC();
-			}
-		} finally {
-			trans.commit();
-		}
-		long ms2 = System.currentTimeMillis();
-		LOG.fine(String.format("all changes saved to DataSource in %,d ms", (ms2 - ms)));
-	}
+            HubSaveDelegate.saveAll(hubClientRoot, OAObject.CASCADE_ALL_LINKS, cascade);
 
+            OASyncServer ss = OASyncDelegate.getSyncServer();
+            if (ss != null) {
+                OASyncDelegate.getSyncServer().saveCache(cascade, OAObject.CASCADE_ALL_LINKS);
+                OASyncDelegate.getSyncServer().performDGC();
+            }
+        }
+        finally {
+            trans.commit();
+        }
+        long ms2 = System.currentTimeMillis();
+        LOG.fine(String.format("all changes saved to DataSource in %,d ms", (ms2 - ms)));
 
+        try {
+            if (Resource.getBoolean(Resource.INI_SaveDataToFile, false)) {
+                LOG.fine("Saving data to serialized file");
+                writeSerializeFile();
+            }
+        }
+        catch (Throwable e) {
+            LOG.log(Level.WARNING, "Error while saving data to json file", e);
+        }
 
-	public void writeToSerializeFile(boolean bErrorMode) throws Exception {
-		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
-		File f1 = new File(dirName);
-		if (f1.exists()) {
-			if (!f1.isDirectory()) {
-				File f2;
-				for (int i = 0;; i++) {
-					f2 = new File(dirName + "_" + i);
-					if (!f2.exists()) {
-						break;
-					}
-				}
-				f1.renameTo(f2);
-			}
-		} else {
-			f1.mkdir();
-		}
+        try {
+            if (Resource.getBoolean(Resource.INI_SaveDataToJsonFile, false)) {
+                LOG.fine("Saving data as JSON object file");
+                writeToJsonFile();
+            }
+        }
+        catch (Throwable e) {
+            LOG.log(Level.WARNING, "Error while saving data to json file", e);
+        }
 
-		LOG.fine("Saving data to file temp.bin, will rename when done");
+        try {
+            if (Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false)) {
+                LOG.fine("Saving data as XML object file");
+                writeToXmlFile();
+            }
+        }
+        catch (Throwable e) {
+            LOG.log(Level.WARNING, "Error while saving data to json file", e);
+        }
+    }
 
-		File fileTemp = new File(OAString.convertFileName(dirName + "/temp.bin"));
-		_writeSerializeToFile(fileTemp);
+    protected boolean readFromSerializeFile() throws Exception {
+        if (getObjectCacheDataSource() == null) return false;
+        final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+        LOG.log(Level.CONFIG, "Reading from file " + dirName + "/data.bin");
+        File file = new File(OAFile.convertFileName(dirName + "/data.bin"));
+        if (!file.exists()) {
+            LOG.log(Level.CONFIG, "file " + dirName + "/data.bin does not exist");
+            return false;
+        }
 
-		if (bErrorMode) {
-			OADateTime dt = new OADateTime();
-			String s = dt.toString("yyyyMMdd_HHmmss");
-			File file = new File(OAFile.convertFileName(dirName + "/databaseDump_" + s + ".bin"));
-			if (file.exists()) {
-				file.delete();
-			}
-			fileTemp.renameTo(file);
-			LOG.log(Level.CONFIG, "ErrorMode=true, Data has been saved to " + file.getName());
-			return;
-		}
+        getObjectCacheDataSource().loadFromStorageFile(file);
+        LOG.log(Level.CONFIG, "reading from serialized file data.bin completed");
+        return true;
+    }
+    
+    protected void writeSerializeFile() throws Exception {
+        final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+        File f1 = new File(dirName);
+        if (f1.exists()) {
+            if (!f1.isDirectory()) {
+                File f2;
+                for (int i = 0;; i++) {
+                    f2 = new File(dirName + "_" + i);
+                    if (!f2.exists()) {
+                        break;
+                    }
+                }
+                f1.renameTo(f2);
+            }
+        }
+        else {
+            f1.mkdir();
+        }
 
-		File dataFile = new File(OAString.convertFileName(dirName + "/data.bin"));
+        LOG.fine("Saving data to file temp.bin, will rename when done");
 
-		if (dataFile.exists()) {
-			String backupName = null;
+        File fileTemp = new File(OAString.convertFileName(dirName + "/temp.bin"));
 
-			// save to daily/hourly/5minute
-			OADate d = new OADate();
-			if (dateLastSerialize == null || !d.equals(dateLastSerialize)) {
-				dateLastSerialize = d;
-				backupName = "data_daily_" + (d.toString("yyMMdd")) + ".bin";
-				File f = new File(OAFile.convertFileName(dirName + "/" + backupName));
-				if (f.exists()) {
-					backupName = null;
-				}
-			}
+        getObjectCacheDataSource().saveToStorageFile(fileTemp, serverRoot); // qqqqqqqqqqqqqq NEW
 
-			if (backupName == null || backupName.length() == 0) {
-				OATime t = new OATime();
-				if (timeLastSerialize == null || t.getHour() != timeLastSerialize.getHour()) {
-					timeLastSerialize = t;
-					backupName = "data_hourly_" + (t.toString("HH")) + ".bin";
-				} else {
-					// save to nearest 5 minutes, otherwise it could have 60 files over time.
-					int m = t.getMinute();
-					m = m == 0 ? 0 : ((m / 5) * 5);
-					backupName = "data_min_" + OAString.format(m, "00") + ".bin";
-				}
-			}
+        File dataFile = new File(OAString.convertFileName(dirName + "/data.bin"));
 
-			backupName = OAFile.convertFileName(dirName + "/" + backupName);
-			File backupFile = new File(backupName);
-			if (backupFile.exists()) {
-				backupFile.delete();
-			}
-			dataFile.renameTo(backupFile);
-			dataFile = new File(OAString.convertFileName(dirName + "/data.bin"));
-		}
+        if (dataFile.exists()) {
+            String backupName = null;
 
-		fileTemp.renameTo(dataFile);
-		LOG.fine("Saved data to serialized file " + dataFile);
-	}
+            // save to daily/hourly/5minute
+            OADate d = new OADate();
+            if (dateLastSerialize == null || !d.equals(dateLastSerialize)) {
+                dateLastSerialize = d;
+                backupName = "data_daily_" + (d.toString("yyMMdd")) + ".bin";
+                File f = new File(OAFile.convertFileName(dirName + "/" + backupName));
+                if (f.exists()) {
+                    backupName = null;
+                }
+            }
 
-	protected void _writeSerializeToFile(File fileTemp) throws Exception {
-		FileOutputStream fos = new FileOutputStream(fileTemp);
+            if (backupName == null || backupName.length() == 0) {
+                OATime t = new OATime();
+                if (timeLastSerialize == null || t.getHour() != timeLastSerialize.getHour()) {
+                    timeLastSerialize = t;
+                    backupName = "data_hourly_" + (t.toString("HH")) + ".bin";
+                }
+                else {
+                    // save to nearest 5 minutes, otherwise it could have 60 files over time.
+                    int m = t.getMinute();
+                    m = m == 0 ? 0 : ((m / 5) * 5);
+                    backupName = "data_min_" + OAString.format(m, "00") + ".bin";
+                }
+            }
 
-		Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
-		DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(fos, deflater, 1024 * 5);
+            backupName = OAFile.convertFileName(dirName + "/" + backupName);
+            File backupFile = new File(backupName);
+            if (backupFile.exists()) {
+                backupFile.delete();
+            }
+            dataFile.renameTo(backupFile);
+            dataFile = new File(OAString.convertFileName(dirName + "/data.bin"));
+        }
 
-		/**
-		 * Notes on serialization: The ObjectStream will make sure that objects are only saved/visited once. These 3 wrappers all use the
-		 * same ObjectStream.
-		 */
-		ObjectOutputStream oos = new ObjectOutputStream(deflaterOutputStream);
-		OAObjectSerializer wrap;
+        fileTemp.renameTo(dataFile);
+        LOG.fine("Saved data to serialized file " + dataFile);
+    }
 
-		wrap = new OAObjectSerializer(serverRoot, false, true);
-		wrap.setIncludeBlobs(true);
-		// wrap.setExcludedReferences(new Class[] {DeliveryDate.class});
-		oos.writeObject(wrap);
-
-		String s = Resource.getValue(Resource.APP_DataVersion);
-		oos.writeObject(s);
-
-		deflaterOutputStream.finish();
-		oos.close();
-		fos.close();
-	}
-
-	public boolean readFromSerializeFile() throws Exception {
-		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
-		LOG.log(Level.CONFIG, "Reading from file " + dirName + "/data.bin");
-		File file = new File(OAFile.convertFileName(dirName + "/data.bin"));
-		if (!file.exists()) {
-			LOG.log(Level.CONFIG, "file " + dirName + "/data.bin does not exist");
-			return false;
-		}
-		FileInputStream fis = new FileInputStream(file);
-
-		Inflater inflater = new Inflater();
-		InflaterInputStream inflaterInputStream = new InflaterInputStream(fis, inflater, 1024 * 3);
-
-		OAObjectInputStream ois = new OAObjectInputStream(inflaterInputStream);
-
-		OAObjectSerializer wrap = (OAObjectSerializer) ois.readObject();
-		ServerRoot sr = (ServerRoot) wrap.getObject();
-		//Note: sr will be the same as this.serverRoot, since it has the same Id.
-
-		if (sr != this.serverRoot) {
-			throw new Exception("Invalid ServerRoot, expected id=777");
-		}
-
-		try {
-			String s = (String) ois.readObject();
-			Resource.setValue(Resource.TYPE_Server, Resource.APP_DataVersion, s);
-		} catch (EOFException e) {
-		}
-
-		ois.close();
-		fis.close();
-		LOG.log(Level.CONFIG, "reading from serialized file data.bin completed");
-
-		return true;
-	}
-
-	public void close() {
-		if (dataSource != null) {
-			dataSource.close(); // this will call JavaDB shutdown, and remove datasource from list of available datasources
-		}
-		if (!OAString.isEmpty(cacheFileName)) {
-			try {
-				LOG.config("saving " + cacheFileName);
-				OAFile.mkdirsForFile(cacheFileName);
-				OAObjectEmptyHubDelegate.save(new File(cacheFileName));
-				LOG.config("saved " + cacheFileName);
-			} catch (Exception e) {
-				LOG.log(Level.WARNING, "error while saving " + cacheFileName, e);
-			}
-		}
-	}
+    public void close() {
+        if (dataSource != null) {
+            dataSource.close(); // this will call JavaDB shutdown, and remove datasource from list of available datasources
+        }
+    }
 
 	public boolean verifyDataSource() throws Exception {
 		LOG.config("Verifying database structure");
@@ -709,22 +615,22 @@ public class DataSourceController {
 		w.close();
 	}
 
-	public boolean readFromJsonFile() throws Exception {
-		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
-		LOG.log(Level.CONFIG, "Reading from file " + dirName + "/data.json");
-		File file = new File(OAFile.convertFileName(dirName + "/data.json"));
-		if (!file.exists()) {
-			LOG.log(Level.CONFIG, "file " + dirName + "/data.json does not exist");
-			return false;
-		}
+    public boolean readFromJsonFile() throws Exception {
+        final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+        LOG.log(Level.CONFIG, "Reading from file " + dirName + "/data.json");
+        File file = new File(OAFile.convertFileName(dirName + "/data.json"));
+        if (!file.exists()) {
+            LOG.log(Level.CONFIG, "file " + dirName + "/data.json does not exist");
+            return false;
+        }
 
-		OAJson oaj = new OAJson();
-		serverRoot = oaj.readObject(file, ServerRoot.class, false);
+        OAJson oaj = new OAJson();
+        oaj.readObject(file, ServerRoot.class, false);
 
-		LOG.log(Level.CONFIG, "reading from file data.json completed");
+        LOG.log(Level.CONFIG, "reading from file data.json completed");
 
-		return true;
-	}
+        return true;
+    }
 
 	public void writeToJsonFile() throws Exception {
 		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
@@ -815,20 +721,6 @@ public class DataSourceController {
 		oaj.write(serverRoot, file);
 	}
 
-	public void writeObjectCacheDataSource() throws Exception {
-		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
-		LOG.log(Level.CONFIG, "Save to file " + dirName + "/ObjectCache.bin");
-		File file = new File(OAFile.convertFileName(dirName + "/ObjectCache.bin"));
-		OAFile.mkdirsForFile(file);
-		getObjectCacheDataSource().saveToStorageFile(file);
-	}
-
-	public boolean readObjectCacheDataSource() throws Exception {
-		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
-		LOG.log(Level.CONFIG, "Reading from file " + dirName + "/ObjectCache.bin");
-		File file = new File(OAFile.convertFileName(dirName + "/ObjectCache.bin"));
-		return getObjectCacheDataSource().loadFromStorageFile(file);
-	}
 
 	/*
 	public static void main(String[] args) throws Exception {
