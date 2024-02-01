@@ -171,13 +171,13 @@ public class Resource {
 	public static final String INI_DBDebug = "DBDebug";
 	public static final String INI_UIDebug = "UIDebug";
 	public static final String INI_SuperAdmin = "SuperAdmin";
-	public static final String INI_SaveDataToDatabase = "SaveDataToDatabase";
+    public static final String INI_EnableShutdownHook = "EnableShutdownHook";
+
 	public static final String INI_SaveDataToFile = "SaveDataToFile";
 	public static final String INI_SaveDataToJsonFile = "SaveDataToJsonFile";
 	public static final String INI_SaveDataToXmlFile = "SaveDataToXmlFile";
-	public static final String INI_EnableShutdownHook = "EnableShutdownHook";
 
-	public static final String DB_Enabled = "db.enabled";
+    public static final String DB_IsUsingDatabase = "db.isUsingDatabase";
 	public static final String DB_JDBC_Driver = "db.jdbcDriver";
 	public static final String DB_JDBC_URL = "db.jdbcUrl";
 	public static final String DB_User = "db.user";
@@ -188,7 +188,6 @@ public class Resource {
 	public static final String DB_MaxConnections = "db.maxConnections";
 	public static final String DB_BackupDirectory = "db.backupDirectory";
 	public static final String DB_CheckForCorruption = "db.checkForCorruption";
-	public static final String DB_CacheFileName = "db.cacheFileName";
 	public static final String DB_Verify = "db.verify";
 	public static final String DB_MaxWaitForSelects = "db.maxWaitForSelects"; // seconds
 	public static final String DB_IgnoreWrites = "db.ignoreWrites";

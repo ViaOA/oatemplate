@@ -14,6 +14,24 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import com.viaoa.context.OAContext;
+import com.viaoa.context.OAUserAccess;
+import com.viaoa.hub.Hub;
+import com.viaoa.jfc.text.spellcheck.SpellChecker;
+import com.viaoa.object.OACascade;
+import com.viaoa.object.OAObject;
+import com.viaoa.object.OAObjectReflectDelegate;
+import com.viaoa.process.OACronProcessor;
+import com.viaoa.sync.model.ClientInfo;
+import com.viaoa.util.OAConv;
+import com.viaoa.util.OADate;
+import com.viaoa.util.OADateTime;
+import com.viaoa.util.OAFile;
+import com.viaoa.util.OAProperties;
+import com.viaoa.util.OAString;
+import com.viaoa.util.OATime;
+import com.viaoa.web.filter.OAUserAccessFilter;
+
 import com.template.control.LogController;
 import com.template.delegate.CronDelegate;
 import com.template.delegate.ExecutorServiceDelegate;
@@ -33,23 +51,6 @@ import com.template.remote.RemoteFileImpl;
 import com.template.remote.RemoteFileInterface;
 import com.template.remote.RemoteSpellCheckInterface;
 import com.template.resource.Resource;
-import com.viaoa.context.OAContext;
-import com.viaoa.context.OAUserAccess;
-import com.viaoa.hub.Hub;
-import com.viaoa.jfc.text.spellcheck.SpellChecker;
-import com.viaoa.object.OACascade;
-import com.viaoa.object.OAObject;
-import com.viaoa.object.OAObjectReflectDelegate;
-import com.viaoa.process.OACronProcessor;
-import com.viaoa.sync.model.ClientInfo;
-import com.viaoa.util.OAConv;
-import com.viaoa.util.OADate;
-import com.viaoa.util.OADateTime;
-import com.viaoa.util.OAFile;
-import com.viaoa.util.OAProperties;
-import com.viaoa.util.OAString;
-import com.viaoa.util.OATime;
-import com.viaoa.web.filter.OAUserAccessFilter;
 
 /**
  * Starts up server controllers.
@@ -59,280 +60,282 @@ import com.viaoa.web.filter.OAUserAccessFilter;
 public abstract class ServerController {
 	private static Logger LOG = Logger.getLogger(ServerController.class.getName());
 
-	// Controllers
-	private LogController controlLog;
-	private DataSourceController controlDataSource;
-	private RemoteServerController controlRemote;
-	private ObjectController controlObject;
-	private ServerFrameController controlServerFrame;
-	private ServerSpellCheckController controlServerSpellCheck;
-	private JettyController controlJetty;
-	private OAUserAccessFilter filterUserAccess;
-	private ConnectionController controlConnection;
-	private SpellChecker spellChecker;
+    // Controllers
+    private LogController controlLog;
+    private DataSourceController controlDataSource;
+    private RemoteServerController controlRemote;
+    private ObjectController controlObject;
+    private ServerFrameController controlServerFrame;
+    private ServerSpellCheckController controlServerSpellCheck;
+    private JettyController controlJetty;
+    private OAUserAccessFilter filterUserAccess;
+    private ConnectionController controlConnection;
+    private SpellChecker spellChecker;
 
-	private ServerRoot serverRoot;
-	private Hub<ClientRoot> hubClientRoots;
+    private ServerRoot serverRoot;
+    private Hub<ClientRoot> hubClientRoots;
 
-	// remote objects
-	private RemoteFileInterface remoteFile;
-	private RemoteSpellCheckInterface remoteSpellCheck;
-	private RemoteAppInterface remoteServer;
+    // remote objects
+    private RemoteFileInterface remoteFile;
+    private RemoteSpellCheckInterface remoteSpellCheck;
+    private RemoteAppInterface remoteServer;
 
-	// remote clients
-	/*$$Start: ServerController.remoteClient1 $$*/
-	/*$$End: ServerController.remoteClient1 $$*/
+    // remote clients
+    /*$$Start: ServerController.remoteClient1 $$*/
+    /*$$End: ServerController.remoteClient1 $$*/
 
-	private boolean bRunAsService;
-	private JFrame frmDummy;
-	private volatile boolean bClosed;
-	private final Object LOCKSave = new Object();
-	private final Object LOCKGetUser = new Object();
+    private boolean bRunAsService;
+    private JFrame frmDummy;
+    
+    private final Object LOCKSaving = new Object(); 
+    private final Object LOCKSaveWait = new Object();
+    private final Object LOCKGetUser = new Object();
+    private final AtomicInteger aiSave = new AtomicInteger();
+    private volatile boolean bApplicationClosed;
 
-	public ServerController(JFrame frmDummy) {
-		this.bRunAsService = (Resource.getRunType() == Resource.RUNTYPE_Service);
-		this.frmDummy = frmDummy;
-		Resource.setRunTimeName(Resource.getValue(Resource.APP_ServerApplicationName));
-	}
+    public ServerController(JFrame frmDummy) {
+        this.bRunAsService = (Resource.getRunType() == Resource.RUNTYPE_Service);
+        this.frmDummy = frmDummy;
+        Resource.setRunTimeName(Resource.getValue(Resource.APP_ServerApplicationName));
+    }
 
-	public boolean start() throws Exception {
-		try {
-			if (!bRunAsService) {
-				SwingUtilities.invokeAndWait(new Runnable() {
-					@Override
-					public void run() {
-						getServerFrameController().getFrame().setVisible(true);
-					}
-				});
-			}
-			if (controlServerFrame != null) {
-				controlServerFrame.setProcessing(true, "Starting Server ...");
-			}
+    public boolean start() throws Exception {
+        try {
+            if (!bRunAsService) {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        getServerFrameController().getFrame().setVisible(true);
+                    }
+                });
+            }
+            if (controlServerFrame != null) {
+                controlServerFrame.setProcessing(true, "Starting Server ...");
+            }
 
-			boolean b = _start();
+            boolean b = _start();
 
-			LOG.config(Resource.getValue(Resource.APP_Welcome));
-			return b;
-		} finally {
-			if (controlServerFrame != null) {
-				controlServerFrame.setProcessing(false);
-			}
-		}
-	}
+            LOG.config(Resource.getValue(Resource.APP_Welcome));
+            return b;
+        } finally {
+            if (controlServerFrame != null) {
+                controlServerFrame.setProcessing(false);
+            }
+        }
+    }
 
-	private boolean _start() throws Exception {
-		// Logging
-		getLogController();
-		LOG.config("Logging started");
-		if (bRunAsService) {
-			LOG.config("Running as a Windows Service");
-		}
+    private boolean _start() throws Exception {
+        // Logging
+        getLogController();
+        LOG.config("Logging started");
+        if (bRunAsService) {
+            LOG.config("Running as a Windows Service");
+        }
 
-		// needs to be set before datasource controller
-		LOG.config("create and start cron process");
-		OACronProcessor cp = new OACronProcessor();
-		CronDelegate.setCronProcessor(cp);
-		CronDelegate.getCronProcessor().start();
+        // needs to be set before datasource controller
+        LOG.config("create and start cron process");
+        OACronProcessor cp = new OACronProcessor();
+        CronDelegate.setCronProcessor(cp);
+        CronDelegate.getCronProcessor().start();
 
-		// DataSource
-		boolean bCheckForDatasourceCorruption = Resource.getBoolean(Resource.DB_CheckForCorruption, true);
+        // DataSource
+        boolean bCheckForDatasourceCorruption = Resource.getBoolean(Resource.DB_CheckForCorruption, true);
 
-		// set up so that a DB failure will cause the next start to call isDatabaseCorrupted
-		// Resource.setValue(Resource.TYPE_Server, Resource.DB_CheckForCorruption, "true");
-		// Resource.save();
+        // set up so that a DB failure will cause the next start to call isDatabaseCorrupted
+        // Resource.setValue(Resource.TYPE_Server, Resource.DB_CheckForCorruption, "true");
+        // Resource.save();
 
-		// 1: verify that database exists and can be opened
-		LOG.config("Starting Database");
-		if (!getDataSourceController().isDataSourceReady()) {
-			String msg = "DataSource can not be opened.";
-			LOG.severe(msg); // this will cause program to exit
-			throw new Exception(msg);
-		}
+        // 1: verify that database exists and can be opened
+        LOG.config("Starting DataSource");
+        if (!getDataSourceController().isDataSourceReady()) {
+            String msg = "DataSource can not be opened.";
+            LOG.severe(msg); // this will cause program to exit
+            throw new Exception(msg);
+        }
 
-		// 2: verify that database files are not corrupted.
-		//    if they are damaged, then perform a forward restore from backup + log files.
-		for (int i = 0; bCheckForDatasourceCorruption && i < 2; i++) {
-			LOG.config("Verifying database files");
-			if (!getDataSourceController().isDataSourceCorrupted()) {
-				break;
-			}
+        // 2: verify that database files are not corrupted.
+        //    if they are damaged, then perform a forward restore from backup + log files.
+        for (int i = 0; bCheckForDatasourceCorruption && i < 2; i++) {
+            LOG.config("Verifying DataSource files");
+            if (!getDataSourceController().isDataSourceCorrupted()) {
+                break;
+            }
 
-			String msg = "DataSource is not valid.";
-			LOG.severe(msg); // this will cause program to exit
-			if (i > 0) {
-				throw new Exception(msg);
-			}
+            String msg = "DataSource is not valid.";
+            LOG.severe(msg); // this will cause program to exit
+            if (i > 0) {
+                throw new Exception(msg);
+            }
 
-			String dirName = Resource.getValue(Resource.DB_BackupDirectory, "dbbackup");
+            String dirName = Resource.getValue(Resource.DB_BackupDirectory, "dbbackup");
 
-			LOG.config("performing a forward restore from directory " + dirName);
-			getDataSourceController().restoreDataSource(dirName);
-			LOG.config("successfully performed a forward restore.");
-		}
+            LOG.config("performing a forward restore from directory " + dirName);
+            getDataSourceController().restoreDataSource(dirName);
+            LOG.config("successfully performed a forward restore.");
+        }
 
-		// don't need to call isDatabaseCorrupted on the next start up
-		// Resource.setValue(Resource.TYPE_Server, Resource.DB_CheckForCorruption, "false");
-		// Resource.save();
+        // don't need to call isDatabaseCorrupted on the next start up
+        // Resource.setValue(Resource.TYPE_Server, Resource.DB_CheckForCorruption, "false");
+        // Resource.save();
 
-		// 3: verify that the database structures: tables/columns/indexes/etc
-		LOG.config("Verifying database");
-		if (Resource.getBoolean(Resource.DB_Verify, true) && !getDataSourceController().verifyDataSource()) {
-			String msg = "Can not verify Database, please check database settings in the \"server.ini\" file.";
-			LOG.severe(msg); // this will cause program to exit
-			throw new Exception(msg);
-		}
+        // 3: verify that the database structures: tables/columns/indexes/etc
+        LOG.config("Verifying database");
+        if (Resource.getBoolean(Resource.DB_Verify, true) && !getDataSourceController().verifyDataSource()) {
+            String msg = "Can not verify Database, please check database settings in the \"server.ini\" file.";
+            LOG.severe(msg); // this will cause program to exit
+            throw new Exception(msg);
+        }
 
-		// 4: load the data
-		LOG.config("Loading data for Server Root");
-		if (!getDataSourceController().loadServerRoot()) {
-			return false; // error loading data from DS
-		}
+        // 4: load the data
+        LOG.config("Loading data for Server Root");
+        if (!getDataSourceController().loadServerRoot()) {
+            return false; // error loading data from DS
+        }
 
-		// set admin user for this server
-		AppUser user = null;
-		for (AppUser au : getServerRoot().getAppUsers()) {
-			if (au.getAdmin()) {
-				user = au;
-				break;
-			}
-		}
-		if (user == null) {
-			user = new AppUser();
-			user.setFirstName("Admin");
-			user.setLastName("Admin");
-			user.setAdmin(true);
-			user.setLoginId("admin");
-			user.setPassword(OAString.convertToSHAHash("admin"));
-			user.save();
-			getServerRoot().getAppUsers().add(user);
-		}
-		ModelDelegate.setLocalAppUser(user);
+        // set admin user for this server
+        AppUser user = null;
+        for (AppUser au : getServerRoot().getAppUsers()) {
+            if (au.getAdmin()) {
+                user = au;
+                break;
+            }
+        }
+        if (user == null) {
+            user = new AppUser();
+            user.setFirstName("Admin");
+            user.setLastName("Admin");
+            user.setAdmin(true);
+            user.setLoginId("admin");
+            user.setPassword(OAString.convertToSHAHash("admin"));
+            user.save();
+            getServerRoot().getAppUsers().add(user);
+        }
+        ModelDelegate.setLocalAppUser(user);
 
-		LOG.config("Initializing OAContext ... as admin user");
-		OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
+        LOG.config("Initializing OAContext ... as admin user");
+        OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
 
-		// initialize serverRoot, ModelDelegate
-		ModelDelegate.initialize(serverRoot, null);
+        // initialize serverRoot, ModelDelegate
+        ModelDelegate.initialize(serverRoot, null);
 
-		/*
-		LOG.config("Update database");
-		getDataSourceController().updateDataSource();
-		*/
+        /*
+        LOG.config("Update database");
+        getDataSourceController().updateDataSource();
+        */
 
-		// must be after ModelDelegate is initialized
-		LOG.config("Starting Object Controller");
-		getObjectController().start();
+        // must be after ModelDelegate is initialized
+        LOG.config("Starting Object Controller");
+        getObjectController().start();
 
-		AppServer appServer = ModelDelegate.getAppServer();
-		appServer.setStarted(null);
-		appServer.setCreated(new OADateTime());
-		appServer.setRelease("" + Resource.getInt(Resource.APP_Release));
+        AppServer appServer = ModelDelegate.getAppServer();
+        appServer.setStarted(null);
+        appServer.setCreated(new OADateTime());
+        appServer.setRelease("" + Resource.getInt(Resource.APP_Release));
 
-		if (Resource.getBoolean(Resource.SERVER_PreloadData)) {
-			Thread t = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					preloadData();
-				}
-			});
-			t.setName("Preload Data");
-			t.setPriority(Thread.MIN_PRIORITY);
-			t.start();
-		}
+        if (Resource.getBoolean(Resource.SERVER_PreloadData)) {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    preloadData();
+                }
+            });
+            t.setName("Preload Data");
+            t.setPriority(Thread.MIN_PRIORITY);
+            t.start();
+        }
 
-		final AppUserLogin userLogin = new AppUserLogin();
-		userLogin.setAppUser(user);
-		userLogin.setConnectionId(0);
-		userLogin.setLocation("App Server");
-		userLogin.setComputerName(System.getProperty("user.name"));
+        final AppUserLogin userLogin = new AppUserLogin();
+        userLogin.setAppUser(user);
+        userLogin.setConnectionId(0);
+        userLogin.setLocation("App Server");
+        userLogin.setComputerName(System.getProperty("user.name"));
 
-		userLogin.setHostName(Resource.getValue(Resource.APP_HostName));
-		userLogin.setIpAddress(Resource.getValue(Resource.APP_HostIPAddress));
+        userLogin.setHostName(Resource.getValue(Resource.APP_HostName));
+        userLogin.setIpAddress(Resource.getValue(Resource.APP_HostIPAddress));
 
-		appServer.setAppUserLogin(userLogin);
+        appServer.setAppUserLogin(userLogin);
 
-		ModelDelegate.setLocalAppUserLogin(userLogin);
-		onClientConnect(null, 0); // create a fake connection
-		getConnectionController().setUserLogin(0, userLogin);
+        ModelDelegate.setLocalAppUserLogin(userLogin);
+        onClientConnect(null, 0); // create a fake connection
+        getConnectionController().setUserLogin(0, userLogin);
 
-		LOG.fine("SpellCheck Controller");
-		Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				String root = Resource.getValue(Resource.APP_RootDirectory) + "/";
-				root = OAFile.convertFileName(root);
-				String s = null;
-				try {
-					s = Resource.getValue(Resource.APP_DictionaryFileName);
-					getSpellCheckController().loadDictionaryTextFile(root + s);
-					s = Resource.getValue(Resource.APP_DictionaryFileName2);
-					getSpellCheckController().loadDictionaryTextFile(root + s);
-					s = Resource.getValue(Resource.APP_NewWordsFileName);
-					getSpellCheckController().loadNewWordsTextFile(root + s);
-				} catch (Exception e) {
-					LOG.log(Level.WARNING, "Error loading SpellCheck file " + root + s + ", will continue.", e);
-				}
-			}
-		});
-		t.setName("SpellCheck.preload");
-		t.setPriority(Thread.MIN_PRIORITY);
-		t.start();
+        LOG.fine("SpellCheck Controller");
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String root = Resource.getValue(Resource.APP_RootDirectory) + "/";
+                root = OAFile.convertFileName(root);
+                String s = null;
+                try {
+                    s = Resource.getValue(Resource.APP_DictionaryFileName);
+                    getSpellCheckController().loadDictionaryTextFile(root + s);
+                    s = Resource.getValue(Resource.APP_DictionaryFileName2);
+                    getSpellCheckController().loadDictionaryTextFile(root + s);
+                    s = Resource.getValue(Resource.APP_NewWordsFileName);
+                    getSpellCheckController().loadNewWordsTextFile(root + s);
+                } catch (Exception e) {
+                    LOG.log(Level.WARNING, "Error loading SpellCheck file " + root + s + ", will continue.", e);
+                }
+            }
+        });
+        t.setName("SpellCheck.preload");
+        t.setPriority(Thread.MIN_PRIORITY);
+        t.start();
 
-		Resource.setSpellChecker(getSpellChecker());
+        Resource.setSpellChecker(getSpellChecker());
 
-		// Thread to save data every 5 minutes
-		LOG.config("Starting DB thread");
-		startDBThread();
+        // Thread to save data every 5 minutes
+        LOG.config("Starting DB thread");
+        startDatabaseAutoSaveThread();
 
-		// Remote Server
-		LOG.config("Starting Remote Server");
-		createRemoteServerController();
+        // Remote Server
+        LOG.config("Starting Remote Server");
+        createRemoteServerController();
 
-		LOG.config("Starting LogController.enableServerMonitor");
-		// getLogController().enableServerMonitor(true, (OAServerImpl) getRemoteServer().getOAServer(), 30 * 60); // 30 minutes
+        LOG.config("Starting LogController.enableServerMonitor");
+        // getLogController().enableServerMonitor(true, (OAServerImpl) getRemoteServer().getOAServer(), 30 * 60); // 30 minutes
 
-		// start webserver
-		int port = Resource.getInt(Resource.APP_JettyPort, 8080);
-		int portSSL = Resource.getInt(Resource.APP_JettySSLPort, 0);
-		LOG.config("Jetty port=" + port + ", sslPort=" + portSSL);
-		getJettyController().init(port, portSSL, getJettyUserAccessFilter());
-		getJettyController().start();
+        // start webserver
+        int port = Resource.getInt(Resource.APP_JettyPort, 8080);
+        int portSSL = Resource.getInt(Resource.APP_JettySSLPort, 0);
+        LOG.config("Jetty port=" + port + ", sslPort=" + portSSL);
+        getJettyController().init(port, portSSL, getJettyUserAccessFilter());
+        getJettyController().start();
 
-		// remove old log files
-		Runnable r = new Runnable() {
-			@Override
-			public void run() {
-				int i1 = OAConv.toInt(Resource.getValue(Resource.APP_LogRegularDays, "14"));
-				int i2 = OAConv.toInt(Resource.getValue(Resource.APP_LogErrorDays, "30"));
-				LOG.config("removing regular log files > " + i1 + " days.");
-				LOG.config("removing error log files > " + i2 + " days.");
-				getLogController().removeOldLogFiles(i1, i2);
-			}
-		};
-		ExecutorServiceDelegate.submit(r);
-		ScheduledExecutorServiceDelegate.scheduleEvery(r, new OATime(0, 30, 0)); // run at 12:30am
+        // remove old log files
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                int i1 = OAConv.toInt(Resource.getValue(Resource.APP_LogRegularDays, "14"));
+                int i2 = OAConv.toInt(Resource.getValue(Resource.APP_LogErrorDays, "30"));
+                LOG.config("removing regular log files > " + i1 + " days.");
+                LOG.config("removing error log files > " + i2 + " days.");
+                getLogController().removeOldLogFiles(i1, i2);
+            }
+        };
+        ExecutorServiceDelegate.submit(r);
+        ScheduledExecutorServiceDelegate.scheduleEvery(r, new OATime(0, 30, 0)); // run at 12:30am
 
-		if (Resource.getBoolean(Resource.INI_EnableShutdownHook, true)) {
-			LOG.config("adding ShutdownHook to call close");
-			Runtime.getRuntime().addShutdownHook(new Thread() {
-				@Override
-				public void run() {
-					try {
-						if (!bClosed) {
-							LOG.fine("calling ShutdownHook");
-							ServerController.this.close();
-						}
-					} catch (Exception e) {
-						LOG.log(Level.WARNING, "Exception in shutDownHook", e);
-					}
-				}
-			});
-		}
+        if (Resource.getBoolean(Resource.INI_EnableShutdownHook, true)) {
+            LOG.config("adding ShutdownHook to call close");
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        if (!bApplicationClosed) {
+                            LOG.fine("calling ShutdownHook");
+                            ServerController.this.close();
+                        }
+                    } catch (Exception e) {
+                        LOG.log(Level.WARNING, "Exception in shutDownHook", e);
+                    }
+                }
+            });
+        }
 
-		appServer.setStarted(new OADateTime());
-
-		return true;
-	}
+        appServer.setStarted(new OADateTime());
+        return true;
+    }
 
 	protected void disconnect(int id) {
 		LOG.fine("disconnect connectionId=" + id);
@@ -687,178 +690,131 @@ public abstract class ServerController {
 		return controlDataSource;
 	}
 
-	private final AtomicInteger aiSave = new AtomicInteger();
+    public void saveData() {
+        aiSave.getAndIncrement();
+        synchronized (LOCKSaveWait) {
+            LOCKSaveWait.notify();
+        }
+    }
 
-	public void saveData() {
-		aiSave.getAndIncrement();
-		synchronized (LOCKSave) {
-			LOCKSave.notify();
-		}
-	}
+    private void startDatabaseAutoSaveThread() {
+        LOG.fine("entering");
+        Thread t = new Thread(new Runnable() {
+            OADate dateLastBackup = new OADate(); // set today, so that it will run after midnight
 
-	private void startDBThread() {
-		LOG.fine("entering");
-		Thread t = new Thread(new Runnable() {
-			OADate dateLastBackup = new OADate(); // set today, so that it will run after midnight
+            public void run() {
+                for (int i = 0; !bApplicationClosed; i++) {
+                    int cntSave = aiSave.get();
+                    try {
+                        if (i > 0) {
+                            LOG.fine(i + " saving to database");
+                            _saveData();
+                        }
+                        if (dateLastBackup != null && !dateLastBackup.equals(new OADate())) {
+                            dateLastBackup = new OADate();
+                            ServerController.this.backupDatabase();
+                        }
+                    } catch (Exception e) {
+                        LOG.log(Level.WARNING, "DBThread Error", e);
+                    }
+                    try {
+                        if (cntSave != aiSave.get()) {
+                            continue;
+                        }
+                        synchronized (LOCKSaveWait) {
+                            LOG.finer("waiting 5 minutes");
+                            LOCKSaveWait.wait(5 * 60 * 1000);
+                        }
+                    } catch (Exception e) {
+                        LOG.log(Level.WARNING, "DBThread Error", e);
+                    }
+                }
+            }
+        }, "DatabaseAutoSave");
+        t.start();
+    }
 
-			public void run() {
-				for (int i = 0; !bClosed; i++) {
-					int cntSave = aiSave.get();
-					try {
-						if (i > 0) {
-							LOG.fine(i + " saving to database");
-							_saveData();
-						}
-						if (dateLastBackup != null && !dateLastBackup.equals(new OADate())) {
-							dateLastBackup = new OADate();
-							ServerController.this.backupDatabase();
-						}
-					} catch (Exception e) {
-						LOG.log(Level.WARNING, "DBThread Error", e);
-					}
-					try {
-						if (cntSave != aiSave.get()) {
-							continue;
-						}
-						synchronized (LOCKSave) {
-							LOG.finer("waiting 5 minutes");
-							LOCKSave.wait(1000 * 60 * 5);
-						}
-					} catch (Exception e) {
-						LOG.log(Level.WARNING, "DBThread Error", e);
-					}
-				}
-			}
-		}, "DatabaseAutoSave");
-		t.start();
-	}
+    private void _saveData() {
+        LOG.fine("Save data called ...");
+        synchronized (LOCKSaving) {
+            try {
+                getDataSourceController().saveData();
+            } catch (Throwable e) {
+                LOG.log(Level.WARNING, "Error while saving data", e);
+            }
+        }
+        LOG.fine("Save data completed");
+    }
+    
+    public void close() throws Exception {
+        LOG.config("Closing application ... please wait while shutdown completes ...");
+        if (controlServerFrame != null) {
+            controlServerFrame.setProcessing(true, "Please wait while closing ...");
+        }
 
-	/**
-	 * Perform javadb backup.
-	 */
-	private void backupDatabase() {
-		String dirName = Resource.getValue(Resource.DB_BackupDirectory, "dbbackup");
-		//dirName += "/" + (new OADate()).toString("yyyyMMdd");
-		//dirName = OAString.convertFileName(dirName);
-		OAFile.mkdirsForFile(dirName);
+        bApplicationClosed = true;
+        synchronized (LOCKSaveWait) {
+            LOCKSaveWait.notify();
+        }
 
-		try {
-			LOG.config("Starting Database backup to " + dirName);
-			getDataSourceController().backupDataSource(dirName);
-			LOG.config("Completed Database backup to " + dirName);
-		} catch (Exception e) {
-			LOG.log(Level.WARNING, "Database backup failed to directory " + dirName, e);
-		}
-	}
+        if (controlRemote != null) {
+            LOG.config("Stopping Remote access");
+            controlRemote.stop();
+        }
 
-	private void _saveData() {
-		LOG.fine("Saving data ...");
+        LOG.config("Stopping Webserver access");
+        // getJettyController().stop();
 
-		boolean bSaveToDB = Resource.getBoolean(Resource.DB_Enabled, true);
-		if (bSaveToDB) {
-			bSaveToDB = Resource.getBoolean(Resource.INI_SaveDataToDatabase, true);
-		}
+        if (controlObject != null) {
+            LOG.config("Closing object controller");
+            controlObject.stop();
+        }
+        
+        _saveData();
+        
+        LOG.config("Closing database");
+        getDataSourceController().close();
 
-		if (bSaveToDB) {
-			getDataSourceController().saveData();
-			LOG.fine("Data saved to database");
-		} else {
-			LOG.fine("NOT saving data to database");
-		}
+        String s = Resource.getValue(Resource.APP_NewWordsFileName);
+        try {
+            LOG.finer("Saving spellcheck new words data");
+            getSpellCheckController().saveNewWordsTextFile(s);
+        } catch (Throwable e) {
+            LOG.log(Level.WARNING, "Error while saving to file " + s, e);
+        }
+        
+        if (controlLog != null) {
+            LOG.config("Closing log files ... " + Resource.getValue(Resource.APP_GoodBye));
+            controlLog.close();
+        }
+        
+        if (controlServerFrame != null) {
+            controlServerFrame.close();
+        }
+    }
+    
+    private void backupDatabase() {
+        if (bApplicationClosed) return;
+        synchronized (LOCKSaving) {
+            if (!bApplicationClosed) {
+                _backupDatabase();
+            }
+        }
+    }
+    private void _backupDatabase() {
+        String dirName = Resource.getValue(Resource.DB_BackupDirectory, "dbbackup");
+        //dirName += "/" + (new OADate()).toString("yyyyMMdd");
+        //dirName = OAString.convertFileName(dirName);
+        OAFile.mkdirsForFile(dirName);
 
-		boolean bSaveToFile = Resource.getBoolean(Resource.INI_SaveDataToFile, !bSaveToDB);
-		try {
-			if (bSaveToFile) {
-				LOG.fine("Saving data as serialized object file");
-				getDataSourceController().writeToSerializeFile(false);
-			}
-		} catch (Throwable e) {
-			LOG.log(Level.WARNING, "Error while saving data to serialized file", e);
-		}
-
-		try {
-			LOG.fine("Saving OAObjectCacheDataSource to file");
-			getDataSourceController().writeObjectCacheDataSource();
-		} catch (Throwable e) {
-			LOG.log(Level.WARNING, "Error while saving OAObjectCacheDataSource file", e);
-		}
-
-		try {
-			if (Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false)) {
-				LOG.fine("Saving data as XML object file");
-				getDataSourceController().writeToXmlFile();
-			}
-		} catch (Throwable e) {
-			LOG.log(Level.WARNING, "Error while saving data to json file", e);
-		}
-
-		try {
-			if (Resource.getBoolean(Resource.INI_SaveDataToJsonFile, false)) {
-				LOG.fine("Saving data as JSON object file");
-				getDataSourceController().writeToJsonFile();
-			}
-		} catch (Throwable e) {
-			LOG.log(Level.WARNING, "Error while saving data to json file", e);
-		}
-
-		if (!bSaveToDB) {
-			serverRoot.save(OAObject.CASCADE_ALL_LINKS); // flag all as saved
-		}
-
-		LOG.fine("Data saved");
-
-		String s = Resource.getValue(Resource.APP_NewWordsFileName);
-		try {
-			LOG.finer("Saving spellcheck new words data");
-			getSpellCheckController().saveNewWordsTextFile(s);
-		} catch (Throwable e) {
-			LOG.log(Level.WARNING, "Error while saving to file " + s, e);
-		}
-	}
-
-	public void close() throws Exception {
-		LOG.config("Closing application ... please wait while shutdown completes ...");
-		if (controlServerFrame != null) {
-			controlServerFrame.setProcessing(true, "Please wait while closing ...");
-		}
-
-		bClosed = true;
-		synchronized (LOCKSave) {
-			LOCKSave.notify();
-			_saveData();
-		}
-
-		if (controlRemote != null) {
-			LOG.config("Stopping Remote access");
-			controlRemote.stop();
-		}
-
-		LOG.config("Stopping Webserver access");
-		// getJettyController().stop();
-
-		LOG.config("Saving data to database");
-		synchronized (LOCKSave) {
-			// wait for saveData to end
-			LOG.config("Saved data to database");
-		}
-
-		if (controlObject != null) {
-			LOG.config("Closing object controller");
-			controlObject.stop();
-		}
-
-		LOG.config("Closing database");
-		getDataSourceController().close();
-
-		if (controlLog != null) {
-			LOG.config("Closing log files ... " + Resource.getValue(Resource.APP_GoodBye));
-			controlLog.close();
-		}
-
-		if (controlServerFrame != null) {
-			controlServerFrame.close();
-		}
-	}
+        try {
+            LOG.config("Starting Database backup to " + dirName);
+            getDataSourceController().backupDataSource(dirName);
+            LOG.config("Completed Database backup to " + dirName);
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "Database backup failed to directory " + dirName, e);
+        }
+    }
 
 	public ServerFrameController getServerFrameController() {
 		if (controlServerFrame == null) {

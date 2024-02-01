@@ -155,18 +155,6 @@ public abstract class ClientFrameController {
 
 		notifyStatusThread();
 
-		// Help Settings
-		getHelpController();
-		controlHelp.setHelpMenuItem(frm.getHelpMenuItem(), HelpController.PAGE_Index);
-		controlHelp.setHelpButton(frm.getHelpButton(), HelpController.PAGE_Index);
-		// Context sensitive Help
-		controlHelp.setCSHelpButton(frm.getCSHelpButton());
-		controlHelp.setCSHelpMenuItem(frm.getCSHelpMenuItem());
-		// Set up Context Sensitive Help for UI components
-		// controlHelp.setCSHelpForComponent(frmServer.getSaveButton(), HelpController.PAGE_UserInterface);
-
-		getAboutController();
-
 		try {
 			// set frame position and size
 			int x = OAConv.toInt(Resource.getValue(Frame_X, "0"));
@@ -232,6 +220,19 @@ public abstract class ClientFrameController {
 			LOG.log(Level.WARNING, "error while setting frame.bounds", e);
 		}
 
+        // Help Settings
+        getHelpController();
+        controlHelp.setHelpMenuItem(frm.getHelpMenuItem(), HelpController.PAGE_Index);
+        controlHelp.setHelpButton(frm.getHelpButton(), HelpController.PAGE_Index);
+        // Context sensitive Help
+        controlHelp.setCSHelpButton(frm.getCSHelpButton());
+        controlHelp.setCSHelpMenuItem(frm.getCSHelpMenuItem());
+        // Set up Context Sensitive Help for UI components
+        // controlHelp.setCSHelpForComponent(frmServer.getSaveButton(), HelpController.PAGE_UserInterface);
+
+        getAboutController();
+		
+		
 		// Look & Feel
 		JMenu menu = frm.getMenuLF();
 		ButtonGroup group = new ButtonGroup();
