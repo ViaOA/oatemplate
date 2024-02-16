@@ -919,7 +919,7 @@ public class LogController {
 		}
 
 		String line = String.format("%s %s [%s] %s: %s%s\n",
-									dt.toString("yyyy-MM-dd HH:mm:ss,SSS"),
+									dt.toString("yyyyMMdd HHmmss.SSS"),
 									record.getLevel().getName(),
 									thread.getName(),
 									mname2,
