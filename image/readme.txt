@@ -16,6 +16,7 @@ Process:
 get icons		
 	www.iconbuddy.app
 	www.thenounproject.com
+	www.iconfinder.com
 
 
 Create in image directory
