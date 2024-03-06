@@ -2,6 +2,13 @@
 Using Gimp (*.xcf)
 
 
+Sizes:
+	128 *Splash.png
+	48 *Button.png
+	24 *Bar.png
+
+
+
 Process:
 	pick colors
 		color wheel
