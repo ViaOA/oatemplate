@@ -25,6 +25,9 @@ get icons
 	www.thenounproject.com
 	www.iconfinder.com
 
+convert image to ms icon
+    https://icoconvert.com/
+
 
 Create in image directory
 	splash.xcf 
