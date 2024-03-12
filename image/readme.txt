@@ -1,11 +1,15 @@
 
 Using Gimp (*.xcf)
 
-
 Sizes:
 	128 *Splash.png
 	48 *Button.png
 	24 *Bar.png
+
+Files:
+    image
+    image\oa - gimp images
+    image\oa\converted - saved as png for *Splash.png, *Button.png, *Bar.png
 
 
 
@@ -24,6 +28,11 @@ get icons
 	www.iconbuddy.app
 	www.thenounproject.com
 	www.iconfinder.com
+
+    www.streamlinehq.com/freebies/core-line-free/money-shopping?search=&icon=ico_03vnPoWFTUD4lb5y
+        custom settings:  size=128,  stroke=8
+
+
 
 convert image to ms icon
     https://icoconvert.com/
