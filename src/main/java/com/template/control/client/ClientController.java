@@ -221,7 +221,6 @@ public abstract class ClientController {
 
 				getRemoteClientController().onUpdateSoftwareForWindows(version, ssi.serverRelease);
 
-				// Thread.sleep(4500); // allow jws time to load new
 				setProcessing(false);
 
 				JOptionPane.showMessageDialog(	getFrame(),
@@ -330,31 +329,6 @@ public abstract class ClientController {
 		}
 
 		return true;
-	}
-
-	// hack: will make sure that desktop link and program files link are correct.
-	protected void runJWSVerify() {
-		Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				boolean b = false;
-				try {
-					LOG.fine("checking windows link files");
-					for (int i = 0; i < 6; i++) {
-						if (Util.fixWindowsLinksForWebStart()) {
-							b = true;
-						}
-						Thread.sleep(60 * 1000);
-					}
-					if (b) {
-						LOG.log(Level.WARNING, "JWS links were updated.", new Exception("updated JWS links"));
-					}
-				} catch (Exception e) {
-					LOG.log(Level.WARNING, "updating/fixing JWS links", e);
-				}
-			}
-		}, "CheckJWSLinkFiles");
-		t.start();
 	}
 
 	private volatile boolean bCheckingAWT;

@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import com.template.resource.Resource;
+import com.viaoa.util.OAFile;
 
 public class FileDialogController {
     
@@ -93,7 +94,7 @@ public class FileDialogController {
     public JFileChooser getCsvFileChooser() {
         if (fileChooserCsv != null) return fileChooserCsv;
             
-        fileChooserCsv = new JFileChooser(Resource.getRootDirectory()) {
+        fileChooserCsv = new JFileChooser(OAFile.convertFileName(Resource.getRootDirectory())) {
             public @Override void approveSelection() {
                 File f = getSelectedFile();
                 String fileName = f.getPath();

@@ -19,6 +19,7 @@ import com.viaoa.sync.OASyncServer;
 import com.viaoa.transaction.OATransaction;
 import com.viaoa.util.*;
 import com.viaoa.xml.*;
+import com.viaoa.process.*;
 
 import com.template.datasource.DataSource;
 import com.template.model.oa.*;
@@ -301,7 +302,7 @@ public class DataSourceController {
 
     protected boolean readFromSerializeFile() throws Exception {
         if (getObjectCacheDataSource() == null) return false;
-        final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+        final String dirName = Resource.getDataDirectory();
         LOG.log(Level.CONFIG, "Reading from file " + dirName + "/data.bin");
         File file = new File(OAFile.convertFileName(dirName + "/data.bin"));
         if (!file.exists()) {
@@ -315,7 +316,7 @@ public class DataSourceController {
     }
     
     protected void writeSerializeFile() throws Exception {
-        final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+        final String dirName = Resource.getDataDirectory();
         File f1 = new File(dirName);
         if (f1.exists()) {
             if (!f1.isDirectory()) {
@@ -527,7 +528,7 @@ public class DataSourceController {
 	}
 
 	public boolean readFromXmlFile() throws Exception {
-		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+        final String dirName = Resource.getDataDirectory();
 		LOG.log(Level.CONFIG, "Reading from file " + dirName + "/data.xml");
 		File file = new File(OAFile.convertFileName(dirName + "/data.xml"));
 		if (!file.exists()) {
@@ -543,7 +544,7 @@ public class DataSourceController {
 	}
 
 	public void writeToXmlFile() throws Exception {
-		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+        final String dirName = Resource.getDataDirectory();
 		File f1 = new File(dirName);
 		if (f1.exists()) {
 			if (!f1.isDirectory()) {
@@ -616,7 +617,7 @@ public class DataSourceController {
 	}
 
     public boolean readFromJsonFile() throws Exception {
-        final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+        final String dirName = Resource.getDataDirectory();
         LOG.log(Level.CONFIG, "Reading from file " + dirName + "/data.json");
         File file = new File(OAFile.convertFileName(dirName + "/data.json"));
         if (!file.exists()) {
@@ -633,7 +634,7 @@ public class DataSourceController {
     }
 
 	public void writeToJsonFile() throws Exception {
-		final String dirName = Resource.getValue(Resource.APP_DataDirectory, "data");
+		final String dirName = Resource.getDataDirectory();
 		File f1 = new File(dirName);
 		if (f1.exists()) {
 			if (!f1.isDirectory()) {

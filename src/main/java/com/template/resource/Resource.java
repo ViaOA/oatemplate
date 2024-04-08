@@ -50,13 +50,12 @@ public class Resource {
 
 	// startup type
 	public static final int RUNTYPE_Client = 0;
-	public static final int RUNTYPE_JWSClient = 1;
-	public static final int RUNTYPE_Server = 2;
-	public static final int RUNTYPE_Service = 3;
-	public static final int RUNTYPE_Webserver = 4;
-	public static final int RUNTYPE_Single = 5;
+	public static final int RUNTYPE_Server = 1;
+	public static final int RUNTYPE_Service = 2;
+	public static final int RUNTYPE_Webserver = 3;
+	public static final int RUNTYPE_Single = 4;
 	private static int runType;
-	public static final String[] STARTUP_TYPES = new String[] { "CLIENT", "JWSCLIENT", "SERVER", "SERVICE", "WEBSERVER", "SINGLE" };
+	public static final String[] STARTUP_TYPES = new String[] { "CLIENT", "SERVER", "SERVICE", "WEBSERVER", "SINGLE" };
 
 	private static OAProperties propsRuntime;
 	private static OAProperties propsSystem;
@@ -97,7 +96,6 @@ public class Resource {
 	public static final String APP_ReleaseDate = "ReleaseDate";
 	public static final String APP_ClassPath = "ClassPath";
 	public static final String APP_RootDirectory = "RootDirectory";
-	public static final String APP_JWSRootDirectory = "JWSRootDirectory";
 	public static final String APP_LogsDirectory = "LogsDirectory";
 	public static final String APP_TempDirectory = "TempDirectory";
 
@@ -120,7 +118,6 @@ public class Resource {
 	public static final String APP_WelcomePage = "WelcomePage";
 	public static final String APP_MainCardPanel = "MainCardPanel"; // for client UI
 
-	
 	public static final String APP_JarImageDirectory = "JarImageDirectory";
 	public static final String APP_JarImageDirectory2 = "JarImageDirectory2";
 	public static final String APP_FileImageDirectory = "FileImageDirectory";
@@ -154,6 +151,7 @@ public class Resource {
 	public static final String APP_DictionaryFileName2 = "DictionaryFileName2"; // new approved words
 	public static final String APP_NewWordsFileName = "NewWordsFileName";
 	public static final String APP_DataDirectory = "DataDirectory";
+    public static final String APP_CheckForNewRelease = "checkForNewRelease";
 
 	// ini file properties
 	public static final String INI_AutoLogin = "AutoLogin";
@@ -829,12 +827,24 @@ public class Resource {
 	}
 
 	public static String getLogsDirectory() {
-		String s = getRootDirectory();
-		s += "/" + getValue(APP_LogsDirectory, "logs");
+		String s = getValue(APP_LogsDirectory, "logs");
+		if (s != null && s.indexOf("\\") < 0 || s.indexOf("/") < 0) {
+		    s = getRootDirectory() + "/" + s;		    
+		}
 		s = OAString.convertFileName(s);
 		return s;
 	}
 
+    public static String getDataDirectory() {
+        String s = getValue(APP_DataDirectory, "data");
+        if (s != null && s.indexOf("\\") < 0 || s.indexOf("/") < 0) {
+            s = getRootDirectory() + "/" + s;           
+        }
+        s = OAString.convertFileName(s);
+        return s;
+    }
+	
+	
 	private static boolean bLocaleManuallySet;
 
 	public static void setLocale(Locale loc) {

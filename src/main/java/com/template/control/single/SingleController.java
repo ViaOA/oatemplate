@@ -228,16 +228,16 @@ public abstract class SingleController {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                String root = Resource.getValue(Resource.APP_RootDirectory) + "/";
+                String root = Resource.getRootDirectory() + "/";
                 root = OAFile.convertFileName(root);
                 String s = null;
                 try {
                     s = Resource.getValue(Resource.APP_DictionaryFileName);
-                    getSpellCheckController().loadDictionaryTextFile(root + s);
+                    getSpellCheckController().loadDictionaryTextFile(OAFile.convertFileName(root + s));
                     s = Resource.getValue(Resource.APP_DictionaryFileName2);
-                    getSpellCheckController().loadDictionaryTextFile(root + s);
+                    getSpellCheckController().loadDictionaryTextFile(OAFile.convertFileName(root + s));
                     s = Resource.getValue(Resource.APP_NewWordsFileName);
-                    getSpellCheckController().loadNewWordsTextFile(root + s);
+                    getSpellCheckController().loadNewWordsTextFile(OAFile.convertFileName(root + s));
                 } catch (Exception e) {
                     LOG.log(Level.WARNING, "Error loading SpellCheck file " + root + s + ", will continue.", e);
                 }
@@ -618,7 +618,9 @@ public abstract class SingleController {
 
         String s = Resource.getValue(Resource.APP_NewWordsFileName);
         if (OAStr.isNotEmpty(s)) {
-            LOG.finer("Saving spellcheck new words to file " + s);
+            String root = Resource.getRootDirectory();
+            s = OAFile.convertFileName(root + "/" + s);
+            LOG.fine("Saving spellcheck new words to file " + s);
             getSpellCheckController().saveNewWordsTextFile(s);
         }
         

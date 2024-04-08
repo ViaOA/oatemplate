@@ -263,16 +263,15 @@ public abstract class ServerController {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                String root = Resource.getValue(Resource.APP_RootDirectory) + "/";
-                root = OAFile.convertFileName(root);
+                String root = Resource.getRootDirectory() + "/";
                 String s = null;
                 try {
                     s = Resource.getValue(Resource.APP_DictionaryFileName);
-                    getSpellCheckController().loadDictionaryTextFile(root + s);
+                    getSpellCheckController().loadDictionaryTextFile(OAFile.convertFileName(root + s));
                     s = Resource.getValue(Resource.APP_DictionaryFileName2);
-                    getSpellCheckController().loadDictionaryTextFile(root + s);
+                    getSpellCheckController().loadDictionaryTextFile(OAFile.convertFileName(root + s));
                     s = Resource.getValue(Resource.APP_NewWordsFileName);
-                    getSpellCheckController().loadNewWordsTextFile(root + s);
+                    getSpellCheckController().loadNewWordsTextFile(OAFile.convertFileName(root + s));
                 } catch (Exception e) {
                     LOG.log(Level.WARNING, "Error loading SpellCheck file " + root + s + ", will continue.", e);
                 }
@@ -777,7 +776,9 @@ public abstract class ServerController {
 
         String s = Resource.getValue(Resource.APP_NewWordsFileName);
         try {
-            LOG.finer("Saving spellcheck new words data");
+            String root = Resource.getRootDirectory();
+            s = OAFile.convertFileName(root + "/" + s);
+            LOG.fine("Saving spellcheck new words data");
             getSpellCheckController().saveNewWordsTextFile(s);
         } catch (Throwable e) {
             LOG.log(Level.WARNING, "Error while saving to file " + s, e);

@@ -45,8 +45,10 @@ public class StartupController {
 		// must set this first
 		Resource.setRunType(runType);
 
-		final boolean bUsesSwing = (runType == Resource.RUNTYPE_Client || runType == Resource.RUNTYPE_JWSClient
-				|| runType == Resource.RUNTYPE_Server || runType == Resource.RUNTYPE_Single);
+        // load args[] into runtime properties before using properties
+        Resource.loadArguments(args);
+		
+		final boolean bUsesSwing = (runType == Resource.RUNTYPE_Client || runType == Resource.RUNTYPE_Server || runType == Resource.RUNTYPE_Single);
 
 		String hostName = Resource.getValue(Resource.APP_HostName);
 		String hostIPAddress = Resource.getValue(Resource.APP_HostIPAddress);
@@ -63,28 +65,6 @@ public class StartupController {
 			Resource.setValue(Resource.TYPE_Runtime, Resource.APP_HostIPAddresses, s);
 		} catch (Exception e) {
 		}
-
-		// load args[] into runtime properties
-		Resource.loadArguments(args);
-
-		String rootDir;
-		if (runType == Resource.RUNTYPE_JWSClient) {
-			rootDir = System.getProperty("user.home") + "/" + Resource.getValue(Resource.APP_JWSRootDirectory);
-			// do not add "/"
-			rootDir = OAString.convertFileName(rootDir);
-			// This is required to be able to run from JWS and work through
-			// NAT/Firewall, else it keeps
-			// trying to resolve the IP/DNS
-			System.setSecurityManager(null);
-			// need to register a "special" handler, since JWS classLoaders are
-			// different
-			com.viaoa.jfc.editor.html.protocol.classpath.Handler.jwsregister();
-		} else {
-			rootDir = Resource.getValue(Resource.APP_RootDirectory);
-			com.viaoa.jfc.editor.html.protocol.classpath.Handler.register();
-		}
-		// set default directory
-		Resource.setRootDirectory(rootDir);
 
 		// do this after setting rootDir
 		if (runType == Resource.RUNTYPE_Server || runType == Resource.RUNTYPE_Service) {
@@ -103,7 +83,7 @@ public class StartupController {
 		}
 
 		System.out.println("Run type=" + Resource.STARTUP_TYPES[runType]);
-		System.out.println("Root Directory=" + rootDir);
+		System.out.println("Root Directory=" + Resource.getRootDirectory());
 		System.out.println("Version=" + Resource.getValue(Resource.APP_Version));
 		System.out.println("Release=" + Resource.getValue(Resource.APP_Release));
 
@@ -117,11 +97,13 @@ public class StartupController {
 		if (bUsesSwing) {
 			getSplashWindow().setVisible(true);
 		}
+        com.viaoa.jfc.editor.html.protocol.classpath.Handler.register();
 
-		// Verify JDK version
+		// JDK version
 		String verMini = Resource.getValue(Resource.APP_JDKVersion);
 		String verCurrent = System.getProperty("java.runtime.version"); // was: java.version
 		System.out.println("JDK version=" + verCurrent);
+		
 		/*
 		if (!verifyJavaVersion(verMini, verCurrent)) {
 		    onStartupError(Resource.MSG_InvalidJVM, new Object[] { verCurrent, verMini }, null);
@@ -136,7 +118,6 @@ public class StartupController {
 		try {
 			switch (runType) {
 			case Resource.RUNTYPE_Client:
-			case Resource.RUNTYPE_JWSClient:
 				b = getClientController().start();
 				break;
 			case Resource.RUNTYPE_Single:
