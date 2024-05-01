@@ -75,6 +75,7 @@ import com.template.servlet.HelloServlet;
 import com.viaoa.context.OAUserAccess;
 import com.viaoa.object.OAObject;
 import com.viaoa.util.OAFile;
+import com.viaoa.util.OAStr;
 import com.viaoa.util.OAString;
 import com.viaoa.web.filter.OAUserAccessFilter;
 import com.viaoa.web.servlet.HealthCheckServlet;
@@ -241,7 +242,7 @@ public class JettyController {
 		}
 
 		//======= web log file ========================================================
-		NCSARequestLog ncsaRequestLog = new NCSARequestLog("./logs/yyyy_mm_dd_jetty.log"); // must use "yyyy_mm_dd", which will be replaced with date format
+		NCSARequestLog ncsaRequestLog = new NCSARequestLog(OAStr.nonNull(Resource.getLogsDirectory(),".") + "/yyyy_mm_dd_jetty.log"); // must use "yyyy_mm_dd", which will be replaced with date format
 		ncsaRequestLog.setRetainDays(360);
 		ncsaRequestLog.setAppend(true);
 		ncsaRequestLog.setExtended(true);

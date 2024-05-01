@@ -137,7 +137,7 @@ public class DataSourceController {
             if (!b) {
                 if (!Resource.getBoolean(Resource.INI_SaveDataToJsonFile, false) || !readFromJsonFile()) {
                     if (!Resource.getBoolean(Resource.INI_SaveDataToXmlFile, false) || !readFromXmlFile()) {
-                        LOG.log(Level.WARNING, "No options available to load data (database, serialized, JSON, XML)");
+                        LOG.log(Level.WARNING, "No data available (database, serialized, JSON, XML)");
                     }
                 }
             }
