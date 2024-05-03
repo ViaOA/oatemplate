@@ -751,6 +751,9 @@ public abstract class ClientController {
 	}
 
 	public void close() {
+	    close(false);
+	}
+	public void close(final boolean bStartupError) {
 		if (controlFrame != null) {
 			controlFrame.close(); // saves window size/location to ini file and frm.setVisible(false)
 		}

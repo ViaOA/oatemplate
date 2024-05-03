@@ -746,16 +746,21 @@ public abstract class ServerController {
     }
     
     public void close() throws Exception {
+        close(false);
+    }
+    public void close(final boolean bStartupError) throws Exception {
         LOG.config("Closing application ... please wait while shutdown completes ...");
         if (controlServerFrame != null) {
             controlServerFrame.setProcessing(true, "Please wait while closing ...");
         }
 
         bApplicationClosed = true;
-        synchronized (LOCKSaveWait) {
-            LOCKSaveWait.notify();
+        if (!bStartupError) {
+            synchronized (LOCKSaveWait) {
+                LOCKSaveWait.notify();
+            }
         }
-
+        
         if (controlRemote != null) {
             LOG.config("Stopping Remote access");
             controlRemote.stop();
