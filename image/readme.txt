@@ -1,28 +1,26 @@
 
 Using Gimp (*.xcf)
 
-Sizes:
-    128 *Splash.png
-    48 *Button.png
-    24 *Bar.png
 
-    splash.xcf 128, 256 
-    logo.xcf   (150)
-    icon.xcf   (32)
-    iconClient.xcf (32)
-    iconServer.xcf (32)
 
-work files:
-    image\*.xcf - used in app
-    image\export\*.gif
-    image\export\*.png
-        xcf resized, export as image type
-         
-    image\oa - gimp images
-    image\converted - as png, etc
-    image\new - new images to choose from
-    
-    image\oa\converted - saved as png for *Splash.png, *Button.png, *Bar.png
+Notes: 
+store App images in image/export folder
+
+
+Images List:
+splash.png (size 128+)
+
+logo.png (150)
+
+// must be gif to work with windows (??)
+icon.gif (32)
+iconServer.gif (32)
+iconClient.gif (32)
+
+for each root (/toolbar)
+    *Splash.png (128)
+    *Button.png (48)
+    *Bar.png (24)
 
 
 get icons (choose free option)      
@@ -43,7 +41,7 @@ colors
     darker orange fc9a04
         
 
-images need to be copied:
+images needed to be copied to:
     directory: src/.../view/image
         splash.png 
         icon.gif
@@ -55,7 +53,6 @@ images need to be copied:
             *Splash.png 
             *Button.png
             *Bar.png
-
 
     directory: src/.../report/html
         logo.jpg
