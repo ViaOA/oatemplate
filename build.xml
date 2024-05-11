@@ -96,6 +96,7 @@
                 <exclude name="*.jar/**" />
                 <exclude name="*.dll/**" />
                 <exclude name="*.exe/**" />
+                <exclude name="*.settings/**" />
             </fileset>
         </zip>
     </target>
