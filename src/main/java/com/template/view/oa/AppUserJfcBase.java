@@ -20,6 +20,7 @@ import javax.swing.event.*;
 import com.viaoa.object.*;
 import com.viaoa.hub.*;
 import com.viaoa.jfc.*;
+import com.viaoa.jfc.OAButton.*;
 import com.viaoa.jfc.border.*;
 import com.viaoa.jfc.control.*;
 import com.viaoa.jfc.table.*;
@@ -29,13 +30,12 @@ import com.viaoa.jfcapp.*;
 import com.viaoa.util.*;
 
 import com.template.model.*;
-import com.template.model.method.*;
 import com.template.model.search.*;
 import com.template.model.oa.AppUser;
 import com.template.model.oa.*;
 import com.template.model.oa.propertypath.*;
-import com.template.model.oa.method.*;
 import com.template.model.oa.custom.*;
+import com.template.model.oa.filter.*;
 import com.template.delegate.*;
 import com.template.delegate.oa.*;
 import com.template.resource.Resource;
@@ -208,7 +208,7 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         if (!getModel().getAllowAdd()) return null;
         OAMenuItem mi = new OAMenuItem(getHub(), OAButton.ADD_MANUAL) {
             @Override
-            public boolean onActionPerformed() {
+            public boolean onActionPerformed() throws Exception {
                 AppUserJfcBase.this.onAdd();
                 return true;
             }
@@ -276,9 +276,6 @@ public class AppUserJfcBase implements OAModelJfcInterface {
     public OATreeNode getTreeNode() {
         if (node != null) return node;
         node = createTreeNode(null, null, true);
-        if (getModel().getAllowMultiSelect()) {
-            node.setSelectedHub(getModel().getMultiSelectHub());
-        }
         return node;
     }
     public OATreeNode createTreeNode(String leadingPropertyPath, Hub<AppUser> hubRoot, boolean bIncludeChildren, OATreeNode ... parentNodes) {
@@ -289,6 +286,7 @@ public class AppUserJfcBase implements OAModelJfcInterface {
             @Override
             public void objectSelected(Object obj) {
                 super.objectSelected(obj);
+                AppUserJfcBase.this.getCardPanel();
                 AppUserJfcBase.this.onShowEditPanel();
             }
             @Override
@@ -318,6 +316,9 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         node.setMaxImageHeight(20);
         node.setMaxImageWidth(32);
         setLastTreeNode(node);
+        if (getModel().getAllowMultiSelect()) {
+            node.setSelectedHub(getModel().getMultiSelectHub());
+        }
     
         if (!bIncludeChildren) {
             return node;
@@ -485,6 +486,7 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         lbl.setFormat(null);
         lbl.setMaxImageHeight(20);
         lbl.setMaxImageWidth(32);
+        lbl.setVerticalAlignment(SwingConstants.TOP);
         return lbl;
     }
     // used for Label, ComboBox
@@ -539,7 +541,7 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         table.setAllowSorting(false);
         table.addCounterColumn();
         getSearchJfc().createTableColumns(table);
-        table.setPreferredSize(15, 6, true);
+        table.setPreferredSize(15, 7, true);
         table.resizeColumnsToFitHeading();
         
         OATableComboBox cboTable = new OATableComboBox(table, getHub(), PP_Display) {
@@ -580,16 +582,48 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         lst.setImageProperty(null);
         lst.setMaxImageHeight(20);
         lst.setMaxImageWidth(32);
-        lst.setConfirmMessage("Ok to remove "+getModel().getDisplayName());
         lst.setIconColorProperty(PP_IconColor);
         lst.setBackgroundColorProperty(null);
         lst.setDoubleClickButton(null);
-        // lst.setSelectionHub(getSelectClients());
+        if (model.getAllowMultiSelect()) {
+            lst.setSelectionHub(getModel().getMultiSelectHub());
+        }
         lst.setBorder(new EmptyBorder(3,3,1,1));
         
         return lst;
     }
     
+    public JPanel createGrowingList() {
+        OAList lst = createList();
+        lst.setVisibleRowCount(1);
+        lst.setBorder(new LineBorder(Color.gray, 1));
+        
+        JPanel pan = new JPanel(new BorderLayout());
+        pan.add(lst);
+        
+        JPanel panx = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+        
+        OAButton cmd = createGotoEditButton();
+        if (cmd != null) panx.add(cmd);
+        
+        cmd = createAddButton();
+        if (cmd != null) panx.add(cmd);
+        
+        cmd = createNewButton();
+        if (cmd != null) panx.add(cmd);
+        
+        cmd = createDeleteButton();
+        if (cmd != null) panx.add(cmd);
+        
+        cmd = createRemoveButton();
+        if (cmd != null) panx.add(cmd);
+        
+        cmd = createRefreshButton();
+        if (cmd != null) panx.add(cmd);
+        
+        pan.add(panx, BorderLayout.SOUTH);
+        return pan;
+    }
     // comboBoxTree
     public OATreeComboBox createSearchTreeComboBox() {
         OATreeComboBox cbo = new OATreeComboBox(createSearchTree(), getHub(), PP_Display);
@@ -622,9 +656,6 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         node.setFontProperty(AppUserJfc.PP_Font);
         node.setMaxImageHeight(20);
         node.setMaxImageWidth(32);
-        if (getModel().getAllowMultiSelect()) {
-            node.setSelectedHub(getModel().getMultiSelectHub());
-        }
         tnode.add(node);
         return tree;
     }
@@ -773,7 +804,7 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         if (!getModel().getAllowGotoEdit()) return null;
         OAMenuItem mi = new OAMenuItem(getHub(), "Details ...", Resource.getJarIcon(Resource.IMG_Goto)) {
             @Override
-            public boolean onActionPerformed() {
+            public boolean onActionPerformed() throws Exception {
                 AppUserJfcBase.this.getEditDialog(this).setVisible(true);
                 return true;
             }
@@ -851,7 +882,7 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         if (getModel().getAllowTableFilter()) {
             tc.setFilterComponent(new OATextFieldFilter(AppUser.P_FirstName));
         }
-        tc = table.addColumn("Last Name", 12, createLastNameTextField());
+        tc = table.addColumn("Last Name", 18, createLastNameTextField());
         if (getModel().getAllowTableFilter()) {
             tc.setFilterComponent(new OATextFieldFilter(AppUser.P_LastName));
         }
@@ -860,6 +891,9 @@ public class AppUserJfcBase implements OAModelJfcInterface {
             tc.setFilterComponent(new OATextFieldFilter(AppUser.P_LoginId));
         }
         tc = table.addColumn("Admin", 5, createAdminCheckBox());
+        tc.setToolTipText("allows setting up new users");
+        tc = table.addColumn("Super Admin", 11, createSuperAdminCheckBox());
+        tc.setToolTipText("gives user the permissions to change anything in the system.");
         tc = table.addColumn("Inactive Date", 8, createInactiveDateDateComboBox());
     }
     
@@ -912,18 +946,22 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         if (getModel().getAllowTableFilter()) {
             tc.setFilterComponent(new OATextFieldFilter(AppUser.P_FirstName));
         }
-        lbl = new OALabel(getHub(), AppUser.P_LastName, 12);
-        tc = table.addColumn("Last Name", 12, lbl);
+        lbl = new OALabel(getHub(), AppUser.P_LastName, 22);
+        tc = table.addColumn("Last Name", 18, lbl);
         if (getModel().getAllowTableFilter()) {
             tc.setFilterComponent(new OATextFieldFilter(AppUser.P_LastName));
         }
-        lbl = new OALabel(getHub(), AppUser.P_LoginId, 12);
+        lbl = new OALabel(getHub(), AppUser.P_LoginId, 14);
         tc = table.addColumn("Login Id", 12, lbl);
         if (getModel().getAllowTableFilter()) {
             tc.setFilterComponent(new OATextFieldFilter(AppUser.P_LoginId));
         }
-        lbl = new OALabel(getHub(), AppUser.P_Admin, 5);
+        lbl = new OACheckBoxLabel(getHub(), AppUser.P_Admin, 5);
+        lbl.setToolTipText("allows setting up new users");
         tc = table.addColumn("Admin", 5, lbl);
+        lbl = new OACheckBoxLabel(getHub(), AppUser.P_SuperAdmin, 5);
+        lbl.setToolTipText("gives user the permissions to change anything in the system.");
+        tc = table.addColumn("Super Admin", 11, lbl);
         lbl = new OALabel(getHub(), AppUser.P_InactiveDate, 8);
         tc = table.addColumn("Inactive Date", 8, lbl);
     }
@@ -946,7 +984,7 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         if (!getModel().getAllowAdd()) return null;
         OAButton cmd = new OAButton(getHub(), OAButton.ADD_MANUAL) {
             @Override
-            public boolean onActionPerformed() {
+            public boolean onActionPerformed() throws Exception {
                 AppUserJfcBase.this.onAdd();
                 return true;
             }
@@ -1016,6 +1054,16 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         cmd.setUseSwingWorker(true);
         cmd.setProcessingText("Processing ...", "Please wait while deleting "+getModel().getDisplayName());
         cmd.setToolTipText("Delete "+getModel().getDisplayName());
+        return cmd;
+    }
+    
+    public OAButton createRefreshButton() {
+        if (!getModel().getAllowRefresh()) return null;
+        OAButton cmd = new OAButton(getHub(), OAButton.REFRESH);
+        cmd.getController().setViewOnly(getModel().getViewOnly());
+        cmd.setText("Refresh");
+        cmd.setup();
+        cmd.setToolTipText("Refresh "+getModel().getDisplayName()+" from DataSource");
         return cmd;
     }
     
@@ -1105,6 +1153,8 @@ public class AppUserJfcBase implements OAModelJfcInterface {
             if (cmd != null) toolBar.add(cmd);
             cmd = createDeleteButton();
             if (cmd != null) toolBar.add(cmd);
+            cmd = createRefreshButton();
+            if (cmd != null) toolBar.add(cmd);
             toolBar.add(Box.createHorizontalStrut(10));
         }
         if (tbo.bSearch) {
@@ -1172,7 +1222,12 @@ public class AppUserJfcBase implements OAModelJfcInterface {
     }
     
     public OAButton createSearchButton() {
-        if (!getModel().getAllowSearch()) return null;
+        return createSearchButton(false);
+    }
+    
+    public OAButton createSearchButton(boolean bForSuperUser) {
+        boolean bAllow = getModel().getAllowSearch();
+        if (!bAllow && !bForSuperUser) return null;
         OAButton cmd = new OAButton(getHub(), getModel().getDisplayName() + " search ...", Resource.getJarIcon("search.gif"), OAButton.SEARCH) {
             @Override
             public Object getSearchObject() {
@@ -1189,6 +1244,9 @@ public class AppUserJfcBase implements OAModelJfcInterface {
                 onShowEditPanel();
             }
         };
+        if (!bAllow) {
+            cmd.getController().getVisibleChangeListener().addOnlySuperAdmin(getHub());
+        }
         return cmd;
     }
     
@@ -1230,6 +1288,7 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         dd.addProperty("lastName", AppUser.P_LastName);
         dd.addProperty("loginId", AppUser.P_LoginId);
         dd.addProperty("admin", AppUser.P_Admin);
+        dd.addProperty("superAdmin", AppUser.P_SuperAdmin);
         dd.addProperty("inactiveDate", AppUser.P_InactiveDate);
     }
     // Card Panel
@@ -1255,22 +1314,42 @@ public class AppUserJfcBase implements OAModelJfcInterface {
                 super.show(parent, name);
             }
         };
-        cardPanel = new JPanel(getCardLayout());
+        cardPanel = new JPanel(cardLayout);
         
         cardPanel.add(new JLabel("loading ...", Resource.getJarIcon("wait.png"), JLabel.CENTER), CARD_Edit);
         
-        getCardLayout().show(cardPanel, CARD_List);
+        cardLayout.show(cardPanel, CARD_List);
         return cardPanel;
     }
     public JPanel createListCardPanel() {
         JPanel pan = createTablePanel();
         return pan;
     }
-    public JPanel createEditCardPanel() {
+    public JPanel createEditOnePanel() {
+        return createEditOnePanel(null);
+    }
+    public JPanel createEditOnePanel(JTabbedPane tp) {
         JPanel pan = new JPanel(new BorderLayout());
-        JTabbedPane tp;
-        if (this.tabbedPane == null) tp = getTabbedPane();
-        else tp = createTabbedPane();
+        if (tp == null) {
+            if (this.tabbedPane == null) tp = getTabbedPane();
+            else tp = createTabbedPane();
+        }
+        pan.add(createEditPanel(tp, true), BorderLayout.CENTER);
+        pan.add(new OAScroller(createToolBar(ToolBarOptions.createOneToolBar())), BorderLayout.NORTH);
+        // cardPanel.add(getAppUserLoginsJfc().getCardPanel(), CARD_AppUserLogins); // this will be created when needed by showCardPanel(..)
+        return pan;
+    }
+    
+    public JPanel createEditCardPanel() {
+        return createEditCardPanel(null);
+    }
+    
+    public JPanel createEditCardPanel(JTabbedPane tp) {
+        JPanel pan = new JPanel(new BorderLayout());
+        if (tp == null) {
+            if (this.tabbedPane == null) tp = getTabbedPane();
+            else tp = createTabbedPane();
+        }
         pan.add(createEditPanel(tp, true), BorderLayout.CENTER);
         pan.add(new OAScroller(createToolBar(ToolBarOptions.createEditPanelToolBar())), BorderLayout.NORTH);
         // cardPanel.add(getAppUserLoginsJfc().getCardPanel(), CARD_AppUserLogins); // this will be created when needed by showCardPanel(..)
@@ -1290,13 +1369,15 @@ public class AppUserJfcBase implements OAModelJfcInterface {
     public JPanel createEditPanel(JTabbedPane tabbedPane, final boolean bUseCombinedDetail) {
         if (tabbedPane == null) {
             if (this.tabbedPane == null) tabbedPane = getTabbedPane();
-            else tabbedPane = createTabbedPane();;
+            else tabbedPane = createTabbedPane();
         }
+        else if (this.tabbedPane == null) this.tabbedPane = tabbedPane;
         GridBagConstraints gc = new GridBagConstraints();
         gc.insets = new Insets(2, 2, 2, 2);
         gc.anchor = gc.WEST;
         JPanel panel;
         JLabel lbl;
+        JToolBar toolBar;
         OALabel olbl;
         JButton cmd;
         JComponent comp;
@@ -1368,11 +1449,25 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         gc.fill = gc.NONE;
         gc.gridwidth = 1;
     
-        lbl = new JLabel("Super Admin:");
+        lbl = new JLabel("Admin:");
         gc.anchor = gc.WEST;
         panel.add(lbl, gc);
         gc.anchor = gc.NORTHWEST;
         chk = createAdminCheckBox();
+        if (getModel().getViewOnly()) chk.getController().setViewOnly(true);
+        chk.setLabel(lbl);
+        gc.gridwidth = gc.REMAINDER;
+        gc.fill = gc.HORIZONTAL;
+        comp = new OAResizePanel(chk, 95);
+        panel.add(comp, gc);
+        gc.fill = gc.NONE;
+        gc.gridwidth = 1;
+    
+        lbl = new JLabel("Super Admin:");
+        gc.anchor = gc.WEST;
+        panel.add(lbl, gc);
+        gc.anchor = gc.NORTHWEST;
+        chk = createSuperAdminCheckBox();
         if (getModel().getViewOnly()) chk.getController().setViewOnly(true);
         chk.setLabel(lbl);
         gc.gridwidth = gc.REMAINDER;
@@ -1414,12 +1509,12 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         gc.anchor = gc.WEST;
         panel.add(lbl, gc);
         gc.anchor = gc.NORTHWEST;
-        olbl = createDisplayNameLabel();
-        if (getModel().getViewOnly()) olbl.getController().setViewOnly(true);
-        olbl.setLabel(lbl);
+        txt = createDisplayNameTextField();
+        if (getModel().getViewOnly()) txt.getController().setViewOnly(true);
+        txt.setLabel(lbl);
         gc.gridwidth = gc.REMAINDER;
         gc.fill = gc.HORIZONTAL;
-        comp = new OAResizePanel(olbl, 95);
+        comp = new OAResizePanel(txt, 95);
         panel.add(comp, gc);
         gc.fill = gc.NONE;
         gc.gridwidth = 1;
@@ -1499,7 +1594,7 @@ public class AppUserJfcBase implements OAModelJfcInterface {
             }
         });
         if (getModel().getAppUserLoginsModel().getCreateUI()) {
-            if ((this.TAB_AppUserLogins = tabbedPane.getTabCount()) == 0) {;
+            if ((this.TAB_AppUserLogins = tabbedPane.getTabCount()) == 0) {
                 JPanel panThis;
                 if (bUseCombinedDetail) panThis = getAppUserLoginsJfc().createCombinedPanel();
                 else panThis = getAppUserLoginsJfc().createTablePanel();
@@ -1542,14 +1637,12 @@ public class AppUserJfcBase implements OAModelJfcInterface {
             return dlgEdit;
         }
         Window win = JfcDelegate.getWindow(comp);
-        final Hub<AppUser> hub = new Hub<AppUser>(AppUser.class);
-        hub.setSharedHub(AppUserJfcBase.this.getModel().getHub(), true);
+        if (win == null) win = OAJfcUtil.getMainWindow();
         dlgEdit = new JDialog(win, getModel().getDisplayName(), ModalityType.MODELESS) {
             @Override
             public void setVisible(boolean b) {
                 super.setVisible(b);
-                if (b) hub.setSharedHub(AppUserJfcBase.this.getModel().getHub(), true);
-                else hub.setSharedHub(null);
+                if (b) super.repaint();
             }
         };
         wrEditDialog = new WeakReference(dlgEdit);
@@ -1572,23 +1665,27 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         
         OAJfcUtil.pack(dlgEdit);
         Dimension dimMax;
-        dimMax = Toolkit.getDefaultToolkit().getScreenSize();
-        dimMax.width *= .80;
-        dimMax.height *= .80;
+        if (win != null) {
+            dimMax = win.getSize();
+        }
+        else {
+            dimMax = Toolkit.getDefaultToolkit().getScreenSize();
+        }
         Dimension dim = dlgEdit.getSize();
         dim.width *= 1.25;
         dim.height *= 1.25;
         dim.width = (int) Math.min(dim.width, dimMax.width);
         dim.height = (int) Math.min(dim.height, dimMax.height);
-        dim.width = (int) Math.max(dim.width, dimMax.width/3);
-        dim.height = (int) Math.max(dim.height, dimMax.height/3);
+        dimMax.width *= .75;
+        dimMax.height *= .75;
+        dim.width = (int) Math.max(dim.width, dimMax.width);
+        dim.height = (int) Math.max(dim.height, dimMax.height);
         dlgEdit.setSize(dim);
         
         if (win != null) dlgEdit.setLocationRelativeTo(win);
         return dlgEdit;
     }
     
-    // UI for Filters
     
     public OALabel createIdLabel() {
         OALabel lbl = new OALabel(getHub(), AppUser.P_Id, 5);
@@ -1597,9 +1694,9 @@ public class AppUserJfcBase implements OAModelJfcInterface {
     }
     
     public OATextField createLoginIdTextField() {
-        OATextField txt = new OATextField(getHub(), AppUser.P_LoginId, 12);
+        OATextField txt = new OATextField(getHub(), AppUser.P_LoginId, 14);
         txt.setMinimumColumns(0);
-        txt.setMaximumColumns(50);
+        txt.setMaximumColumns(35);
         // setup(txt);
         return txt;
     }
@@ -1607,28 +1704,42 @@ public class AppUserJfcBase implements OAModelJfcInterface {
     public OAPasswordField createPasswordPasswordField() {
         OAPasswordField ptxt = new OAPasswordField(getHub(), AppUser.P_Password, 12);
         ptxt.setMaximumColumns(50);
-        ptxt.setConversion('S');
         return ptxt;
     }
     
     public OACheckBox createAdminCheckBox() {
         OACheckBox chk = new OACheckBox(getHub(), AppUser.P_Admin);
         // chk.setText("Admin")
+        chk.setToolTipText("allows setting up new users");
+        return chk;
+    }
+    
+    public OACheckBox createSuperAdminCheckBox() {
+        OACheckBox chk = new OACheckBox(getHub(), AppUser.P_SuperAdmin);
+        // chk.setText("Super Admin")
+        chk.setToolTipText("gives user the permissions to change anything in the system.");
+        return chk;
+    }
+    
+    public OACheckBox createEditProcessedCheckBox() {
+        OACheckBox chk = new OACheckBox(getHub(), AppUser.P_EditProcessed);
+        // chk.setText("Edit Processed")
+        chk.setToolTipText("allows user to edit processed data");
         return chk;
     }
     
     public OATextField createFirstNameTextField() {
         OATextField txt = new OATextField(getHub(), AppUser.P_FirstName, 12);
         txt.setMinimumColumns(0);
-        txt.setMaximumColumns(50);
+        txt.setMaximumColumns(35);
         // setup(txt);
         return txt;
     }
     
     public OATextField createLastNameTextField() {
-        OATextField txt = new OATextField(getHub(), AppUser.P_LastName, 12);
+        OATextField txt = new OATextField(getHub(), AppUser.P_LastName, 22);
         txt.setMinimumColumns(0);
-        txt.setMaximumColumns(50);
+        txt.setMaximumColumns(55);
         // setup(txt);
         return txt;
     }
@@ -1641,16 +1752,10 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         return dcbo;
     }
     
-    public OACheckBox createEditProcessedCheckBox() {
-        OACheckBox chk = new OACheckBox(getHub(), AppUser.P_EditProcessed);
-        // chk.setText("Edit Processed")
-        return chk;
-    }
-    
     public OATextArea createNoteTextArea() {
         OATextArea txta = new OATextArea(getHub(), AppUser.P_Note, 2, 20);
-        txta.setWrapStyleWord(true);
         txta.setLineWrap(true);
+        txta.setWrapStyleWord(true);
         setup(txta);
         return txta;
     }
@@ -1659,16 +1764,22 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         return lbl;
     }
     
-    public OALabel createFullNameLabel() {
-        OALabel lbl = new OALabel(getHub(), AppUser.P_FullName, 23);
-        lbl.setMaximumColumns(50);
-        return lbl;
+    public OATextField createFullNameTextField() {
+        OATextField txt = new OATextField(getHub(), AppUser.P_FullName, 23);
+        txt.getController().getEnabledChangeListener().addAlwaysFalse();
+        OAJfcUtil.initializeCalcTextField(txt);
+        txt.setMinimumColumns(0);
+        txt.setMaximumColumns(50);
+        return txt;
     }
     
-    public OALabel createDisplayNameLabel() {
-        OALabel lbl = new OALabel(getHub(), AppUser.P_DisplayName, 28);
-        lbl.setMaximumColumns(50);
-        return lbl;
+    public OATextField createDisplayNameTextField() {
+        OATextField txt = new OATextField(getHub(), AppUser.P_DisplayName, 28);
+        txt.getController().getEnabledChangeListener().addAlwaysFalse();
+        OAJfcUtil.initializeCalcTextField(txt);
+        txt.setMinimumColumns(0);
+        txt.setMaximumColumns(50);
+        return txt;
     }
     
     protected void setup(JTextComponent txt) {
@@ -1699,10 +1810,14 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         return jfcAppUserLogins;
     }
     public AppUserLoginJfc createAppUserLoginsJfc() {
+        return createAppUserLoginsJfc(true);
+    }
+    public AppUserLoginJfc createAppUserLoginsJfc(final boolean bIsEmbedded) {
         jfcAppUserLogins = new AppUserLoginJfc(getModel().getAppUserLoginsModel()) {
             @Override
             public JPanel getCardPanel() {
                 if (cardPanel != null) return cardPanel;
+                if (!bIsEmbedded) return super.getCardPanel();
                 cardPanel = new JPanel(getCardLayout());
                 JPanel pan = new JPanel(new BorderLayout());
                 pan.add(createToolBar(ToolBarOptions.createEditPanelToolBar()), BorderLayout.NORTH);
@@ -1713,6 +1828,11 @@ public class AppUserJfcBase implements OAModelJfcInterface {
     
             @Override
             public void showCardPanel(String name) {
+                if (!bIsEmbedded) {
+                    super.showCardPanel(name);
+                    AppUserJfcBase.this.showCardPanel(name);
+                    return;
+                }
                 if (name.equals(AppUserLoginJfc.CARD_List)) {
                     AppUserJfcBase.this.showCardPanel(CARD_Edit);
                     if (AppUserJfcBase.this.TAB_AppUserLogins >= 0) {
@@ -1743,10 +1863,6 @@ public class AppUserJfcBase implements OAModelJfcInterface {
                 });
                 OAButton.setup(cmd);
                 return cmd;
-            }
-            @Override
-            protected void onNewAppUserLoginCreated() {
-                if (!bHasCombinedPanel) getEditDialog(AppUserJfcBase.this.getCardPanel()).setVisible(true);
             }
         };
         jfcAppUserLogins.setLevel(getLevel()+1);
@@ -1955,6 +2071,13 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         gc.gridwidth = gc.REMAINDER;
         gc.fill = gc.HORIZONTAL;
         pan.add(new OAResizePanel(ui.createComboBox(), 75), gc);
+        gc.gridwidth = 1;
+        gc.fill = gc.NONE;
+        pan.add(new JLabel("Table Combo: "), gc);
+        gc.gridwidth = gc.REMAINDER;
+        gc.fill = gc.HORIZONTAL;
+        pan.add(new OAResizePanel(ui.createTableComboBox(), 75), gc);
+        gc.gridwidth = 1;
         gc.fill = gc.NONE;
         pan.add(new JLabel("List: "), gc);
         gc.gridwidth = gc.REMAINDER;
@@ -1976,7 +2099,7 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         */
         frm.add(sp, BorderLayout.CENTER);
         
-        OAJfcUtil.pack(frm);;
+        OAJfcUtil.pack(frm);
         Dimension d = frm.getSize();
         Dimension dimScreen = Toolkit.getDefaultToolkit().getScreenSize();
         d.width = Math.min(d.width, dimScreen.width - 80);

@@ -32,9 +32,18 @@ public class AppServerPP {
         return s;
     }
 
+    public static String testOnly() {
+        String s = AppServer.P_TestOnly;
+        return s;
+    }
+
     public static String release() {
         String s = AppServer.P_Release;
         return s;
+    }
+
+    public static String pp() {
+        return ""; // this
     }
 }
  

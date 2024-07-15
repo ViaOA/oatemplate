@@ -1,3 +1,4 @@
+// Copied from OATemplate project by OABuilder 06/26/24 09:06 AM
 package com.template.control.server;
 
 import java.io.File;
@@ -144,7 +145,6 @@ public class DataSourceController {
         }
 
 		/*$$Start: DatasourceController.loadServerRoot $$*/
-        // this will be replaced 
         aiExecutor.incrementAndGet();
         executorService.submit(new Runnable() {
             @Override
@@ -158,14 +158,17 @@ public class DataSourceController {
                     if (serverRoot.getCreateOneAppServerHub().getAt(0) == null) {
                         // createOne=true
                         serverRoot.getCreateOneAppServerHub().add(new AppServer());
-                    } else {
+                    }
+                    else {
                         serverRoot.getCreateOneAppServerHub().cancelSelect();
                     }
-                } catch (Exception e) {
-                    String s = "DataSourceController error selecting AppServers, exception=" + e;
+                }
+                catch (Exception e) {
+                    String s = "DataSourceController error selecting CreateOneAppServerHub, exception="+e;
                     alSelectError.add(s);
                     LOG.log(Level.WARNING, s, e);
-                } finally {
+                }
+                finally {
                     aiExecutor.decrementAndGet();
                     alExecutorService.remove(msg);
                 }
@@ -180,19 +183,24 @@ public class DataSourceController {
                     alExecutorService.add(msg);
                     if (isUsingDatabase()) {
                         select(serverRoot.getAppUsers(), "", null);
-                        serverRoot.getAppUsers().loadAllData();
                     }
-                } catch (Exception e) {
-                    String s = "DataSourceController error selecting AppUsers, exception=" + e;
+                    else {
+                        OAObjectCacheDelegate.setSelectAllHub(serverRoot.getAppUsers());
+                    }
+                }
+                catch (Exception e) {
+                    String s = "DataSourceController error selecting AppUsers, exception="+e;
                     alSelectError.add(s);
                     LOG.log(Level.WARNING, s, e);
-                } finally {
+                }
+                finally {
                     aiExecutor.decrementAndGet();
                     alExecutorService.remove(msg);
                 }
             }
         });
-		/*$$End: DatasourceController.loadServerRoot $$*/
+
+/*$$End: DatasourceController.loadServerRoot $$*/
 
         int max = Resource.getInt(Resource.DB_MaxWaitForSelects, 300);
         for (int i = 0; i < max; i++) {

@@ -15,7 +15,6 @@ import javax.swing.border.*;
 import javax.swing.text.*;
 
 import com.viaoa.object.*;
-import com.viaoa.datasource.*;
 import com.viaoa.hub.*;
 import com.viaoa.jfc.*;
 import com.viaoa.jfc.OAButton.*;
@@ -24,6 +23,8 @@ import com.viaoa.image.*;
 import com.viaoa.jfc.text.*;
 import com.viaoa.jfc.table.*;
 import com.viaoa.util.*;
+import com.viaoa.datasource.*;
+
 import com.template.delegate.*;
 import com.template.delegate.oa.*;
 import com.template.model.*;
@@ -548,18 +549,27 @@ public class AppUserLoginSearchJfc {
         
         dialog.addWindowListener(new WindowAdapter() {
             @Override
+            public void windowActivated(WindowEvent e) {
+                AppUserLoginSearchJfc.this.bSelected = false;
+                onShowDialog();
+            }
+            @Override
             public void windowClosing(WindowEvent e) {
                 if (!AppUserLoginSearchJfc.this.bSelected) {
                     AppUserLoginSearchJfc.this.onCancel();
                 }
-            }
-            @Override
-            public void windowOpened(WindowEvent e) {
-                AppUserLoginSearchJfc.this.bSelected = false;
+                onHideDialog();
             }
         });
         return dialog;
     }
+    
+    protected void onShowDialog() {
+    }
+    
+    protected void onHideDialog() {
+    }
+    
     
     protected void onReset() {
         getHub().cancelSelect();
@@ -598,7 +608,12 @@ public class AppUserLoginSearchJfc {
         
         Component compFocus = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
         if (compFrom != null) compFrom.requestFocusInWindow();
-        final OAWaitDialog dlgWait = new OAWaitDialog(SwingUtilities.getWindowAncestor(compFrom));
+        final OAWaitDialog dlgWait = new OAWaitDialog(SwingUtilities.getWindowAncestor(compFrom)) {
+            @Override
+            protected void onCancel() {
+                getHub().cancelSelect();
+            }
+        };
         dlgWait.setStatus("Selecting AppUserLogins ... please wait ...");
         dlgWait.setTitle("AppUserLogin Search");
         
@@ -632,22 +647,37 @@ public class AppUserLoginSearchJfc {
         if (dlgWait.wasCancelled()) {
         }
         else if (getHub().getSize() == 0) {
-           String msg = "No AppUserLogins were found.";
-           JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(compFrom),
-                   msg, "AppUserLogin Search",
-                   JOptionPane.WARNING_MESSAGE
-           );
-           if (compFocus != null) compFocus.requestFocus();
+            String msg = "No AppUserLogins were found.";
+            try {
+                sw.get();
+            }
+            catch (Exception e) {
+                LOG.log(Level.WARNING, "Search error", e);
+                msg = "Search error: "+OAString.fmt(e.getMessage(), "45L");
+            }
+            JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(compFrom),
+                msg, "AppUserLogin Search",
+                JOptionPane.WARNING_MESSAGE
+            );
+            if (compFocus != null) compFocus.requestFocus();
         }
         else {
-           if (!bShowResults) {
-               onSelect(getHub());
-               getDialog().setVisible(false);
-           }
-           else {
-               if (!bMultiSelect && getHub().getSize() == 1) getHub().setPos(0);
-               if (compFrom != null) compFrom.requestFocusInWindow();
-           }
+            int max = getModel().getAppUserLoginSearch().getMaxResults();
+            if (max > 0 && getHub().getSize() == max) {
+                String msg = "Selected the first (max="+max+") App User Logins.";
+                JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(compFrom),
+                    msg, "AppUserLogin Search",
+                    JOptionPane.INFORMATION_MESSAGE
+                );
+            }
+            if (!bShowResults) {
+                onSelect(getHub());
+                getDialog().setVisible(false);
+            }
+            else {
+                if (!bMultiSelect && getHub().getSize() == 1) getHub().setPos(0);
+                if (compFrom != null) compFrom.requestFocusInWindow();
+            }
         }
     }
     
@@ -662,11 +692,11 @@ public class AppUserLoginSearchJfc {
         return appUserLoginSelected;
     }
     
-     private int level;
-     public int getLevel() {
-         return this.level;
-     }
-     public void setLevel(int level) {
-         this.level = level;
-     }
+    private int level;
+    public int getLevel() {
+        return this.level;
+    }
+    public void setLevel(int level) {
+        this.level = level;
+    }
 }

@@ -46,6 +46,10 @@ public class AppServerPPx implements PPxInterface, Serializable {
         return pp + "." + AppServer.P_DemoMode;
     }
 
+    public String testOnly() {
+        return pp + "." + AppServer.P_TestOnly;
+    }
+
     public String release() {
         return pp + "." + AppServer.P_Release;
     }

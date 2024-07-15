@@ -31,5 +31,11 @@ public class PP {
     public static AppUserLoginPPx appUserLogins() {
         return new AppUserLoginPPx("AppUserLogins");
     }
+    public static ImageStorePPx imageStore() {
+        return new ImageStorePPx("ImageStore");
+    }
+    public static ImageStorePPx imageStores() {
+        return new ImageStorePPx("ImageStores");
+    }
     /*$$End: PPInterface.code $$*/
 }

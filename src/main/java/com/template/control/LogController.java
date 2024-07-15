@@ -401,7 +401,9 @@ public class LogController {
 							}
 							if (bMatch) {
 								String msg = record.getMessage();
-								record.setMessage(msg += " - note: throttled");
+                                if (msg != null && !msg.contains("throttled")) {
+                                    record.setMessage(msg += " - note: throttled");
+                                }
 							}
 						}
 
@@ -452,7 +454,9 @@ public class LogController {
 							}
 							if (bMatch) {
 								String msg = record.getMessage();
-								record.setMessage(msg += " - note: throttled");
+                                if (msg != null && !msg.contains("throttled")) {
+                                    record.setMessage(msg += " - note: throttled");
+                                }
 							}
 						}
 

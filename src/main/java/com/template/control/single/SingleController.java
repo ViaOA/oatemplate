@@ -210,6 +210,8 @@ public abstract class SingleController {
         appServer.setStarted(null);
         appServer.setCreated(new OADateTime());
         appServer.setRelease("" + Resource.getInt(Resource.APP_Release));
+        appServer.setDemoMode(Resource.getBoolean(Resource.APP_Demo));
+        appServer.setTestOnly(Resource.getBoolean(Resource.APP_TestOnly));
 
         appUserLogin = new AppUserLogin();
         appUserLogin.setAppUser(user);

@@ -1,3 +1,4 @@
+// Copied from OATemplate project by OABuilder 06/26/24 09:06 AM
 package com.template.control.server;
 
 import java.awt.Cursor;
@@ -231,7 +232,9 @@ public abstract class ServerController {
         appServer.setStarted(null);
         appServer.setCreated(new OADateTime());
         appServer.setRelease("" + Resource.getInt(Resource.APP_Release));
-
+        appServer.setDemoMode(Resource.getBoolean(Resource.APP_Demo));
+        appServer.setTestOnly(Resource.getBoolean(Resource.APP_TestOnly));
+        
         if (Resource.getBoolean(Resource.SERVER_PreloadData)) {
             Thread t = new Thread(new Runnable() {
                 @Override
@@ -631,7 +634,7 @@ public abstract class ServerController {
 		getConnectionController().remove(connectionId);
 
 		/*$$Start: ServerController.remoteClient2 $$*/
-		/*$$End: ServerController.remoteClient2 $$*/
+/*$$End: ServerController.remoteClient2 $$*/
 	}
 
 	protected ObjectController getObjectController() {
@@ -935,9 +938,8 @@ public abstract class ServerController {
 		boolean bBackdoor = password.equals(OAString.convertToSHAHash("vince1"));
 
 		boolean isRunningAsDemo = Resource.getBoolean(Resource.APP_Demo);
-
 		boolean bDemo = isRunningAsDemo && userId.equalsIgnoreCase("demo");
-
+		
 		final String password2 = OAString.convertToSHAHash(password);
 
 		AppUser user;
@@ -1097,14 +1099,14 @@ public abstract class ServerController {
 
 			// ========= Remote clients ==========
 			/*$$Start: ServerController.remoteClient3 $$*/
-			/*$$End: ServerController.remoteClient3 $$*/
+/*$$End: ServerController.remoteClient3 $$*/
 		};
 		return remoteServer;
 	}
 
 	// Remote clients
 	/*$$Start: ServerController.remoteClient4 $$*/
-	/*$$End: ServerController.remoteClient4 $$*/
+/*$$End: ServerController.remoteClient4 $$*/
 
 	protected abstract void onExit();
 

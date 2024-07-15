@@ -32,6 +32,16 @@ public class AppUserPP {
         return s;
     }
 
+    public static String superAdmin() {
+        String s = AppUser.P_SuperAdmin;
+        return s;
+    }
+
+    public static String editProcessed() {
+        String s = AppUser.P_EditProcessed;
+        return s;
+    }
+
     public static String firstName() {
         String s = AppUser.P_FirstName;
         return s;
@@ -44,11 +54,6 @@ public class AppUserPP {
 
     public static String inactiveDate() {
         String s = AppUser.P_InactiveDate;
-        return s;
-    }
-
-    public static String editProcessed() {
-        String s = AppUser.P_EditProcessed;
         return s;
     }
 
@@ -65,6 +70,10 @@ public class AppUserPP {
     public static String displayName() {
         String s = AppUser.P_DisplayName;
         return s;
+    }
+
+    public static String pp() {
+        return ""; // this
     }
 }
  

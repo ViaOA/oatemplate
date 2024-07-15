@@ -20,13 +20,13 @@ public class ClientRoot extends OAObject {
 	public static final String PROPERTY_ConnectionInfo = "ConnectionInfo";
 	public static final String P_ConnectionInfo = "ConnectionInfo";
 	/*$$Start: ClientRoot1 $$*/
-	/*$$End: ClientRoot1 $$*/
+/*$$End: ClientRoot1 $$*/
 
 	protected int id;
 
 	// Hub
 	/*$$Start: ClientRoot2 $$*/
-	/*$$End: ClientRoot2 $$*/
+/*$$End: ClientRoot2 $$*/
 
 	@OAProperty(displayName = "Id")
 	@OAId
@@ -41,6 +41,6 @@ public class ClientRoot extends OAObject {
 	}
 
 	/*$$Start: ClientRoot3 $$*/
-	/*$$End: ClientRoot3 $$*/
+/*$$End: ClientRoot3 $$*/
 
 }

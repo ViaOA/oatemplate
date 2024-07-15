@@ -20,6 +20,7 @@ import javax.swing.event.*;
 import com.viaoa.object.*;
 import com.viaoa.hub.*;
 import com.viaoa.jfc.*;
+import com.viaoa.jfc.OAButton.*;
 import com.viaoa.jfc.border.*;
 import com.viaoa.jfc.control.*;
 import com.viaoa.jfc.table.*;
@@ -29,13 +30,12 @@ import com.viaoa.jfcapp.*;
 import com.viaoa.util.*;
 
 import com.template.model.*;
-import com.template.model.method.*;
 import com.template.model.search.*;
 import com.template.model.oa.AppUserError;
 import com.template.model.oa.*;
 import com.template.model.oa.propertypath.*;
-import com.template.model.oa.method.*;
 import com.template.model.oa.custom.*;
+import com.template.model.oa.filter.*;
 import com.template.delegate.*;
 import com.template.delegate.oa.*;
 import com.template.resource.Resource;
@@ -84,8 +84,8 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
     
     
     // focus components
-    protected OATextField txtDateTime;
-    protected OATextField tableTxtDateTime;
+    protected OADateTimeTextField dttxtDateTime;
+    protected OADateTimeTextField tableDtTxtDateTime;
     protected AppUserLoginJfc jfcAppUserLogin;
     
     public AppUserErrorJfcBase() {
@@ -205,7 +205,7 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         if (!getModel().getAllowAdd()) return null;
         OAMenuItem mi = new OAMenuItem(getHub(), OAButton.ADD_MANUAL) {
             @Override
-            public boolean onActionPerformed() {
+            public boolean onActionPerformed() throws Exception {
                 AppUserErrorJfcBase.this.onAdd();
                 return true;
             }
@@ -231,7 +231,7 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         mi.setMnemonic(KeyEvent.VK_N);
         mi.setText("Create a new "+getModel().getDisplayName());
         mi.setToolTipText("Create a new "+getModel().getDisplayName());
-        mi.setFocusComponent(txtDateTime);
+        mi.setFocusComponent(dttxtDateTime);
         return mi;
     }
     
@@ -251,7 +251,7 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         mi.setMnemonic(KeyEvent.VK_I);
         mi.setText("Insert a new "+getModel().getDisplayName());
         mi.setToolTipText("Insert a new "+getModel().getDisplayName());
-        mi.setFocusComponent(txtDateTime);
+        mi.setFocusComponent(dttxtDateTime);
         return mi;
     }
     
@@ -273,9 +273,6 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
     public OATreeNode getTreeNode() {
         if (node != null) return node;
         node = createTreeNode(null, null, true);
-        if (getModel().getAllowMultiSelect()) {
-            node.setSelectedHub(getModel().getMultiSelectHub());
-        }
         return node;
     }
     public OATreeNode createTreeNode(String leadingPropertyPath, Hub<AppUserError> hubRoot, boolean bIncludeChildren, OATreeNode ... parentNodes) {
@@ -286,6 +283,7 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
             @Override
             public void objectSelected(Object obj) {
                 super.objectSelected(obj);
+                AppUserErrorJfcBase.this.getCardPanel();
                 AppUserErrorJfcBase.this.onShowEditPanel();
             }
             @Override
@@ -315,6 +313,9 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         node.setMaxImageHeight(20);
         node.setMaxImageWidth(32);
         setLastTreeNode(node);
+        if (getModel().getAllowMultiSelect()) {
+            node.setSelectedHub(getModel().getMultiSelectHub());
+        }
     
         if (!bIncludeChildren) {
             return node;
@@ -476,6 +477,7 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         lbl.setFormat(null);
         lbl.setMaxImageHeight(20);
         lbl.setMaxImageWidth(32);
+        lbl.setVerticalAlignment(SwingConstants.TOP);
         return lbl;
     }
     // used for Label, ComboBox
@@ -571,16 +573,48 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         lst.setImageProperty(null);
         lst.setMaxImageHeight(20);
         lst.setMaxImageWidth(32);
-        lst.setConfirmMessage("Ok to remove "+getModel().getDisplayName());
         lst.setIconColorProperty(PP_IconColor);
         lst.setBackgroundColorProperty(null);
         lst.setDoubleClickButton(null);
-        // lst.setSelectionHub(getSelectClients());
+        if (model.getAllowMultiSelect()) {
+            lst.setSelectionHub(getModel().getMultiSelectHub());
+        }
         lst.setBorder(new EmptyBorder(3,3,1,1));
         
         return lst;
     }
     
+    public JPanel createGrowingList() {
+        OAList lst = createList();
+        lst.setVisibleRowCount(1);
+        lst.setBorder(new LineBorder(Color.gray, 1));
+        
+        JPanel pan = new JPanel(new BorderLayout());
+        pan.add(lst);
+        
+        JPanel panx = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+        
+        OAButton cmd = createGotoEditButton();
+        if (cmd != null) panx.add(cmd);
+        
+        cmd = createAddButton();
+        if (cmd != null) panx.add(cmd);
+        
+        cmd = createNewButton();
+        if (cmd != null) panx.add(cmd);
+        
+        cmd = createDeleteButton();
+        if (cmd != null) panx.add(cmd);
+        
+        cmd = createRemoveButton();
+        if (cmd != null) panx.add(cmd);
+        
+        cmd = createRefreshButton();
+        if (cmd != null) panx.add(cmd);
+        
+        pan.add(panx, BorderLayout.SOUTH);
+        return pan;
+    }
     // comboBoxTree
     public OATreeComboBox createSearchTreeComboBox() {
         OATreeComboBox cbo = new OATreeComboBox(createSearchTree(), getHub(), PP_Display);
@@ -613,9 +647,6 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         node.setFontProperty(AppUserErrorJfc.PP_Font);
         node.setMaxImageHeight(20);
         node.setMaxImageWidth(32);
-        if (getModel().getAllowMultiSelect()) {
-            node.setSelectedHub(getModel().getMultiSelectHub());
-        }
         tnode.add(node);
         return tree;
     }
@@ -725,12 +756,12 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
     
         mi = createTableNewMenuItem();
         if (mi != null) {
-            mi.setFocusComponent(tableTxtDateTime);
+            mi.setFocusComponent(tableDtTxtDateTime);
             pmenu.add(mi);
         }
         mi = createInsertMenuItem();
         if (mi != null) {
-            mi.setFocusComponent(tableTxtDateTime);
+            mi.setFocusComponent(tableDtTxtDateTime);
             pmenu.add(mi);
         }
     
@@ -759,7 +790,7 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         if (!getModel().getAllowGotoEdit()) return null;
         OAMenuItem mi = new OAMenuItem(getHub(), "Details ...", Resource.getJarIcon(Resource.IMG_Goto)) {
             @Override
-            public boolean onActionPerformed() {
+            public boolean onActionPerformed() throws Exception {
                 AppUserErrorJfcBase.this.getEditDialog(this).setVisible(true);
                 return true;
             }
@@ -773,7 +804,7 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         OAMenuItem mi = new OAMenuItem(getHub(), OAMenuItem.NEW);
         mi.setMnemonic(KeyEvent.VK_N);
         mi.setText("Create a new "+getModel().getDisplayName());
-        mi.setFocusComponent(tableTxtDateTime);
+        mi.setFocusComponent(tableDtTxtDateTime);
         return mi;
     }
     
@@ -832,16 +863,15 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
     public void createTableColumns(OATable table) {
         OALabel lbl;
         OATableColumn tc;
-        tableTxtDateTime = createDateTimeTextField();
-        tc = table.addColumn("Date TIme", 15, tableTxtDateTime);
-        if (getModel().getAllowTableFilter()) {
-            tc.setFilterComponent(new OATextFieldFilter(AppUserError.P_DateTime));
-        }
-        lbl = new OALabel(getHub(), AppUserErrorPP.appUserLogin().appUser().displayName(), 28);
-        lbl.setToolTipText("App User Display Name");
-        tc = table.addColumn("User", 22, lbl);
-        if (getModel().getAllowTableFilter()) {
-            tc.setFilterComponent(new OATextFieldFilter(AppUserErrorPP.appUserLogin().appUser().displayName()));
+        tableDtTxtDateTime = createDateTimeDateTimeTextField();
+        tc = table.addColumn("Date TIme", 15, tableDtTxtDateTime);
+        if (getModel().getAppUserLoginModel().getCreateUI()) {
+            lbl = new OALabel(getHub(), AppUserErrorPP.appUserLogin().appUser().displayName(), 28);
+            lbl.setToolTipText("App User Display Name");
+            tc = table.addColumn("User", 22, lbl);
+            if (getModel().getAllowTableFilter()) {
+                tc.setFilterComponent(new OATextFieldFilter(AppUserErrorPP.appUserLogin().appUser().displayName()));
+            }
         }
         tc = table.addColumn("Message", 25, createMessageTextField());
         if (getModel().getAllowTableFilter()) {
@@ -896,9 +926,6 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         OATableColumn tc;
         lbl = new OALabel(getHub(), AppUserError.P_DateTime, 15);
         tc = table.addColumn("Date TIme", 15, lbl);
-        if (getModel().getAllowTableFilter()) {
-            tc.setFilterComponent(new OATextFieldFilter(AppUserError.P_DateTime));
-        }
         lbl = new OALabel(getHub(), AppUserErrorPP.appUserLogin().appUser().displayName(), 28);
         lbl.setToolTipText("App User Display Name");
         tc = table.addColumn("User", 22, lbl);
@@ -932,7 +959,7 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         if (!getModel().getAllowAdd()) return null;
         OAButton cmd = new OAButton(getHub(), OAButton.ADD_MANUAL) {
             @Override
-            public boolean onActionPerformed() {
+            public boolean onActionPerformed() throws Exception {
                 AppUserErrorJfcBase.this.onAdd();
                 return true;
             }
@@ -1002,6 +1029,16 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         cmd.setUseSwingWorker(true);
         cmd.setProcessingText("Processing ...", "Please wait while deleting "+getModel().getDisplayName());
         cmd.setToolTipText("Delete "+getModel().getDisplayName());
+        return cmd;
+    }
+    
+    public OAButton createRefreshButton() {
+        if (!getModel().getAllowRefresh()) return null;
+        OAButton cmd = new OAButton(getHub(), OAButton.REFRESH);
+        cmd.getController().setViewOnly(getModel().getViewOnly());
+        cmd.setText("Refresh");
+        cmd.setup();
+        cmd.setToolTipText("Refresh "+getModel().getDisplayName()+" from DataSource");
         return cmd;
     }
     
@@ -1079,17 +1116,19 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
             
             cmd = createNewButton();
             if (cmd != null) {
-                cmd.setFocusComponent(tableTxtDateTime);
+                cmd.setFocusComponent(tableDtTxtDateTime);
                 toolBar.add(cmd);
             }
             cmd = createInsertButton();
             if (cmd != null) {
-                cmd.setFocusComponent(tableTxtDateTime);
+                cmd.setFocusComponent(tableDtTxtDateTime);
                 toolBar.add(cmd);
             }
             cmd = createRemoveButton();
             if (cmd != null) toolBar.add(cmd);
             cmd = createDeleteButton();
+            if (cmd != null) toolBar.add(cmd);
+            cmd = createRefreshButton();
             if (cmd != null) toolBar.add(cmd);
             toolBar.add(Box.createHorizontalStrut(10));
         }
@@ -1158,7 +1197,12 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
     }
     
     public OAButton createSearchButton() {
-        if (!getModel().getAllowSearch()) return null;
+        return createSearchButton(false);
+    }
+    
+    public OAButton createSearchButton(boolean bForSuperUser) {
+        boolean bAllow = getModel().getAllowSearch();
+        if (!bAllow && !bForSuperUser) return null;
         OAButton cmd = new OAButton(getHub(), getModel().getDisplayName() + " search ...", Resource.getJarIcon("search.gif"), OAButton.SEARCH) {
             @Override
             public Object getSearchObject() {
@@ -1175,6 +1219,9 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
                 onShowEditPanel();
             }
         };
+        if (!bAllow) {
+            cmd.getController().getVisibleChangeListener().addOnlySuperAdmin(getHub());
+        }
         return cmd;
     }
     
@@ -1240,18 +1287,32 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
                 super.show(parent, name);
             }
         };
-        cardPanel = new JPanel(getCardLayout());
+        cardPanel = new JPanel(cardLayout);
         
         cardPanel.add(new JLabel("loading ...", Resource.getJarIcon("wait.png"), JLabel.CENTER), CARD_Edit);
         
-        getCardLayout().show(cardPanel, CARD_List);
+        cardLayout.show(cardPanel, CARD_List);
         return cardPanel;
     }
     public JPanel createListCardPanel() {
         JPanel pan = createTablePanel();
         return pan;
     }
+    public JPanel createEditOnePanel() {
+        return createEditOnePanel(null);
+    }
+    public JPanel createEditOnePanel(JTabbedPane tp) {
+        JPanel pan = new JPanel(new BorderLayout());
+        pan.add(new JScrollPane(createEditPanel(true)), BorderLayout.CENTER);
+        pan.add(new OAScroller(createToolBar(ToolBarOptions.createOneToolBar())), BorderLayout.NORTH);
+        return pan;
+    }
+    
     public JPanel createEditCardPanel() {
+        return createEditCardPanel(null);
+    }
+    
+    public JPanel createEditCardPanel(JTabbedPane tp) {
         JPanel pan = new JPanel(new BorderLayout());
         pan.add(new JScrollPane(createEditPanel(true)), BorderLayout.CENTER);
         pan.add(new OAScroller(createToolBar(ToolBarOptions.createEditPanelToolBar())), BorderLayout.NORTH);
@@ -1274,10 +1335,12 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         gc.anchor = gc.WEST;
         JPanel panel;
         JLabel lbl;
+        JToolBar toolBar;
         OALabel olbl;
         JButton cmd;
         JComponent comp;
         OAJfcController jfcController;
+        OADateTimeTextField dttxt;
         OATextField txt;
         OATextArea txta;
         OADateComboBox dcbo;
@@ -1306,13 +1369,13 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         gc.anchor = gc.WEST;
         panel.add(lbl, gc);
         gc.anchor = gc.NORTHWEST;
-        txt = createDateTimeTextField();
-        if (getModel().getViewOnly()) txt.getController().setViewOnly(true);
-        txt.setLabel(lbl);
-        txtDateTime = txt;
+        dttxt = createDateTimeDateTimeTextField();
+        if (getModel().getViewOnly()) dttxt.getController().setViewOnly(true);
+        dttxt.setLabel(lbl);
+        dttxtDateTime = dttxt;
         gc.gridwidth = gc.REMAINDER;
         gc.fill = gc.HORIZONTAL;
-        comp = new OAResizePanel(txt, 95);
+        comp = new OAResizePanel(dttxt, 95);
         panel.add(comp, gc);
         gc.fill = gc.NONE;
         gc.gridwidth = 1;
@@ -1405,14 +1468,12 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
             if (dlgEdit != null) return dlgEdit;
         }
         Window win = JfcDelegate.getWindow(comp);
-        final Hub<AppUserError> hub = new Hub<AppUserError>(AppUserError.class);
-        hub.setSharedHub(AppUserErrorJfcBase.this.getModel().getHub(), true);
+        if (win == null) win = OAJfcUtil.getMainWindow();
         dlgEdit = new JDialog(win, getModel().getDisplayName(), ModalityType.MODELESS) {
             @Override
             public void setVisible(boolean b) {
                 super.setVisible(b);
-                if (b) hub.setSharedHub(AppUserErrorJfcBase.this.getModel().getHub(), true);
-                else hub.setSharedHub(null);
+                if (b) super.repaint();
             }
         };
         wrEditDialog = new WeakReference(dlgEdit);
@@ -1435,23 +1496,27 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         
         OAJfcUtil.pack(dlgEdit);
         Dimension dimMax;
-        dimMax = Toolkit.getDefaultToolkit().getScreenSize();
-        dimMax.width *= .80;
-        dimMax.height *= .80;
+        if (win != null) {
+            dimMax = win.getSize();
+        }
+        else {
+            dimMax = Toolkit.getDefaultToolkit().getScreenSize();
+        }
         Dimension dim = dlgEdit.getSize();
         dim.width *= 1.25;
         dim.height *= 1.25;
         dim.width = (int) Math.min(dim.width, dimMax.width);
         dim.height = (int) Math.min(dim.height, dimMax.height);
-        dim.width = (int) Math.max(dim.width, dimMax.width/3);
-        dim.height = (int) Math.max(dim.height, dimMax.height/3);
+        dimMax.width *= .75;
+        dimMax.height *= .75;
+        dim.width = (int) Math.max(dim.width, dimMax.width);
+        dim.height = (int) Math.max(dim.height, dimMax.height);
         dlgEdit.setSize(dim);
         
         if (win != null) dlgEdit.setLocationRelativeTo(win);
         return dlgEdit;
     }
     
-    // UI for Filters
     
     public OALabel createIdLabel() {
         OALabel lbl = new OALabel(getHub(), AppUserError.P_Id, 5);
@@ -1459,12 +1524,12 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         return lbl;
     }
     
-    public OATextField createDateTimeTextField() {
-        OATextField txt = new OATextField(getHub(), AppUserError.P_DateTime, 15);
-        txt.setMinimumColumns(0);
-        txt.setMaximumColumns(22);
-        // setup(txt);
-        return txt;
+    public OADateTimeTextField createDateTimeDateTimeTextField() {
+        OADateTimeTextField dttxt = new OADateTimeTextField(getHub(), AppUserError.P_DateTime, 15);
+        dttxt.setMinimumColumns(0);
+        dttxt.setMaximumColumns(22);
+        // setup(dttxt);
+        return dttxt;
     }
     
     public OATextField createMessageTextField() {
@@ -1477,8 +1542,8 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
     
     public OATextArea createStackTraceTextArea() {
         OATextArea txta = new OATextArea(getHub(), AppUserError.P_StackTrace, 2, 40);
-        txta.setWrapStyleWord(true);
         txta.setLineWrap(true);
+        txta.setWrapStyleWord(true);
         setup(txta);
         return txta;
     }
@@ -1736,6 +1801,13 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         gc.gridwidth = gc.REMAINDER;
         gc.fill = gc.HORIZONTAL;
         pan.add(new OAResizePanel(ui.createComboBox(), 75), gc);
+        gc.gridwidth = 1;
+        gc.fill = gc.NONE;
+        pan.add(new JLabel("Table Combo: "), gc);
+        gc.gridwidth = gc.REMAINDER;
+        gc.fill = gc.HORIZONTAL;
+        pan.add(new OAResizePanel(ui.createTableComboBox(), 75), gc);
+        gc.gridwidth = 1;
         gc.fill = gc.NONE;
         pan.add(new JLabel("List: "), gc);
         gc.gridwidth = gc.REMAINDER;
@@ -1757,7 +1829,7 @@ public class AppUserErrorJfcBase implements OAModelJfcInterface {
         */
         frm.add(sp, BorderLayout.CENTER);
         
-        OAJfcUtil.pack(frm);;
+        OAJfcUtil.pack(frm);
         Dimension d = frm.getSize();
         Dimension dimScreen = Toolkit.getDefaultToolkit().getScreenSize();
         d.width = Math.min(d.width, dimScreen.width - 80);

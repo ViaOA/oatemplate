@@ -91,6 +91,7 @@ public class Resource {
 	public static final String APP_ShortName = "ShortName";
 	public static final String APP_Version = "Version";
 	public static final String APP_Demo = "Demo";
+    public static final String APP_TestOnly = "TestOnly";
 	public static final String APP_DataVersion = "DataVersion";
 	public static final String APP_Release = "Release";
 	public static final String APP_ReleaseDate = "ReleaseDate";

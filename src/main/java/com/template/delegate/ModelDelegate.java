@@ -26,27 +26,28 @@ public class ModelDelegate {
 	private static final Hub<AppUser> hubLocalAppUser = new Hub<AppUser>(AppUser.class);
 
 	/*$$Start: ModelDelegate1 $$*/
-	// lookups, preselects
-	private static final Hub<AppServer> hubCreateOneAppServer = new Hub<AppServer>(AppServer.class);
-	private static final Hub<AppUser> hubAppUsers = new Hub<AppUser>(AppUser.class);
-	// filters
-	// UI containers
-	private static final Hub<AppUserLogin> hubAppUserLogins = new Hub<AppUserLogin>(AppUserLogin.class);
-	private static final Hub<AppUserError> hubAppUserErrors = new Hub<AppUserError>(AppUserError.class);
-	/*$$End: ModelDelegate1 $$*/
+    // lookups, preselects
+    private static final Hub<AppUser> hubAppUsers = new Hub<AppUser>(AppUser.class);
+    // autoCreateOne
+    private static final Hub<AppServer> hubCreateOneAppServer = new Hub<AppServer>(AppServer.class);
+    // UI containers
+    private static final Hub<AppUserLogin> hubAppUserLogins = new Hub<AppUserLogin>(AppUserLogin.class);
+    private static final Hub<AppUserError> hubAppUserErrors = new Hub<AppUserError>(AppUserError.class);
+/*$$End: ModelDelegate1 $$*/
 
 	public static void initialize(ServerRoot rootServer, ClientRoot rootClient) {
 		LOG.fine("selecting data");
 
 		/*$$Start: ModelDelegate2 $$*/
-		// lookups, preselects
-		setSharedHub(getCreateOneAppServerHub(), rootServer.getCreateOneAppServerHub());
-		setSharedHub(getAppUsers(), rootServer.getAppUsers());
-		// filters
-		// UI containers
-		getAppUserLogins().setSharedHub(rootServer.getAppUserLogins());
-		getAppUserErrors().setSharedHub(rootServer.getAppUserErrors());
-		/*$$End: ModelDelegate2 $$*/
+        // lookups, preselects
+        setSharedHub(getAppUsers(), rootServer.getAppUsers());
+        // autoCreateOne
+        setSharedHub(getCreateOneAppServerHub(), rootServer.getCreateOneAppServerHub());
+        // filters
+        // UI containers
+        getAppUserLogins().setSharedHub(rootServer.getAppUserLogins());
+        getAppUserErrors().setSharedHub(rootServer.getAppUserErrors());
+/*$$End: ModelDelegate2 $$*/
 
 		for (int i = 0; i < 120; i++) {
 			if (aiExecutor.get() == 0) {
@@ -98,26 +99,23 @@ public class ModelDelegate {
 	}
 
 	/*$$Start: ModelDelegate3 $$*/
-	public static Hub<AppServer> getCreateOneAppServerHub() {
-		return hubCreateOneAppServer;
-	}
-
-	public static AppServer getAppServer() {
-		return getCreateOneAppServerHub().getAt(0);
-	}
-
-	public static Hub<AppUser> getAppUsers() {
-		return hubAppUsers;
-	}
-
-	public static Hub<AppUserLogin> getAppUserLogins() {
-		return hubAppUserLogins;
-	}
-
-	public static Hub<AppUserError> getAppUserErrors() {
-		return hubAppUserErrors;
-	}
-	/*$$End: ModelDelegate3 $$*/
+    public static Hub<AppUser> getAppUsers() {
+        return hubAppUsers;
+    }
+    // autoCreateOne
+    public static Hub<AppServer> getCreateOneAppServerHub() {
+        return hubCreateOneAppServer;
+    }
+    public static AppServer getAppServer() {
+        return hubCreateOneAppServer.getAt(0);
+    }
+    public static Hub<AppUserLogin> getAppUserLogins() {
+        return hubAppUserLogins;
+    }
+    public static Hub<AppUserError> getAppUserErrors() {
+        return hubAppUserErrors;
+    }
+/*$$End: ModelDelegate3 $$*/
 
 	// thread pool for initialize
 	private static ThreadPoolExecutor executorService;

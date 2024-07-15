@@ -1,3 +1,4 @@
+// Copied from OATemplate project by OABuilder 06/26/24 09:06 AM
 package com.template.control.client;
 
 import java.awt.Cursor;
@@ -44,6 +45,7 @@ import com.template.model.oa.AppUserLogin;
 import com.template.resource.Resource;
 import com.template.view.client.ClientFrame;
 /*$$Start: ClientFrameController.customize0 $$*/
+import com.template.view.client.panel.application.ApplicationPanel;
 /*$$End: ClientFrameController.customize0 $$*/
 import com.template.view.client.panel.application.ApplicationPanel;
 import com.viaoa.jfc.OAJfcUtil;
@@ -640,9 +642,9 @@ public abstract class ClientFrameController {
 
 	protected void customize() {
 		/*$$Start: ClientFrameController.customize1 $$*/
-		ApplicationPanel panApplication = new ApplicationPanel();
-		frm.addPanel(panApplication.getMainComponent(), "ApplicationPanel", panApplication.getMenuItem(), panApplication.getToggleButton());
-		/*$$End: ClientFrameController.customize1 $$*/
+        ApplicationPanel panApplication = new ApplicationPanel();
+        frm.addPanel(panApplication.getMainComponent(), "ApplicationPanel", panApplication.getMenuItem(), panApplication.getToggleButton());
+/*$$End: ClientFrameController.customize1 $$*/
 	}
 
 	/**
