@@ -63,6 +63,26 @@ Images for JFC application
 
 
 
+================= Add application to OAAppStore =================
+
+This is to use any OA Application from OAAppStore
+
+see: OAAppStore-Installer, for the App Store Windows (uses jpackage) installer.  
+
+    create jar files
+    maven clean install
+
+    copy [project]-0.0.1.jar to OAAppStore-Run/jarstore/[project url]
+
+    if there are new oa-* jar files, then copy them to OAAppStore-Run/jarstore/com/viaoa
+     
+    update OAAppStore-Run/appstore/[project url]/version.ini
+        update version, release and the files to download
+        release needs to match the value from file values.properties "release" property
+
+
+
+
 
 
 
