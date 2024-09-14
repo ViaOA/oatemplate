@@ -30,22 +30,16 @@ import com.template.delegate.JfcDelegate;
 import com.template.resource.Resource;
 import com.viaoa.hub.Hub;
 import com.viaoa.hub.HubChangeListener;
-import com.viaoa.hub.HubEvent;
-import com.viaoa.hub.HubListenerAdapter;
 import com.viaoa.jfc.OAButton;
-import com.viaoa.jfc.OAComboBox;
 import com.viaoa.jfc.OAScroller;
 import com.viaoa.jfc.control.OAJfcController;
 import com.viaoa.jfc.editor.html.OAHTMLTextPane;
 import com.viaoa.jfc.editor.html.control.OAHTMLTextPaneController;
 import com.viaoa.jfc.editor.html.view.HtmlDebug;
 import com.viaoa.jfc.print.PrintController;
-import com.viaoa.jfc.report.OAHTMLConverter;
 import com.viaoa.jfc.report.OAHTMLReport;
 import com.viaoa.object.OAObject;
-import com.viaoa.util.OAFile;
-import com.viaoa.util.OAProperties;
-import com.viaoa.util.OAString;
+import com.viaoa.util.*;
 
 public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
     private static Logger LOG = Logger.getLogger(ApplicationReport.class.getName());;
@@ -68,6 +62,17 @@ public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
     private OAJfcController jfcController;
     
     private Hub<F> hubOriginal;
+
+    private OAHTMLTextPane htmlTextPane;
+    
+    public ApplicationReport(OAHTMLTextPane html, final Hub<F> hub, String name) {
+        this.htmlTextPane = html;
+        this.hubOriginal = hub;
+        Hub hubx = hub.createSharedHub();
+        super.setHub(hubx);
+        this.name = name;
+        init();
+    }
     
     public ApplicationReport(final Hub<F> hub, String name, boolean bAutoRefresh) {
         this.hubOriginal = hub;
@@ -112,11 +117,13 @@ public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
     
     
     protected void init() {
-        OAHTMLTextPane html = new OAHTMLTextPane();
-        html.setSpellChecker(Resource.getSpellChecker());
-        html.setPreferredSize(10, 4);
+        OAHTMLTextPane html = htmlTextPane;
+        if (html == null) {
+            html = new OAHTMLTextPane();
+            html.setSpellChecker(Resource.getSpellChecker());
+            html.setPreferredSize(10, 4);
+        }
         
-        // qqqq        
         // html.setEditable(false);
         
         // html.setImageLoader(getClass(), "/com/cdi/report");
@@ -151,7 +158,7 @@ public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
             titleHeader = OAFile.readTextFile(this.getClass(), "/com/template/report/html/titleHeader.html", 1024);
             header = OAFile.readTextFile(this.getClass(), "/com/template/report/html/header.html", 1024);
             footer = OAFile.readTextFile(this.getClass(), "/com/template/report/html/footer.html", 1024);
-            detail = OAFile.readTextFile(this.getClass(), "/com/template/report/html/oa/"+name+".html", 1024 * 3);
+            if (OAStr.isNotEmpty(name)) detail = OAFile.readTextFile(this.getClass(), "/com/template/report/html/oa/"+name+".html", 1024 * 3);
         }
         catch (Exception e) {
             LOG.log(Level.WARNING, "error while reading html files", e);
@@ -210,11 +217,11 @@ public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
         panHtml = new JPanel(new BorderLayout());
         panHtml.add(new OAScroller(getToolBar()), BorderLayout.NORTH);
         
-        HtmlDebug x = new HtmlDebug(getDetailTextPane());
+        HtmlDebug hd = new HtmlDebug(getDetailTextPane());
 
         if (debug) {
             JScrollPane spx = new JScrollPane(getDetailTextPane());    
-            JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, x.getPanel(), spx);
+            JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, hd.getPanel(), spx);
             sp.setOneTouchExpandable(true);
             sp.setDividerSize(12);
             

@@ -3,20 +3,28 @@
       <BASE HREF='classpath://com.template.report.html'>
       <link rel="stylesheet" href="main.css" type="text/css">
   </head>
+  
   <body style="font-family:Arial; font-size:10pt">
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <table class="form" style="width:100%">
+      
       <tr>
         <td>
-          <b><u>www.template.com</u></b>
+          <img src="classpath://com.template.report.html/logo.jpg">
         </td>
-        <td style="width:100%">
-            <center><nobr><b style="font-size: 11pt"><%=$HEADING%></b></nobr></center>
+        <td style="padding-left: 12px;">
+          <br>
+          OATemplate<br>
         </td>
-        <td>
+        
+        <td style="text-align:center; width:100%">
+          <nobr><b style="font-size: 14.5pt"><%=$HEADING%></b></nobr>
+        </td>
+        <td style="text-align:right">
+            <b><%=$DATE%></b>
         </td>
       </tr>
+      
     </table>
     <hr>
   </body>
 </html>
-
