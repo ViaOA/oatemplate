@@ -13,10 +13,10 @@ import com.viaoa.datasource.*;
 import com.viaoa.filter.*;
 
 @OAClass(useDataSource=false, localOnly=true)
-public class AppUserLoginSearch extends OAObject {
+public class ReportSearch extends OAObject {
     private static final long serialVersionUID = 1L;
 
-    private static Logger LOG = Logger.getLogger(AppUserLoginSearch.class.getName());
+    private static Logger LOG = Logger.getLogger(ReportSearch.class.getName());
 
     public static final String P_CustomQuery = "CustomQuery";
     public static final String P_MaxResults = "MaxResults";
@@ -56,24 +56,24 @@ public class AppUserLoginSearch extends OAObject {
 
     protected String extraWhere;
     protected Object[] extraWhereParams;
-    protected OAFilter<AppUserLogin> filterExtraWhere;
+    protected OAFilter<Report> filterExtraWhere;
 
     public void setExtraWhere(String s, Object ... args) {
         this.extraWhere = s;
         this.extraWhereParams = args;
         if (OAString.isNotEmpty(s) && getExtraWhereFilter() == null) {
-            OAFilter<AppUserLogin> f = new OAQueryFilter<AppUserLogin>(AppUserLogin.class, s, args);
+            OAFilter<Report> f = new OAQueryFilter<Report>(Report.class, s, args);
             setExtraWhereFilter(f);
         }
     }
-    public void setExtraWhereFilter(OAFilter<AppUserLogin> filter) {
+    public void setExtraWhereFilter(OAFilter<Report> filter) {
         this.filterExtraWhere = filter;
     }
-    public OAFilter<AppUserLogin> getExtraWhereFilter() {
+    public OAFilter<Report> getExtraWhereFilter() {
         return this.filterExtraWhere;
     }
 
-    public OASelect<AppUserLogin> getSelect() {
+    public OASelect<Report> getSelect() {
         final String prefix = "";
         String sql = "";
         String sortOrder = null;
@@ -89,7 +89,7 @@ public class AppUserLoginSearch extends OAObject {
             args = OAArray.add(Object.class, args, extraWhereParams);
         }
 
-        OASelect<AppUserLogin> select = new OASelect<AppUserLogin>(AppUserLogin.class, sql, args, sortOrder);
+        OASelect<Report> select = new OASelect<Report>(Report.class, sql, args, sortOrder);
         if (getExtraWhereFilter() != null && getExtraWhereFilter().updateSelect(select)) {
             select.setFilter(new OAAndFilter(this.getCustomFilter(), getExtraWhereFilter()));
         }
@@ -110,35 +110,35 @@ public class AppUserLoginSearch extends OAObject {
         select.add(sql, args);
     }
 
-    private OAFilter<AppUserLogin> filterDataSourceFilter;
-    public OAFilter<AppUserLogin> getDataSourceFilter() {
+    private OAFilter<Report> filterDataSourceFilter;
+    public OAFilter<Report> getDataSourceFilter() {
         if (filterDataSourceFilter != null) return filterDataSourceFilter;
-        filterDataSourceFilter = new OAFilter<AppUserLogin>() {
+        filterDataSourceFilter = new OAFilter<Report>() {
             @Override
-            public boolean isUsed(AppUserLogin appUserLogin) {
-                return AppUserLoginSearch.this.isUsedForDataSourceFilter(appUserLogin);
+            public boolean isUsed(Report report) {
+                return ReportSearch.this.isUsedForDataSourceFilter(report);
             }
         };
         return filterDataSourceFilter;
     }
     
-    private OAFilter<AppUserLogin> filterCustomFilter;
-    public OAFilter<AppUserLogin> getCustomFilter() {
+    private OAFilter<Report> filterCustomFilter;
+    public OAFilter<Report> getCustomFilter() {
         if (filterCustomFilter != null) return filterCustomFilter;
-        filterCustomFilter = new OAFilter<AppUserLogin>() {
+        filterCustomFilter = new OAFilter<Report>() {
             @Override
-            public boolean isUsed(AppUserLogin appUserLogin) {
-                boolean b = AppUserLoginSearch.this.isUsedForCustomFilter(appUserLogin);
+            public boolean isUsed(Report report) {
+                boolean b = ReportSearch.this.isUsedForCustomFilter(report);
                 return b;
             }
         };
         return filterCustomFilter;
     }
     
-    public boolean isUsedForDataSourceFilter(AppUserLogin searchAppUserLogin) {
+    public boolean isUsedForDataSourceFilter(Report searchReport) {
         return true;
     }
-    public boolean isUsedForCustomFilter(AppUserLogin searchAppUserLogin) {
+    public boolean isUsedForCustomFilter(Report searchReport) {
         return true;
     }
 }

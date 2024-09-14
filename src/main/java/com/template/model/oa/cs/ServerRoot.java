@@ -7,6 +7,7 @@ import com.viaoa.annotation.*;
 import com.viaoa.hub.*;
 import com.viaoa.object.*;
 import com.viaoa.util.*;
+import com.template.model.oa.ReportClass;
 import com.template.model.oa.*;
 import com.template.model.oa.propertypath.*;
 
@@ -26,6 +27,7 @@ public class ServerRoot extends OAObject {
     // lookups, preselects
     public static final String P_AppServers = "AppServers";
     public static final String P_AppUsers = "AppUsers";
+    public static final String P_ReportClasses = "ReportClasses";
     // autoCreateOne
     public static final String P_CreateOneAppServerHub = "CreateOneAppServerHub";
     // filters
@@ -39,6 +41,7 @@ public class ServerRoot extends OAObject {
     // lookups, preselects
     protected transient Hub<AppServer> hubAppServers;
     protected transient Hub<AppUser> hubAppUsers;
+    protected transient Hub<ReportClass> hubReportClasses;
     // autoCreateOne
     protected transient Hub<AppServer> hubCreateOneAppServer;
     // filters
@@ -78,6 +81,13 @@ public class ServerRoot extends OAObject {
             hubAppUsers = (Hub<AppUser>) super.getHub(P_AppUsers);
         }
         return hubAppUsers;
+    }
+    @OAMany(toClass = ReportClass.class, cascadeSave = true)
+    public Hub<ReportClass> getReportClasses() {
+        if (hubReportClasses == null) {
+            hubReportClasses = (Hub<ReportClass>) super.getHub(P_ReportClasses);
+        }
+        return hubReportClasses;
     }
     // autoCreatedOne
     @OAMany(toClass = AppServer.class, cascadeSave = true)

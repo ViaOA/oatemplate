@@ -7,6 +7,7 @@ public class AppUserLoginPP {
     private static AppServerPPx appServers;
     private static AppUserPPx appUser;
     private static AppUserErrorPPx appUserErrors;
+    private static ReportPPx reports;
      
 
     public static AppServerPPx appServers() {
@@ -22,6 +23,11 @@ public class AppUserLoginPP {
     public static AppUserErrorPPx appUserErrors() {
         if (appUserErrors == null) appUserErrors = new AppUserErrorPPx(AppUserLogin.P_AppUserErrors);
         return appUserErrors;
+    }
+
+    public static ReportPPx reports() {
+        if (reports == null) reports = new ReportPPx(AppUserLogin.P_Reports);
+        return reports;
     }
 
     public static String id() {

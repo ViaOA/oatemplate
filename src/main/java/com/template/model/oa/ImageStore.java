@@ -51,7 +51,7 @@ public class ImageStore extends OAObject {
         setId(id);
     }
 
-    @OAProperty(isUnique = true, trackPrimitiveNull = false, displayLength = 6)
+    @OAProperty(lowerName = "id", isUnique = true, trackPrimitiveNull = false, displayLength = 6)
     @OAId
     @OAColumn(name = "Id", sqlType = java.sql.Types.INTEGER)
     public int getId() {
@@ -64,7 +64,7 @@ public class ImageStore extends OAObject {
         firePropertyChange(P_Id, old, this.id);
     }
 
-    @OAProperty(defaultValue = "new OADateTime()", displayLength = 15, isProcessed = true)
+    @OAProperty(lowerName = "created", defaultValue = "new OADateTime()", displayLength = 15, isProcessed = true)
     @OAColumn(name = "Created", sqlType = java.sql.Types.TIMESTAMP)
     public OADateTime getCreated() {
         return created;
@@ -76,7 +76,7 @@ public class ImageStore extends OAObject {
         firePropertyChange(P_Created, old, this.created);
     }
 
-    @OAProperty(isBlob = true, uiColumnLength = 5, isImageName = true)
+    @OAProperty(lowerName = "bytes", isBlob = true, uiColumnLength = 5, isImageName = true)
     @OAColumn(name = "Bytes", sqlType = java.sql.Types.BLOB)
     public byte[] getBytes() {
         if (bytes == null) {
@@ -91,7 +91,7 @@ public class ImageStore extends OAObject {
         firePropertyChange(P_Bytes, old, this.bytes);
     }
 
-    @OAProperty(displayName = "Orig File Name", maxLength = 250, displayLength = 30, uiColumnLength = 20)
+    @OAProperty(lowerName = "origFileName", displayName = "Orig File Name", maxLength = 250, displayLength = 30, uiColumnLength = 20)
     @OAColumn(name = "OrigFileName", maxLength = 250)
     public String getOrigFileName() {
         return origFileName;

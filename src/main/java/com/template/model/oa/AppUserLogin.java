@@ -51,6 +51,8 @@ public class AppUserLogin extends OAObject {
     public static final String P_AppUser = "appUser";
     public static final String P_AppUserId = "appUserId"; // fkey
     public static final String P_AppUserErrors = "appUserErrors";
+    public static final String P_Reports = "reports";
+    public static final String P_ReportsId = "reportsId"; // fkey
      
     protected volatile int id;
     protected volatile OADateTime created;
@@ -66,6 +68,7 @@ public class AppUserLogin extends OAObject {
     // Links to other objects.
     protected volatile transient AppUser appUser;
     protected transient Hub<AppUserError> hubAppUserErrors;
+    protected transient Hub<Report> hubReports;
      
     public AppUserLogin() {
         if (!isLoading()) setObjectDefaults();
@@ -80,7 +83,7 @@ public class AppUserLogin extends OAObject {
         setId(id);
     }
 
-    @OAProperty(isUnique = true, displayLength = 5)
+    @OAProperty(lowerName = "id", isUnique = true, displayLength = 5)
     @OAId
     @OAColumn(name = "Id", sqlType = java.sql.Types.INTEGER)
     public int getId() {
@@ -93,7 +96,7 @@ public class AppUserLogin extends OAObject {
         firePropertyChange(P_Id, old, this.id);
     }
 
-    @OAProperty(defaultValue = "new OADateTime()", displayLength = 15, isProcessed = true)
+    @OAProperty(lowerName = "created", defaultValue = "new OADateTime()", displayLength = 15, isProcessed = true)
     @OAColumn(name = "Created", sqlType = java.sql.Types.TIMESTAMP)
     public OADateTime getCreated() {
         return created;
@@ -105,7 +108,7 @@ public class AppUserLogin extends OAObject {
         firePropertyChange(P_Created, old, this.created);
     }
 
-    @OAProperty(maxLength = 50, displayLength = 18, uiColumnLength = 14, isProcessed = true)
+    @OAProperty(lowerName = "location", maxLength = 50, displayLength = 18, uiColumnLength = 14, isProcessed = true)
     @OAColumn(name = "Location", maxLength = 50)
     public String getLocation() {
         return location;
@@ -117,7 +120,7 @@ public class AppUserLogin extends OAObject {
         firePropertyChange(P_Location, old, this.location);
     }
 
-    @OAProperty(displayName = "Computer Name", maxLength = 50, displayLength = 14, uiColumnLength = 12, isProcessed = true)
+    @OAProperty(lowerName = "computerName", displayName = "Computer Name", maxLength = 50, displayLength = 14, uiColumnLength = 12, isProcessed = true)
     @OAColumn(name = "ComputerName", maxLength = 50)
     public String getComputerName() {
         return computerName;
@@ -129,7 +132,7 @@ public class AppUserLogin extends OAObject {
         firePropertyChange(P_ComputerName, old, this.computerName);
     }
 
-    @OAProperty(displayLength = 15, isProcessed = true)
+    @OAProperty(lowerName = "disconnected", displayLength = 15, isProcessed = true)
     @OAColumn(name = "Disconnected", sqlType = java.sql.Types.TIMESTAMP)
     public OADateTime getDisconnected() {
         return disconnected;
@@ -141,7 +144,7 @@ public class AppUserLogin extends OAObject {
         firePropertyChange(P_Disconnected, old, this.disconnected);
     }
 
-    @OAProperty(displayName = "Connection Id", displayLength = 5, isProcessed = true)
+    @OAProperty(lowerName = "connectionId", displayName = "Connection Id", displayLength = 5, isProcessed = true)
     @OAColumn(name = "ConnectionId", sqlType = java.sql.Types.INTEGER)
     public int getConnectionId() {
         return connectionId;
@@ -153,7 +156,7 @@ public class AppUserLogin extends OAObject {
         firePropertyChange(P_ConnectionId, old, this.connectionId);
     }
 
-    @OAProperty(displayName = "Host Name", maxLength = 50, displayLength = 14, uiColumnLength = 12, isProcessed = true)
+    @OAProperty(lowerName = "hostName", displayName = "Host Name", maxLength = 50, displayLength = 14, uiColumnLength = 12, isProcessed = true)
     @OAColumn(name = "HostName", maxLength = 50)
     public String getHostName() {
         return hostName;
@@ -165,7 +168,7 @@ public class AppUserLogin extends OAObject {
         firePropertyChange(P_HostName, old, this.hostName);
     }
 
-    @OAProperty(displayName = "Ip Address", maxLength = 20, displayLength = 15, isProcessed = true)
+    @OAProperty(lowerName = "ipAddress", displayName = "Ip Address", maxLength = 20, displayLength = 15, isProcessed = true)
     @OAColumn(name = "IpAddress", maxLength = 20)
     public String getIpAddress() {
         return ipAddress;
@@ -177,7 +180,7 @@ public class AppUserLogin extends OAObject {
         firePropertyChange(P_IpAddress, old, this.ipAddress);
     }
 
-    @OAProperty(displayName = "Total Memory", displayLength = 5, isProcessed = true)
+    @OAProperty(lowerName = "totalMemory", displayName = "Total Memory", displayLength = 5, isProcessed = true)
     @OAColumn(name = "TotalMemory", sqlType = java.sql.Types.BIGINT)
     public long getTotalMemory() {
         return totalMemory;
@@ -189,7 +192,7 @@ public class AppUserLogin extends OAObject {
         firePropertyChange(P_TotalMemory, old, this.totalMemory);
     }
 
-    @OAProperty(displayName = "Free Memory", displayLength = 5, isProcessed = true)
+    @OAProperty(lowerName = "freeMemory", displayName = "Free Memory", displayLength = 5, isProcessed = true)
     @OAColumn(name = "FreeMemory", sqlType = java.sql.Types.BIGINT)
     public long getFreeMemory() {
         return freeMemory;
@@ -255,6 +258,18 @@ public class AppUserLogin extends OAObject {
             hubAppUserErrors = (Hub<AppUserError>) getHub(P_AppUserErrors);
         }
         return hubAppUserErrors;
+    }
+
+    @OAMany(
+        toClass = Report.class, 
+        reverseName = Report.P_AppUserLogin
+    )
+    @OALinkTable(name = "AppUserLoginReport", indexName = "ReportAppUserLogin", columns = {"AppUserLoginId"})
+    public Hub<Report> getReports() {
+        if (hubReports == null) {
+            hubReports = (Hub<Report>) getHub(P_Reports);
+        }
+        return hubReports;
     }
     public void load(ResultSet rs, int id) throws SQLException {
         this.id = id;

@@ -45,6 +45,8 @@ public class AppUser extends OAObject {
     public static final String P_DisplayName = "displayName";
      
     public static final String P_AppUserLogins = "appUserLogins";
+    public static final String P_Reports = "reports";
+    public static final String P_ReportsId = "reportsId"; // fkey
      
     protected volatile int id;
     protected volatile String loginId;
@@ -59,6 +61,7 @@ public class AppUser extends OAObject {
      
     // Links to other objects.
     protected transient Hub<AppUserLogin> hubAppUserLogins;
+    protected transient Hub<Report> hubReports;
      
     public AppUser() {
         if (!isLoading()) setObjectDefaults();
@@ -75,7 +78,7 @@ public class AppUser extends OAObject {
         }
     }
 
-    @OAProperty(isUnique = true, displayLength = 5)
+    @OAProperty(lowerName = "id", isUnique = true, displayLength = 5)
     @OAId
     @OAColumn(name = "Id", sqlType = java.sql.Types.INTEGER)
     public int getId() {
@@ -88,7 +91,7 @@ public class AppUser extends OAObject {
         firePropertyChange(P_Id, old, this.id);
     }
 
-    @OAProperty(displayName = "Login Id", maxLength = 35, displayLength = 14, uiColumnLength = 12)
+    @OAProperty(lowerName = "loginId", displayName = "Login Id", maxLength = 35, displayLength = 14, uiColumnLength = 12)
     @OAColumn(name = "LoginId", maxLength = 35)
     public String getLoginId() {
         return loginId;
@@ -100,7 +103,7 @@ public class AppUser extends OAObject {
         firePropertyChange(P_LoginId, old, this.loginId);
     }
 
-    @OAProperty(maxLength = 50, displayLength = 12, uiColumnLength = 10, isSHAHash = true)
+    @OAProperty(lowerName = "password", maxLength = 50, displayLength = 12, uiColumnLength = 10, isSHAHash = true)
     @OAColumn(name = "Password", maxLength = 50)
     public String getPassword() {
         return password;
@@ -112,7 +115,7 @@ public class AppUser extends OAObject {
         firePropertyChange(P_Password, old, this.password);
     }
 
-    @OAProperty(displayLength = 5)
+    @OAProperty(lowerName = "admin", displayLength = 5)
     @OAColumn(name = "Admin", sqlType = java.sql.Types.BOOLEAN)
     public boolean getAdmin() {
         return admin;
@@ -127,7 +130,7 @@ public class AppUser extends OAObject {
         firePropertyChange(P_Admin, old, this.admin);
     }
 
-    @OAProperty(displayName = "Super Admin", displayLength = 5, uiColumnLength = 11)
+    @OAProperty(lowerName = "superAdmin", displayName = "Super Admin", displayLength = 5, uiColumnLength = 11)
     public boolean getSuperAdmin() {
         return superAdmin;
     }
@@ -148,7 +151,7 @@ public class AppUser extends OAObject {
         }
     }
 
-    @OAProperty(displayName = "Edit Processed", displayLength = 5)
+    @OAProperty(lowerName = "editProcessed", displayName = "Edit Processed", displayLength = 5)
     @OAColumn(name = "EditProcessed", sqlType = java.sql.Types.BOOLEAN)
     public boolean getEditProcessed() {
         return editProcessed;
@@ -163,7 +166,7 @@ public class AppUser extends OAObject {
         firePropertyChange(P_EditProcessed, old, this.editProcessed);
     }
 
-    @OAProperty(displayName = "First Name", maxLength = 35, displayLength = 12)
+    @OAProperty(lowerName = "firstName", displayName = "First Name", maxLength = 35, displayLength = 12)
     @OAColumn(name = "FirstName", maxLength = 35)
     public String getFirstName() {
         return firstName;
@@ -175,7 +178,7 @@ public class AppUser extends OAObject {
         firePropertyChange(P_FirstName, old, this.firstName);
     }
 
-    @OAProperty(displayName = "Last Name", maxLength = 55, displayLength = 22, uiColumnLength = 18)
+    @OAProperty(lowerName = "lastName", displayName = "Last Name", maxLength = 55, displayLength = 22, uiColumnLength = 18)
     @OAColumn(name = "LastName", maxLength = 55)
     public String getLastName() {
         return lastName;
@@ -187,7 +190,7 @@ public class AppUser extends OAObject {
         firePropertyChange(P_LastName, old, this.lastName);
     }
 
-    @OAProperty(displayName = "Inactive Date", displayLength = 8)
+    @OAProperty(lowerName = "inactiveDate", displayName = "Inactive Date", displayLength = 8)
     @OAColumn(name = "InactiveDate", sqlType = java.sql.Types.DATE)
     public OADate getInactiveDate() {
         return inactiveDate;
@@ -199,7 +202,7 @@ public class AppUser extends OAObject {
         firePropertyChange(P_InactiveDate, old, this.inactiveDate);
     }
 
-    @OAProperty(displayLength = 20, uiColumnLength = 15)
+    @OAProperty(lowerName = "note", displayLength = 20, uiColumnLength = 15)
     @OAColumn(name = "Note", sqlType = java.sql.Types.CLOB)
     public String getNote() {
         return note;
@@ -259,6 +262,18 @@ public class AppUser extends OAObject {
             hubAppUserLogins = (Hub<AppUserLogin>) getHub(P_AppUserLogins);
         }
         return hubAppUserLogins;
+    }
+
+    @OAMany(
+        toClass = Report.class, 
+        reverseName = Report.P_AppUser
+    )
+    @OALinkTable(name = "AppUserReport", indexName = "ReportAppUser", columns = {"AppUserId"})
+    public Hub<Report> getReports() {
+        if (hubReports == null) {
+            hubReports = (Hub<Report>) getHub(P_Reports);
+        }
+        return hubReports;
     }
     public void load(ResultSet rs, int id) throws SQLException {
         this.id = id;

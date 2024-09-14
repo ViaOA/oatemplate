@@ -42,6 +42,8 @@ public class AppUserError extends OAObject {
      
     public static final String P_AppUserLogin = "appUserLogin";
     public static final String P_AppUserLoginId = "appUserLoginId"; // fkey
+    public static final String P_Reports = "reports";
+    public static final String P_ReportsId = "reportsId"; // fkey
      
     protected volatile int id;
     protected volatile OADateTime dateTime;
@@ -52,6 +54,7 @@ public class AppUserError extends OAObject {
      
     // Links to other objects.
     protected volatile transient AppUserLogin appUserLogin;
+    protected transient Hub<Report> hubReports;
      
     public AppUserError() {
         if (!isLoading()) setObjectDefaults();
@@ -62,7 +65,7 @@ public class AppUserError extends OAObject {
         setId(id);
     }
 
-    @OAProperty(isUnique = true, displayLength = 5)
+    @OAProperty(lowerName = "id", isUnique = true, displayLength = 5)
     @OAId
     @OAColumn(name = "Id", sqlType = java.sql.Types.INTEGER)
     public int getId() {
@@ -75,7 +78,7 @@ public class AppUserError extends OAObject {
         firePropertyChange(P_Id, old, this.id);
     }
 
-    @OAProperty(displayName = "Date TIme", displayLength = 15, isProcessed = true)
+    @OAProperty(lowerName = "dateTime", displayName = "Date TIme", displayLength = 15, isProcessed = true)
     @OAColumn(name = "DateTimeValue", sqlType = java.sql.Types.TIMESTAMP)
     public OADateTime getDateTime() {
         return dateTime;
@@ -87,7 +90,7 @@ public class AppUserError extends OAObject {
         firePropertyChange(P_DateTime, old, this.dateTime);
     }
 
-    @OAProperty(maxLength = 250, displayLength = 35, uiColumnLength = 25)
+    @OAProperty(lowerName = "message", maxLength = 250, displayLength = 35, uiColumnLength = 25)
     @OAColumn(name = "Message", maxLength = 250)
     public String getMessage() {
         return message;
@@ -99,7 +102,7 @@ public class AppUserError extends OAObject {
         firePropertyChange(P_Message, old, this.message);
     }
 
-    @OAProperty(displayName = "Stack Trace", displayLength = 40, uiColumnLength = 25)
+    @OAProperty(lowerName = "stackTrace", displayName = "Stack Trace", displayLength = 40, uiColumnLength = 25)
     @OAColumn(name = "StackTrace", sqlType = java.sql.Types.CLOB)
     public String getStackTrace() {
         return stackTrace;
@@ -111,7 +114,7 @@ public class AppUserError extends OAObject {
         firePropertyChange(P_StackTrace, old, this.stackTrace);
     }
 
-    @OAProperty(displayLength = 8, isProcessed = true)
+    @OAProperty(lowerName = "reviewed", displayLength = 8, isProcessed = true)
     @OAColumn(name = "Reviewed", sqlType = java.sql.Types.DATE)
     public OADate getReviewed() {
         return reviewed;
@@ -123,7 +126,7 @@ public class AppUserError extends OAObject {
         firePropertyChange(P_Reviewed, old, this.reviewed);
     }
 
-    @OAProperty(displayName = "Review Note", maxLength = 254, displayLength = 40, isProcessed = true)
+    @OAProperty(lowerName = "reviewNote", displayName = "Review Note", maxLength = 254, displayLength = 40, isProcessed = true)
     @OAColumn(name = "ReviewNote", maxLength = 254)
     public String getReviewNote() {
         return reviewNote;
@@ -162,6 +165,18 @@ public class AppUserError extends OAObject {
     public void setAppUserLoginId(Integer newValue) {
         this.appUserLogin = null;
         setFkeyProperty(P_AppUserLoginId, newValue);
+    }
+
+    @OAMany(
+        toClass = Report.class, 
+        reverseName = Report.P_AppUserError
+    )
+    @OALinkTable(name = "AppUserErrorReport", indexName = "ReportAppUserError", columns = {"AppUserErrorId"})
+    public Hub<Report> getReports() {
+        if (hubReports == null) {
+            hubReports = (Hub<Report>) getHub(P_Reports);
+        }
+        return hubReports;
     }
     public void load(ResultSet rs, int id) throws SQLException {
         this.id = id;

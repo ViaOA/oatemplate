@@ -45,6 +45,8 @@ public class AppServer extends OAObject {
      
     public static final String P_AppUserLogin = "appUserLogin";
     public static final String P_AppUserLoginId = "appUserLoginId"; // fkey
+    public static final String P_Reports = "reports";
+    public static final String P_ReportsId = "reportsId"; // fkey
      
     protected volatile int id;
     protected volatile OADateTime created;
@@ -55,6 +57,7 @@ public class AppServer extends OAObject {
      
     // Links to other objects.
     protected volatile transient AppUserLogin appUserLogin;
+    protected transient Hub<Report> hubReports;
      
     public AppServer() {
         if (!isLoading()) setObjectDefaults();
@@ -69,7 +72,7 @@ public class AppServer extends OAObject {
         setId(id);
     }
 
-    @OAProperty(isUnique = true, displayLength = 5)
+    @OAProperty(lowerName = "id", isUnique = true, displayLength = 5)
     @OAId
     @OAColumn(name = "Id", sqlType = java.sql.Types.INTEGER)
     public int getId() {
@@ -82,7 +85,7 @@ public class AppServer extends OAObject {
         firePropertyChange(P_Id, old, this.id);
     }
 
-    @OAProperty(defaultValue = "new OADateTime()", displayLength = 15, isProcessed = true)
+    @OAProperty(lowerName = "created", defaultValue = "new OADateTime()", displayLength = 15, isProcessed = true)
     @OAColumn(name = "Created", sqlType = java.sql.Types.TIMESTAMP)
     public OADateTime getCreated() {
         return created;
@@ -94,7 +97,7 @@ public class AppServer extends OAObject {
         firePropertyChange(P_Created, old, this.created);
     }
 
-    @OAProperty(displayLength = 15, isProcessed = true)
+    @OAProperty(lowerName = "started", displayLength = 15, isProcessed = true)
     @OAColumn(name = "Started", sqlType = java.sql.Types.TIMESTAMP)
     public OADateTime getStarted() {
         return started;
@@ -106,7 +109,7 @@ public class AppServer extends OAObject {
         firePropertyChange(P_Started, old, this.started);
     }
 
-    @OAProperty(displayName = "Demo Mode", displayLength = 5, isProcessed = true)
+    @OAProperty(lowerName = "demoMode", displayName = "Demo Mode", displayLength = 5, isProcessed = true)
     @OAColumn(name = "DemoMode", sqlType = java.sql.Types.BOOLEAN)
     public boolean getDemoMode() {
         return demoMode;
@@ -121,7 +124,7 @@ public class AppServer extends OAObject {
         firePropertyChange(P_DemoMode, old, this.demoMode);
     }
 
-    @OAProperty(displayName = "Test Only", displayLength = 5, uiColumnLength = 9)
+    @OAProperty(lowerName = "testOnly", displayName = "Test Only", displayLength = 5, uiColumnLength = 9)
     @OAColumn(name = "TestOnly", sqlType = java.sql.Types.BOOLEAN)
     public boolean getTestOnly() {
         return testOnly;
@@ -136,7 +139,7 @@ public class AppServer extends OAObject {
         firePropertyChange(P_TestOnly, old, this.testOnly);
     }
 
-    @OAProperty(maxLength = 18, displayLength = 12, uiColumnLength = 8, isProcessed = true)
+    @OAProperty(lowerName = "release", maxLength = 18, displayLength = 12, uiColumnLength = 8, isProcessed = true)
     @OAColumn(name = "Release", maxLength = 18)
     public String getRelease() {
         return release;
@@ -174,6 +177,18 @@ public class AppServer extends OAObject {
     public void setAppUserLoginId(Integer newValue) {
         this.appUserLogin = null;
         setFkeyProperty(P_AppUserLoginId, newValue);
+    }
+
+    @OAMany(
+        toClass = Report.class, 
+        reverseName = Report.P_AppServer
+    )
+    @OALinkTable(name = "AppServerReport", indexName = "ReportAppServer", columns = {"AppServerId"})
+    public Hub<Report> getReports() {
+        if (hubReports == null) {
+            hubReports = (Hub<Report>) getHub(P_Reports);
+        }
+        return hubReports;
     }
     public void load(ResultSet rs, int id) throws SQLException {
         this.id = id;

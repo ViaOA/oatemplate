@@ -18,10 +18,22 @@ public class AppUserErrorSearch extends OAObject {
 
     private static Logger LOG = Logger.getLogger(AppUserErrorSearch.class.getName());
 
+    public static final String P_CustomQuery = "CustomQuery";
     public static final String P_MaxResults = "MaxResults";
 
+    protected String customQuery;
     protected int maxResults;
 
+
+    public String getCustomQuery() {
+        return customQuery;
+    }
+    public void setCustomQuery(String newValue) {
+        fireBeforePropertyChange(P_CustomQuery, this.customQuery, newValue);
+        String old = customQuery;
+        this.customQuery = newValue;
+        firePropertyChange(P_CustomQuery, old, this.customQuery);
+    }
 
     public int getMaxResults() {
         return maxResults;
@@ -34,9 +46,11 @@ public class AppUserErrorSearch extends OAObject {
     }
 
     public void reset() {
+        setCustomQuery(null);
     }
 
     public boolean isDataEntered() {
+        if (getCustomQuery() != null) return true;
         return false;
     }
 
@@ -64,6 +78,10 @@ public class AppUserErrorSearch extends OAObject {
         String sql = "";
         String sortOrder = null;
         Object[] args = new Object[0];
+    if (OAString.isNotEmpty(this.customQuery)) {
+        if (sql.length() > 0) sql += " AND ";
+        sql += "(" + getCustomQuery() + ")";
+    }
 
         if (OAString.isNotEmpty(extraWhere)) {
             if (sql.length() > 0) sql = "(" + sql + ") AND ";
@@ -85,6 +103,10 @@ public class AppUserErrorSearch extends OAObject {
         final String prefix = fromName + ".";
         String sql = "";
         Object[] args = new Object[0];
+    if (OAString.isNotEmpty(this.customQuery)) {
+        if (sql.length() > 0) sql += " AND ";
+        sql += "(" + getCustomQuery() + ")";
+    }
         select.add(sql, args);
     }
 

@@ -40,6 +40,11 @@ public class AppUserLoginPPx implements PPxInterface, Serializable {
         return ppx;
     }
 
+    public ReportPPx reports() {
+        ReportPPx ppx = new ReportPPx(this, AppUserLogin.P_Reports);
+        return ppx;
+    }
+
     public String id() {
         return pp + "." + AppUserLogin.P_Id;
     }

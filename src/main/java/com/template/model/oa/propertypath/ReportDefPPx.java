@@ -4,15 +4,15 @@ package com.template.model.oa.propertypath;
 import java.io.Serializable;
 import com.template.model.oa.*;
  
-public class AppUserErrorPPx implements PPxInterface, Serializable {
+public class ReportDefPPx implements PPxInterface, Serializable {
     private static final long serialVersionUID = 1L;
     public final String pp;  // propertyPath
      
-    public AppUserErrorPPx(String name) {
+    public ReportDefPPx(String name) {
         this(null, name);
     }
 
-    public AppUserErrorPPx(PPxInterface parent, String name) {
+    public ReportDefPPx(PPxInterface parent, String name) {
         String s = null;
         if (parent != null) {
             s = parent.toString();
@@ -25,38 +25,34 @@ public class AppUserErrorPPx implements PPxInterface, Serializable {
         pp = s;
     }
 
-    public AppUserLoginPPx appUserLogin() {
-        AppUserLoginPPx ppx = new AppUserLoginPPx(this, AppUserError.P_AppUserLogin);
+    public ReportClassPPx reportClass() {
+        ReportClassPPx ppx = new ReportClassPPx(this, ReportDef.P_ReportClass);
         return ppx;
     }
 
     public ReportPPx reports() {
-        ReportPPx ppx = new ReportPPx(this, AppUserError.P_Reports);
+        ReportPPx ppx = new ReportPPx(this, ReportDef.P_Reports);
         return ppx;
     }
 
     public String id() {
-        return pp + "." + AppUserError.P_Id;
+        return pp + "." + ReportDef.P_Id;
     }
 
-    public String dateTime() {
-        return pp + "." + AppUserError.P_DateTime;
+    public String created() {
+        return pp + "." + ReportDef.P_Created;
     }
 
-    public String message() {
-        return pp + "." + AppUserError.P_Message;
+    public String name() {
+        return pp + "." + ReportDef.P_Name;
     }
 
-    public String stackTrace() {
-        return pp + "." + AppUserError.P_StackTrace;
+    public String template() {
+        return pp + "." + ReportDef.P_Template;
     }
 
-    public String reviewed() {
-        return pp + "." + AppUserError.P_Reviewed;
-    }
-
-    public String reviewNote() {
-        return pp + "." + AppUserError.P_ReviewNote;
+    public String seq() {
+        return pp + "." + ReportDef.P_Seq;
     }
 
     @Override

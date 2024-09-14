@@ -5,11 +5,17 @@ import com.template.model.oa.*;
  
 public class AppServerPP {
     private static AppUserLoginPPx appUserLogin;
+    private static ReportPPx reports;
      
 
     public static AppUserLoginPPx appUserLogin() {
         if (appUserLogin == null) appUserLogin = new AppUserLoginPPx(AppServer.P_AppUserLogin);
         return appUserLogin;
+    }
+
+    public static ReportPPx reports() {
+        if (reports == null) reports = new ReportPPx(AppServer.P_Reports);
+        return reports;
     }
 
     public static String id() {

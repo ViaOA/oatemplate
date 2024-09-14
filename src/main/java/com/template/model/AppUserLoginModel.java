@@ -29,6 +29,7 @@ public class AppUserLoginModel extends OAObjectModel {
     protected Hub<AppUser> hubAppUser;
     protected Hub<AppServer> hubAppServers;
     protected Hub<AppUserError> hubAppUserErrors;
+    protected Hub<Report> hubReports;
     
     // AddHubs used for references
     protected Hub<AppUser> hubAppUserSelectFrom;
@@ -37,12 +38,14 @@ public class AppUserLoginModel extends OAObjectModel {
     protected AppUserModel modelAppUser;
     protected AppServerModel modelAppServers;
     protected AppUserErrorModel modelAppUserErrors;
+    protected ReportModel modelReports;
     
     // selectFrom
     protected AppUserModel modelAppUserSelectFrom;
     
     // SearchModels used for references
     protected AppServerSearchModel modelAppServersSearch;
+    protected ReportSearchModel modelReportsSearch;
     
     public AppUserLoginModel() {
         setDisplayName("App User Login");
@@ -83,6 +86,12 @@ public class AppUserLoginModel extends OAObjectModel {
             hubAppUserErrors = getHub().getDetailHub(AppUserLogin.P_AppUserErrors);
         }
         return hubAppUserErrors;
+    }
+    public Hub<Report> getReports() {
+        if (hubReports == null) {
+            hubReports = getHub().getDetailHub(AppUserLogin.P_Reports);
+        }
+        return hubReports;
     }
     public Hub<AppUser> getAppUserSelectFromHub() {
         if (hubAppUserSelectFrom != null) return hubAppUserSelectFrom;
@@ -194,6 +203,38 @@ public class AppUserLoginModel extends OAObjectModel {
     
         return modelAppUserErrors;
     }
+    public ReportModel getReportsModel() {
+        if (modelReports != null) return modelReports;
+        modelReports = new ReportModel(getReports());
+        modelReports.setDisplayName("Report");
+        modelReports.setPluralDisplayName("Reports");
+        if (HubDetailDelegate.getIsFromSameMasterHub(getOriginalHub(), getReports())) {
+            modelReports.setCreateUI(false);
+        }
+        modelReports.setForJfc(getForJfc());
+        modelReports.setAllowNew(true);
+        modelReports.setAllowSave(true);
+        modelReports.setAllowAdd(true);
+        modelReports.setAllowMove(false);
+        modelReports.setAllowRemove(true);
+        modelReports.setAllowDelete(false);
+        modelReports.setAllowRefresh(false);
+        modelReports.setAllowSearch(false);
+        modelReports.setAllowHubSearch(false);
+        modelReports.setAllowDownload(true);
+        modelReports.setAllowGotoEdit(true);
+        modelReports.setViewOnly(getViewOnly());
+        modelReports.setAllowTableFilter(true);
+        modelReports.setAllowTableSorting(true);
+        modelReports.setAllowMultiSelect(false);
+        modelReports.setAllowCopy(false);
+        modelReports.setAllowCut(false);
+        modelReports.setAllowPaste(false);
+        // call AppUserLogin.reportsModelCallback(ReportModel) to be able to customize this model
+        OAObjectCallbackDelegate.onObjectCallbackModel(AppUserLogin.class, AppUserLogin.P_Reports, modelReports);
+    
+        return modelReports;
+    }
     
     public AppUserModel getAppUserSelectFromModel() {
         if (modelAppUserSelectFrom != null) return modelAppUserSelectFrom;
@@ -224,6 +265,11 @@ public class AppUserLoginModel extends OAObjectModel {
         if (modelAppServersSearch != null) return modelAppServersSearch;
         modelAppServersSearch = new AppServerSearchModel(getAppServers()); // createMethod=false, directly uses hub
         return modelAppServersSearch;
+    }
+    public ReportSearchModel getReportsSearchModel() {
+        if (modelReportsSearch != null) return modelReportsSearch;
+        modelReportsSearch = new ReportSearchModel();
+        return modelReportsSearch;
     }
     
     public HubCopy<AppUserLogin> createHubCopy() {

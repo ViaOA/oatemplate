@@ -27,9 +27,14 @@ public class AppUserErrorModel extends OAObjectModel {
     protected Hub<AppUserError> hubMultiSelect;
     // detail hubs
     protected Hub<AppUserLogin> hubAppUserLogin;
+    protected Hub<Report> hubReports;
     
     // ObjectModels
     protected AppUserLoginModel modelAppUserLogin;
+    protected ReportModel modelReports;
+    
+    // SearchModels used for references
+    protected ReportSearchModel modelReportsSearch;
     
     public AppUserErrorModel() {
         setDisplayName("App User Error");
@@ -56,6 +61,12 @@ public class AppUserErrorModel extends OAObjectModel {
         // this is the owner, use detailHub
         hubAppUserLogin = getHub().getDetailHub(AppUserError.P_AppUserLogin);
         return hubAppUserLogin;
+    }
+    public Hub<Report> getReports() {
+        if (hubReports == null) {
+            hubReports = getHub().getDetailHub(AppUserError.P_Reports);
+        }
+        return hubReports;
     }
     public AppUserError getAppUserError() {
         return getHub().getAO();
@@ -97,6 +108,44 @@ public class AppUserErrorModel extends OAObjectModel {
         OAObjectCallbackDelegate.onObjectCallbackModel(AppUserError.class, AppUserError.P_AppUserLogin, modelAppUserLogin);
     
         return modelAppUserLogin;
+    }
+    public ReportModel getReportsModel() {
+        if (modelReports != null) return modelReports;
+        modelReports = new ReportModel(getReports());
+        modelReports.setDisplayName("Report");
+        modelReports.setPluralDisplayName("Reports");
+        if (HubDetailDelegate.getIsFromSameMasterHub(getOriginalHub(), getReports())) {
+            modelReports.setCreateUI(false);
+        }
+        modelReports.setForJfc(getForJfc());
+        modelReports.setAllowNew(true);
+        modelReports.setAllowSave(true);
+        modelReports.setAllowAdd(true);
+        modelReports.setAllowMove(false);
+        modelReports.setAllowRemove(true);
+        modelReports.setAllowDelete(false);
+        modelReports.setAllowRefresh(false);
+        modelReports.setAllowSearch(false);
+        modelReports.setAllowHubSearch(false);
+        modelReports.setAllowDownload(true);
+        modelReports.setAllowGotoEdit(true);
+        modelReports.setViewOnly(getViewOnly());
+        modelReports.setAllowTableFilter(true);
+        modelReports.setAllowTableSorting(true);
+        modelReports.setAllowMultiSelect(false);
+        modelReports.setAllowCopy(false);
+        modelReports.setAllowCut(false);
+        modelReports.setAllowPaste(false);
+        // call AppUserError.reportsModelCallback(ReportModel) to be able to customize this model
+        OAObjectCallbackDelegate.onObjectCallbackModel(AppUserError.class, AppUserError.P_Reports, modelReports);
+    
+        return modelReports;
+    }
+    
+    public ReportSearchModel getReportsSearchModel() {
+        if (modelReportsSearch != null) return modelReportsSearch;
+        modelReportsSearch = new ReportSearchModel();
+        return modelReportsSearch;
     }
     
     public HubCopy<AppUserError> createHubCopy() {

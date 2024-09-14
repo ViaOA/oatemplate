@@ -4,15 +4,15 @@ package com.template.model.oa.propertypath;
 import java.io.Serializable;
 import com.template.model.oa.*;
  
-public class AppServerPPx implements PPxInterface, Serializable {
+public class ReportClassPPx implements PPxInterface, Serializable {
     private static final long serialVersionUID = 1L;
     public final String pp;  // propertyPath
      
-    public AppServerPPx(String name) {
+    public ReportClassPPx(String name) {
         this(null, name);
     }
 
-    public AppServerPPx(PPxInterface parent, String name) {
+    public ReportClassPPx(PPxInterface parent, String name) {
         String s = null;
         if (parent != null) {
             s = parent.toString();
@@ -25,38 +25,30 @@ public class AppServerPPx implements PPxInterface, Serializable {
         pp = s;
     }
 
-    public AppUserLoginPPx appUserLogin() {
-        AppUserLoginPPx ppx = new AppUserLoginPPx(this, AppServer.P_AppUserLogin);
+    public ReportPPx calcReports() {
+        ReportPPx ppx = new ReportPPx(this, ReportClass.P_CalcReports);
         return ppx;
     }
 
-    public ReportPPx reports() {
-        ReportPPx ppx = new ReportPPx(this, AppServer.P_Reports);
+    public ReportDefPPx reportDefs() {
+        ReportDefPPx ppx = new ReportDefPPx(this, ReportClass.P_ReportDefs);
         return ppx;
     }
 
     public String id() {
-        return pp + "." + AppServer.P_Id;
+        return pp + "." + ReportClass.P_Id;
     }
 
     public String created() {
-        return pp + "." + AppServer.P_Created;
+        return pp + "." + ReportClass.P_Created;
     }
 
-    public String started() {
-        return pp + "." + AppServer.P_Started;
+    public String name() {
+        return pp + "." + ReportClass.P_Name;
     }
 
-    public String demoMode() {
-        return pp + "." + AppServer.P_DemoMode;
-    }
-
-    public String testOnly() {
-        return pp + "." + AppServer.P_TestOnly;
-    }
-
-    public String release() {
-        return pp + "." + AppServer.P_Release;
+    public String className() {
+        return pp + "." + ReportClass.P_ClassName;
     }
 
     @Override

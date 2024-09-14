@@ -33,6 +33,7 @@ public class ModelDelegate {
     // UI containers
     private static final Hub<AppUserLogin> hubAppUserLogins = new Hub<AppUserLogin>(AppUserLogin.class);
     private static final Hub<AppUserError> hubAppUserErrors = new Hub<AppUserError>(AppUserError.class);
+    private static final Hub<ReportClass> hubReportClasses = new Hub<ReportClass>(ReportClass.class);
 /*$$End: ModelDelegate1 $$*/
 
 	public static void initialize(ServerRoot rootServer, ClientRoot rootClient) {
@@ -47,6 +48,7 @@ public class ModelDelegate {
         // UI containers
         getAppUserLogins().setSharedHub(rootServer.getAppUserLogins());
         getAppUserErrors().setSharedHub(rootServer.getAppUserErrors());
+        setSharedHub(getReportClasses(), rootServer.getReportClasses());
 /*$$End: ModelDelegate2 $$*/
 
 		for (int i = 0; i < 120; i++) {
@@ -114,6 +116,9 @@ public class ModelDelegate {
     }
     public static Hub<AppUserError> getAppUserErrors() {
         return hubAppUserErrors;
+    }
+    public static Hub<ReportClass> getReportClasses() {
+        return hubReportClasses;
     }
 /*$$End: ModelDelegate3 $$*/
 
