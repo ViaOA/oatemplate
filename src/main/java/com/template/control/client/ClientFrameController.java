@@ -45,9 +45,10 @@ import com.template.model.oa.AppUserLogin;
 import com.template.resource.Resource;
 import com.template.view.client.ClientFrame;
 /*$$Start: ClientFrameController.customize0 $$*/
-import com.template.view.client.panel.application.ApplicationPanel;
+import com.template.view.client.panel.template.TemplatePanel;
+import com.template.view.client.panel.reportDesigner.ReportDesignerPanel;
+import com.template.view.client.panel.server.ServerPanel;
 /*$$End: ClientFrameController.customize0 $$*/
-import com.template.view.client.panel.application.ApplicationPanel;
 import com.viaoa.jfc.OAJfcUtil;
 import com.viaoa.jfc.control.OAJfcController;
 import com.viaoa.jfc.print.PrintController;
@@ -642,8 +643,12 @@ public abstract class ClientFrameController {
 
 	protected void customize() {
 		/*$$Start: ClientFrameController.customize1 $$*/
-        ApplicationPanel panApplication = new ApplicationPanel();
-        frm.addPanel(panApplication.getMainComponent(), "ApplicationPanel", panApplication.getMenuItem(), panApplication.getToggleButton());
+        TemplatePanel panTemplate = new TemplatePanel();
+        frm.addPanel(panTemplate.getMainComponent(), "TemplatePanel", panTemplate.getMenuItem(), panTemplate.getToggleButton());
+        ReportDesignerPanel panReportDesigner = new ReportDesignerPanel();
+        frm.addPanel(panReportDesigner.getMainComponent(), "ReportDesignerPanel", panReportDesigner.getMenuItem(), panReportDesigner.getToggleButton());
+        ServerPanel panServer = new ServerPanel();
+        frm.addPanel(panServer.getMainComponent(), "ServerPanel", panServer.getMenuItem(), panServer.getToggleButton());
 /*$$End: ClientFrameController.customize1 $$*/
 	}
 

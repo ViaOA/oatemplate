@@ -124,6 +124,50 @@ public class DataGenerator {
         int tot;
     }
     
+    public Report createReport() {
+        Report report = new Report();
+        return report;
+    }
+    
+    public void prepopulate(Report obj) {
+        prepopulate(obj, 0);
+    }
+    public void prepopulate(Report obj, int level) {
+        int x;
+        int tot;
+    }
+    
+    public ReportClass createReportClass() {
+        ReportClass reportClass = new ReportClass();
+        return reportClass;
+    }
+    
+    public void prepopulate(ReportClass obj) {
+        prepopulate(obj, 0);
+    }
+    public void prepopulate(ReportClass obj, int level) {
+        int x;
+        int tot;
+    }
+    
+    public ReportDef createReportDef() {
+        ReportDef reportDef = new ReportDef();
+        return reportDef;
+    }
+    
+    public void prepopulate(ReportDef obj) {
+        prepopulate(obj, 0);
+    }
+    public void prepopulate(ReportDef obj, int level) {
+        int x;
+        int tot;
+        if (add(obj, ReportDef.P_ReportClass)) {
+            // reportClass
+            //    owned
+            done(obj, ReportDef.P_ReportClass);
+        }
+    }
+    
     public void populate(AppServer obj) {
         populate(obj, 0);
     }
@@ -136,6 +180,24 @@ public class DataGenerator {
         obj.setDemoMode(Math.random() < .5 ? true : false);
         obj.setTestOnly(Math.random() < .5 ? true : false);
         obj.setRelease(OAString.getDummyText(12, 0, 18));
+        if (add(obj, AppServer.P_Reports)) {
+            // reports
+            tot = ((int) (Math.random()*4));
+            tot -= obj.getReports().size();
+            for (int cnt=0; cnt<tot; cnt++) {
+                Report report = null;
+                if (Math.random() < .75) {
+                    report = (Report) OAObjectCacheDelegate.getRandom(Report.class, 500);
+                    if (report != null) obj.getReports().add(report);
+                }
+                if (report == null) {
+                    report = createReport();
+                    obj.getReports().add(report);
+                    populate(report);
+                }
+            }
+            done(obj, AppServer.P_Reports);
+        }
     }
     
     public void populate(AppUser obj) {
@@ -166,6 +228,24 @@ public class DataGenerator {
             }
             done(obj, AppUser.P_AppUserLogins);
         }
+        if (add(obj, AppUser.P_Reports)) {
+            // reports
+            tot = ((int) (Math.random()*4));
+            tot -= obj.getReports().size();
+            for (int cnt=0; cnt<tot; cnt++) {
+                Report report = null;
+                if (Math.random() < .75) {
+                    report = (Report) OAObjectCacheDelegate.getRandom(Report.class, 500);
+                    if (report != null) obj.getReports().add(report);
+                }
+                if (report == null) {
+                    report = createReport();
+                    obj.getReports().add(report);
+                    populate(report);
+                }
+            }
+            done(obj, AppUser.P_Reports);
+        }
     }
     
     public void populate(AppUserError obj) {
@@ -180,6 +260,24 @@ public class DataGenerator {
         obj.setStackTrace(OAString.getDummyText(40, 0, 500));
         obj.setReviewed((OADate)(new OADate()).addDays((int) (Math.random() * 1000)));
         obj.setReviewNote(OAString.getDummyText(40, 0, 254));
+        if (add(obj, AppUserError.P_Reports)) {
+            // reports
+            tot = ((int) (Math.random()*4));
+            tot -= obj.getReports().size();
+            for (int cnt=0; cnt<tot; cnt++) {
+                Report report = null;
+                if (Math.random() < .75) {
+                    report = (Report) OAObjectCacheDelegate.getRandom(Report.class, 500);
+                    if (report != null) obj.getReports().add(report);
+                }
+                if (report == null) {
+                    report = createReport();
+                    obj.getReports().add(report);
+                    populate(report);
+                }
+            }
+            done(obj, AppUserError.P_Reports);
+        }
     }
     
     public void populate(AppUserLogin obj) {
@@ -210,6 +308,24 @@ public class DataGenerator {
             }
             done(obj, AppUserLogin.P_AppUserErrors);
         }
+        if (add(obj, AppUserLogin.P_Reports)) {
+            // reports
+            tot = ((int) (Math.random()*4));
+            tot -= obj.getReports().size();
+            for (int cnt=0; cnt<tot; cnt++) {
+                Report report = null;
+                if (Math.random() < .75) {
+                    report = (Report) OAObjectCacheDelegate.getRandom(Report.class, 500);
+                    if (report != null) obj.getReports().add(report);
+                }
+                if (report == null) {
+                    report = createReport();
+                    obj.getReports().add(report);
+                    populate(report);
+                }
+            }
+            done(obj, AppUserLogin.P_Reports);
+        }
     }
     
     public void populate(ImageStore obj) {
@@ -222,6 +338,66 @@ public class DataGenerator {
         // created has a default value
         obj.setBytes(new byte[0]);
         obj.setOrigFileName(OAString.getDummyText(30, 0, 250));
+    }
+    
+    public void populate(Report obj) {
+        populate(obj, 0);
+    }
+    public void populate(Report obj, int level) {
+        int x;
+        int tot;
+        // id is auto assigned
+        // created has a default value
+        obj.setGenerated((new OADateTime()).addDays((int) (Math.random() * 1000)));
+        obj.setHtml(OAString.getDummyText(30, 0, 500));
+        if (add(obj, Report.P_ReportDef)) {
+            // reportDef
+            hub = (Hub) obj.getProperty(OAString.cpp(Report.P_CalcReportClass, ReportClass.P_ReportDefs));
+            if (hub != null) {
+                x = (int) (Math.random()*hub.getSize());
+                obj.setReportDef((ReportDef) hub.getAt(x));
+            }
+            done(obj, Report.P_ReportDef);
+        }
+    }
+    
+    public void populate(ReportClass obj) {
+        populate(obj, 0);
+    }
+    private String strReportClassClassName = "0"; // unique value for className
+    public void populate(ReportClass obj, int level) {
+        int x;
+        int tot;
+        // id is auto assigned
+        // created has a default value
+        obj.setName(OAString.getDummyText(18, 0, 55));
+        strReportClassClassName = "" + (OAConv.toInt(strReportClassClassName)+1);
+        obj.setClassName(strReportClassClassName);
+        if (add(obj, ReportClass.P_ReportDefs)) {
+            // reportDefs
+            tot = ((int) (Math.random()*4));
+            tot -= obj.getReportDefs().size();
+            for (int cnt=0; cnt<tot; cnt++) {
+                ReportDef reportDef = null;
+                reportDef = createReportDef();
+                obj.getReportDefs().add(reportDef);
+                populate(reportDef);
+            }
+            done(obj, ReportClass.P_ReportDefs);
+        }
+    }
+    
+    public void populate(ReportDef obj) {
+        populate(obj, 0);
+    }
+    public void populate(ReportDef obj, int level) {
+        int x;
+        int tot;
+        // id is auto assigned
+        // created has a default value
+        obj.setName(OAString.getDummyText(15, 0, 55));
+        obj.setTemplate(OAString.getDummyText(30, 0, 500));
+        // seq is auto sequence
     }
     public void createSamples() {
         int x;
@@ -236,12 +412,22 @@ public class DataGenerator {
             AppUser appUser = createAppUser();
             ModelDelegate.getAppUsers().add(appUser);
         }
+        x = 5 + ((int) (Math.random()*20));
+        for (int i=0; i<x; i++) {
+            ReportClass reportClass = createReportClass();
+            ModelDelegate.getReportClasses().add(reportClass);
+        }
         
         // others
         x = 5 + ((int) (Math.random()*20));
         for (int i=0; i<x; i++) {
             ImageStore imageStore = createImageStore();
             hubImageStore.add(imageStore);
+        }
+        x = 5 + ((int) (Math.random()*20));
+        for (int i=0; i<x; i++) {
+            Report report = createReport();
+            hubReport.add(report);
         }
          
         // Now prepopulate new objects
@@ -252,10 +438,16 @@ public class DataGenerator {
         for (AppUser appUser : ModelDelegate.getAppUsers()) {
             prepopulate(appUser);
         }
+        for (ReportClass reportClass : ModelDelegate.getReportClasses()) {
+            prepopulate(reportClass);
+        }
         
         // others
         for (ImageStore imageStore : hubImageStore) {
             prepopulate(imageStore);
+        }
+        for (Report report : hubReport) {
+            prepopulate(report);
         }
         
         // Now populate new objects
@@ -266,15 +458,22 @@ public class DataGenerator {
         for (AppUser appUser : ModelDelegate.getAppUsers()) {
             populate(appUser);
         }
+        for (ReportClass reportClass : ModelDelegate.getReportClasses()) {
+            populate(reportClass);
+        }
         
         // others
         for (ImageStore imageStore : hubImageStore) {
             populate(imageStore);
         }
+        for (Report report : hubReport) {
+            populate(report);
+        }
     }
     
     // Hubs to hold sample data that is not in ModelDelegate
     private Hub<ImageStore> hubImageStore = new Hub<ImageStore>(ImageStore.class);
+    private Hub<Report> hubReport = new Hub<Report>(Report.class);
     
     public static void main(String[] args) {
         OAObjectCallbackDelegate.demoAllowAllToPass(true);

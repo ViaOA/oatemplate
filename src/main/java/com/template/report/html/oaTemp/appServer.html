@@ -25,6 +25,30 @@
                                 </table>
                             </td>
                         </tr>
+                        <tr><td>&nbsp;</td></tr>
+                        <tr>
+                            <td>
+                                <table class="list" width="100%">
+                                    <tr>
+                                        <th colspan="4">Reports</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="width: 20px; text-align: right">#</th>
+                                        <th style="width: 30px; text-align: right"><nobr>Id</nobr></th>
+                                        <th style="width: 75px; text-align: left"><nobr>Created</nobr></th>
+                                        <th width="100%" style="text-align: left"><nobr>Report Def</nobr></th>
+                                    </tr>
+                                    <%=foreach reports%>
+                                    <tr>
+                                        <td style="text-align: right"><%=#counter reports, '4R,'%></td>
+                                        <td style="text-align: right"><nobr><%=id, '6R,'%></nobr></td>
+                                        <td style="text-align: left"><nobr><%=created, '15L.'%></nobr></td>
+                                        <td style="text-align: left"><nobr><%=reportDef.name, '55L.'%></nobr></td>
+                                    </tr>
+                                    <%=end%>
+                                </table>
+                            </td>
+                        </tr>
                     </table>
                 </td>
             </tr>

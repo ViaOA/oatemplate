@@ -74,8 +74,10 @@ public class AppUserLoginJfcBase implements OAModelJfcInterface {
     public static final String CARD_Edit = "edit";
     protected static final String CARD_AppServers = "AppServers";
     protected static final String CARD_AppUserErrors = "AppUserErrors";
+    protected static final String CARD_Reports = "Reports";
     protected int TAB_AppServers = -1;
     protected int TAB_AppUserErrors = -1;
+    protected int TAB_Reports = -1;
     protected JPanel cardPanel;
     protected CardLayout cardLayout;
     protected JTabbedPane tabbedPane;
@@ -94,6 +96,7 @@ public class AppUserLoginJfcBase implements OAModelJfcInterface {
     protected AppUserJfc jfcAppUser;
     protected AppServerJfc jfcAppServers;
     protected AppUserErrorJfc jfcAppUserErrors;
+    protected ReportJfc jfcReports;
     
     public AppUserLoginJfcBase() {
         this.model = new AppUserLoginModel();
@@ -358,6 +361,10 @@ public class AppUserLoginJfcBase implements OAModelJfcInterface {
         mi = getAppUserErrorsJfc().createNewMenuItem();
         if (mi != null) menu.add(mi);
         mi = getAppUserErrorsJfc().createAddMenuItem();
+        if (mi != null) menu.add(mi);
+        mi = getReportsJfc().createNewMenuItem();
+        if (mi != null) menu.add(mi);
+        mi = getReportsJfc().createAddMenuItem();
         if (mi != null) menu.add(mi);
     
         menu.addSeparator();
@@ -1485,6 +1492,7 @@ public class AppUserLoginJfcBase implements OAModelJfcInterface {
         pan.add(new OAScroller(createToolBar(ToolBarOptions.createOneToolBar())), BorderLayout.NORTH);
         // cardPanel.add(getAppServersJfc().getCardPanel(), CARD_AppServers); // this will be created when needed by showCardPanel(..)
         // cardPanel.add(getAppUserErrorsJfc().getCardPanel(), CARD_AppUserErrors); // this will be created when needed by showCardPanel(..)
+        // cardPanel.add(getReportsJfc().getCardPanel(), CARD_Reports); // this will be created when needed by showCardPanel(..)
         return pan;
     }
     
@@ -1502,6 +1510,7 @@ public class AppUserLoginJfcBase implements OAModelJfcInterface {
         pan.add(new OAScroller(createToolBar(ToolBarOptions.createEditPanelToolBar())), BorderLayout.NORTH);
         // cardPanel.add(getAppServersJfc().getCardPanel(), CARD_AppServers); // this will be created when needed by showCardPanel(..)
         // cardPanel.add(getAppUserErrorsJfc().getCardPanel(), CARD_AppUserErrors); // this will be created when needed by showCardPanel(..)
+        // cardPanel.add(getReportsJfc().getCardPanel(), CARD_Reports); // this will be created when needed by showCardPanel(..)
         return pan;
     }
     public CardLayout getCardLayout() {
@@ -1789,6 +1798,53 @@ public class AppUserLoginJfcBase implements OAModelJfcInterface {
             }
             else {
                 tabbedPane.addTab("Errors", icon, new JLabel("loading ...", Resource.getJarIcon("wait.png"), JLabel.CENTER), "App User Errors");
+            }
+        }
+        icon = Resource.getJarIcon("report.gif");
+        icon = new ScaledImageIcon(icon, 32, 20);
+        tabbedPane.addChangeListener(new ChangeListener() {
+            volatile JPanel panThis;
+            volatile Exception ex;
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (panThis != null) return;
+                if (AppUserLoginJfcBase.this.TAB_Reports == 0) return;
+                final JTabbedPane tp = (JTabbedPane) e.getSource();
+                if (tp.getSelectedIndex() != AppUserLoginJfcBase.this.TAB_Reports) return;
+                SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        try {
+                            if (bUseCombinedDetail) panThis = getReportsJfc().createCombinedPanel();
+                            else panThis = getReportsJfc().createTablePanel();
+                        }
+                        catch (Exception e) {
+                            ex = e;
+                        }
+                        return null;
+                    }
+                    @Override
+                    protected void done() {
+                        if (ex != null) {
+                            LOG.log(Level.WARNING, "UI exception creating UI for AppUserLogin", ex);
+                            JOptionPane.showMessageDialog(null, "Exception while creating UI, message sent to tech support", "UI Exception", JOptionPane.ERROR_MESSAGE);
+                        }
+                        if (panThis == null) panThis = new JPanel();
+                        tp.setComponentAt(AppUserLoginJfcBase.this.TAB_Reports, panThis);
+                    }
+                };
+                sw.execute();
+            }
+        });
+        if (getModel().getReportsModel().getCreateUI()) {
+            if ((this.TAB_Reports = tabbedPane.getTabCount()) == 0) {
+                JPanel panThis;
+                if (bUseCombinedDetail) panThis = getReportsJfc().createCombinedPanel();
+                else panThis = getReportsJfc().createTablePanel();
+                tabbedPane.setComponentAt(AppUserLoginJfcBase.this.TAB_Reports, panThis);
+            }
+            else {
+                tabbedPane.addTab("Reports", icon, new JLabel("loading ...", Resource.getJarIcon("wait.png"), JLabel.CENTER), "Reports");
             }
         }
         panel = panMain;
@@ -2136,6 +2192,79 @@ public class AppUserLoginJfcBase implements OAModelJfcInterface {
         OAModelJfcUtil.setParent(jfcAppUserErrors, this);
         return jfcAppUserErrors;
     }
+    public ReportJfc getReportsJfc() {
+        if (jfcReports == null) {
+            jfcReports = createReportsJfc();
+        }
+        return jfcReports;
+    }
+    public ReportJfc createReportsJfc() {
+        return createReportsJfc(true);
+    }
+    public ReportJfc createReportsJfc(final boolean bIsEmbedded) {
+        jfcReports = new ReportJfc(getModel().getReportsModel()) {
+            @Override
+            protected ReportSearchJfc getSearchJfc() {
+                if (jfcSearch != null) return jfcSearch;
+                ReportSearchModel model = AppUserLoginJfcBase.this.getModel().getReportsSearchModel();
+                jfcSearch = new ReportSearchJfc(model, true, false);
+                return jfcSearch;
+            }
+            @Override
+            public JPanel getCardPanel() {
+                if (cardPanel != null) return cardPanel;
+                if (!bIsEmbedded) return super.getCardPanel();
+                cardPanel = new JPanel(getCardLayout());
+                JPanel pan = new JPanel(new BorderLayout());
+                pan.add(createToolBar(ToolBarOptions.createEditPanelToolBar()), BorderLayout.NORTH);
+                pan.add(createEditPanel(), BorderLayout.CENTER);
+                cardPanel.add(pan, CARD_Edit);
+                return cardPanel;
+            }
+    
+            @Override
+            public void showCardPanel(String name) {
+                if (!bIsEmbedded) {
+                    super.showCardPanel(name);
+                    AppUserLoginJfcBase.this.showCardPanel(name);
+                    return;
+                }
+                if (name.equals(ReportJfc.CARD_List)) {
+                    AppUserLoginJfcBase.this.showCardPanel(CARD_Edit);
+                    if (AppUserLoginJfcBase.this.TAB_Reports >= 0) {
+                        AppUserLoginJfcBase.this.getTabbedPane().setSelectedIndex(AppUserLoginJfcBase.this.TAB_Reports);
+                    }
+                }
+                else if (name.equals(ReportJfcBase.CARD_Edit)) {
+                    AppUserLoginJfcBase.this.showCardPanel(CARD_Edit);
+                    if (AppUserLoginJfcBase.this.TAB_Reports >= 0) {
+                        AppUserLoginJfcBase.this.getTabbedPane().setSelectedIndex(AppUserLoginJfcBase.this.TAB_Reports);
+                    }
+                }
+                else {
+                    AppUserLoginJfcBase.this.showCardPanel(CARD_Reports);
+                    super.showCardPanel(name);
+                }
+            }
+            public JButton createGoBackButton() {
+                JButton cmd = new JButton();
+                cmd.setIcon(Resource.getJarIcon(Resource.getValue(Resource.IMG_GoBack)));
+                cmd.setToolTipText("Go to " + AppUserLoginJfcBase.this.getModel().getDisplayName());
+                cmd.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        AppUserLoginJfcBase.this.showCardPanel(AppUserLoginJfcBase.this.CARD_Edit);
+                        AppUserLoginJfcBase.this.getHub().resetAO(); // this will set selected treeNode
+                    }
+                });
+                OAButton.setup(cmd);
+                return cmd;
+            }
+        };
+        jfcReports.setLevel(getLevel()+1);
+        OAModelJfcUtil.setParent(jfcReports, this);
+        return jfcReports;
+    }
     // OnShowCommands
     public void showCardPanel(String name) {
         if (name == null) return;
@@ -2148,6 +2277,11 @@ public class AppUserLoginJfcBase implements OAModelJfcInterface {
         else if (name.equalsIgnoreCase(CARD_AppUserErrors)) {
             if ( !OAArray.contains(cardPanel.getComponents(), getAppUserErrorsJfc().getCardPanel()) ) {
                 cardPanel.add(getAppUserErrorsJfc().getCardPanel(), CARD_AppUserErrors);
+            }
+        }
+        else if (name.equalsIgnoreCase(CARD_Reports)) {
+            if ( !OAArray.contains(cardPanel.getComponents(), getReportsJfc().getCardPanel()) ) {
+                cardPanel.add(getReportsJfc().getCardPanel(), CARD_Reports);
             }
         }
         getCardLayout().show(getCardPanel(), name);

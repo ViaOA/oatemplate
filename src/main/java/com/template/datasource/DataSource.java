@@ -112,9 +112,16 @@ public class DataSource {
         int APPUSERERROR = 3;
         int APPUSERLOGIN = 4;
         int IMAGESTORE = 5;
+        int REPORT = 6;
+        int REPORTCLASS = 7;
+        int REPORTDEF = 8;
         
         // LINK TABLES
-        int MAX = 6;
+        int APPUSERREPORT = 9;
+        int APPUSERLOGINREPORT = 10;
+        int APPUSERERRORREPORT = 11;
+        int APPSERVERREPORT = 12;
+        int MAX = 13;
         
         Database db = new Database();
         Table[] tables = new Table[MAX];
@@ -129,8 +136,15 @@ public class DataSource {
         tables[APPUSERERROR] = new Table("AppUserError", AppUserError.class);
         tables[APPUSERLOGIN] = new Table("AppUserLogin", AppUserLogin.class);
         tables[IMAGESTORE] = new Table("ImageStore", ImageStore.class);
+        tables[REPORT] = new Table("Report", Report.class);
+        tables[REPORTCLASS] = new Table("ReportClass", ReportClass.class);
+        tables[REPORTDEF] = new Table("ReportDef", ReportDef.class);
         
         // LINK TABLES
+        tables[APPUSERREPORT] = new Table("AppUserReport",true);
+        tables[APPUSERLOGINREPORT] = new Table("AppUserLoginReport",true);
+        tables[APPUSERERRORREPORT] = new Table("AppUserErrorReport",true);
+        tables[APPSERVERREPORT] = new Table("AppServerReport",true);
         
         // TABLE COLUMNS
         // NextNumber COLUMNS
@@ -211,7 +225,76 @@ public class DataSource {
         columns[3] = new Column("OrigFileName", "origFileName", Types.VARCHAR, 250);
         tables[IMAGESTORE].setColumns(columns);
         
+        // Report COLUMNS
+        columns = new Column[5];
+        columns[0] = new Column("Id", "id", Types.INTEGER, 20);
+        columns[0].primaryKey = true;
+        columns[0].assignNextNumber = true;
+        columns[1] = new Column("Created", "created", Types.TIMESTAMP);
+        columns[2] = new Column("Generated", "generated", Types.TIMESTAMP);
+        columns[3] = new Column("Html", "html", Types.CLOB);
+        columns[4] = new Column("ReportDefId", true);
+        tables[REPORT].setColumns(columns);
+        tables[REPORT].addIndex(new Index("ReportReportDef", "ReportDefId", true));
+        
+        // ReportClass COLUMNS
+        columns = new Column[4];
+        columns[0] = new Column("Id", "id", Types.INTEGER, 20);
+        columns[0].primaryKey = true;
+        columns[0].assignNextNumber = true;
+        columns[1] = new Column("Created", "created", Types.TIMESTAMP);
+        columns[2] = new Column("Name", "name", Types.VARCHAR, 55);
+        columns[3] = new Column("ClassName", "className", Types.VARCHAR, 75);
+        columns[3].columnLowerName = "ClassNameLower";
+        tables[REPORTCLASS].setColumns(columns);
+        tables[REPORTCLASS].addIndex(new Index("ReportClassClassName", "ClassNameLower"));
+        
+        // ReportDef COLUMNS
+        columns = new Column[6];
+        columns[0] = new Column("Id", "id", Types.INTEGER, 20);
+        columns[0].primaryKey = true;
+        columns[0].assignNextNumber = true;
+        columns[1] = new Column("Created", "created", Types.TIMESTAMP);
+        columns[2] = new Column("Name", "name", Types.VARCHAR, 55);
+        columns[3] = new Column("Template", "template", Types.CLOB);
+        columns[4] = new Column("Seq", "seq", Types.INTEGER);
+        columns[5] = new Column("ReportClassId", true);
+        tables[REPORTDEF].setColumns(columns);
+        tables[REPORTDEF].addIndex(new Index("ReportDefReportClass", "ReportClassId", true));
+        
         // Link Tables Columns
+        
+        // AppUserReport COLUMNS
+        columns = new Column[2];
+        columns[0] = new Column("AppUserId",null);
+        columns[1] = new Column("ReportId",null);
+        tables[APPUSERREPORT].setColumns(columns);
+        tables[APPUSERREPORT].addIndex(new Index("ReportAppUser", new String[] {"AppUserId"}));
+        tables[APPUSERREPORT].addIndex(new Index("AppUserReport", new String[] {"ReportId"}));
+        
+        // AppUserLoginReport COLUMNS
+        columns = new Column[2];
+        columns[0] = new Column("AppUserLoginId",null);
+        columns[1] = new Column("ReportId",null);
+        tables[APPUSERLOGINREPORT].setColumns(columns);
+        tables[APPUSERLOGINREPORT].addIndex(new Index("ReportAppUserLogin", new String[] {"AppUserLoginId"}));
+        tables[APPUSERLOGINREPORT].addIndex(new Index("AppUserLoginReport", new String[] {"ReportId"}));
+        
+        // AppUserErrorReport COLUMNS
+        columns = new Column[2];
+        columns[0] = new Column("AppUserErrorId",null);
+        columns[1] = new Column("ReportId",null);
+        tables[APPUSERERRORREPORT].setColumns(columns);
+        tables[APPUSERERRORREPORT].addIndex(new Index("ReportAppUserError", new String[] {"AppUserErrorId"}));
+        tables[APPUSERERRORREPORT].addIndex(new Index("AppUserErrorReport", new String[] {"ReportId"}));
+        
+        // AppServerReport COLUMNS
+        columns = new Column[2];
+        columns[0] = new Column("AppServerId",null);
+        columns[1] = new Column("ReportId",null);
+        tables[APPSERVERREPORT].setColumns(columns);
+        tables[APPSERVERREPORT].addIndex(new Index("ReportAppServer", new String[] {"AppServerId"}));
+        tables[APPSERVERREPORT].addIndex(new Index("AppServerReport", new String[] {"ReportId"}));
         
         // LINKS
         // table.addLink( propertyName, toTableName, reversePropertyName, FKey ColumnNumber(s))
@@ -221,8 +304,36 @@ public class DataSource {
         tables[APPUSERLOGIN].addLink("appServers", tables[APPSERVER], "appUserLogin", new int[] {0});
         tables[APPUSERLOGIN].addLink("appUser", tables[APPUSER], "appUserLogins", new int[] {10});
         tables[APPUSERLOGIN].addLink("appUserErrors", tables[APPUSERERROR], "appUserLogin", new int[] {0});
+        tables[REPORT].addLink("reportDef", tables[REPORTDEF], "reports", new int[] {4});
+        tables[REPORTCLASS].addLink("reportDefs", tables[REPORTDEF], "reportClass", new int[] {0});
+        tables[REPORTDEF].addLink("reportClass", tables[REPORTCLASS], "reportDefs", new int[] {5});
+        tables[REPORTDEF].addLink("reports", tables[REPORT], "reportDef", new int[] {0});
         
         // Links for Link Tables
+        
+        // AppUserReport LINKS
+        tables[APPUSERREPORT].addLink("appUser", tables[APPUSER], "reports", new int[] {0});
+        tables[APPUSER].addLink("reports", tables[APPUSERREPORT], "appUser", new int[] {0});
+        tables[APPUSERREPORT].addLink("reports", tables[REPORT], "appUser", new int[] {1});
+        tables[REPORT].addLink("appUser", tables[APPUSERREPORT], "reports", new int[] {0});
+        
+        // AppUserLoginReport LINKS
+        tables[APPUSERLOGINREPORT].addLink("appUserLogin", tables[APPUSERLOGIN], "reports", new int[] {0});
+        tables[APPUSERLOGIN].addLink("reports", tables[APPUSERLOGINREPORT], "appUserLogin", new int[] {0});
+        tables[APPUSERLOGINREPORT].addLink("reports", tables[REPORT], "appUserLogin", new int[] {1});
+        tables[REPORT].addLink("appUserLogin", tables[APPUSERLOGINREPORT], "reports", new int[] {0});
+        
+        // AppUserErrorReport LINKS
+        tables[APPUSERERRORREPORT].addLink("appUserError", tables[APPUSERERROR], "reports", new int[] {0});
+        tables[APPUSERERROR].addLink("reports", tables[APPUSERERRORREPORT], "appUserError", new int[] {0});
+        tables[APPUSERERRORREPORT].addLink("reports", tables[REPORT], "appUserError", new int[] {1});
+        tables[REPORT].addLink("appUserError", tables[APPUSERERRORREPORT], "reports", new int[] {0});
+        
+        // AppServerReport LINKS
+        tables[APPSERVERREPORT].addLink("appServer", tables[APPSERVER], "reports", new int[] {0});
+        tables[APPSERVER].addLink("reports", tables[APPSERVERREPORT], "appServer", new int[] {0});
+        tables[APPSERVERREPORT].addLink("reports", tables[REPORT], "appServer", new int[] {1});
+        tables[REPORT].addLink("appServer", tables[APPSERVERREPORT], "reports", new int[] {0});
         db.setTables(tables);
         return db;
     }
@@ -325,6 +436,63 @@ public class DataSource {
         };
         table = db.getTable("ImageStore");
         if (table != null) table.setDataAccessObject(dao);
+        
+        dao = new DataAccessObject() {
+            private static final String pkeyColumns = "Report.Id";
+            private static final String columns = "Report.Id, Report.Created, Report.Generated, Report.Html, Report.ReportDefId";
+            @Override
+            public String getPkeySelectColumns() {
+                return pkeyColumns;
+            }
+            @Override
+            public String getSelectColumns() {
+                return columns;
+            }
+            @Override
+            public OAObject getObject(DataAccessObject.ResultSetInfo rsi) throws SQLException {
+                return getReport(rsi.getResultSet(), rsi);
+            }
+        };
+        table = db.getTable("Report");
+        if (table != null) table.setDataAccessObject(dao);
+        
+        dao = new DataAccessObject() {
+            private static final String pkeyColumns = "ReportClass.Id";
+            private static final String columns = "ReportClass.Id, ReportClass.Created, ReportClass.Name, ReportClass.ClassName";
+            @Override
+            public String getPkeySelectColumns() {
+                return pkeyColumns;
+            }
+            @Override
+            public String getSelectColumns() {
+                return columns;
+            }
+            @Override
+            public OAObject getObject(DataAccessObject.ResultSetInfo rsi) throws SQLException {
+                return getReportClass(rsi.getResultSet(), rsi);
+            }
+        };
+        table = db.getTable("ReportClass");
+        if (table != null) table.setDataAccessObject(dao);
+        
+        dao = new DataAccessObject() {
+            private static final String pkeyColumns = "ReportDef.Id";
+            private static final String columns = "ReportDef.Id, ReportDef.Created, ReportDef.Name, ReportDef.Template, ReportDef.Seq, ReportDef.ReportClassId";
+            @Override
+            public String getPkeySelectColumns() {
+                return pkeyColumns;
+            }
+            @Override
+            public String getSelectColumns() {
+                return columns;
+            }
+            @Override
+            public OAObject getObject(DataAccessObject.ResultSetInfo rsi) throws SQLException {
+                return getReportDef(rsi.getResultSet(), rsi);
+            }
+        };
+        table = db.getTable("ReportDef");
+        if (table != null) table.setDataAccessObject(dao);
     }
     
     protected AppServer getAppServer(ResultSet rs, DataAccessObject.ResultSetInfo rsi) throws SQLException {
@@ -390,5 +558,44 @@ public class DataSource {
             rsi.setFoundInCache(true);
         }
         return imageStore;
+    }
+    
+    protected Report getReport(ResultSet rs, DataAccessObject.ResultSetInfo rsi) throws SQLException {
+        int id = rs.getInt(1);
+        Report report = (Report) OAObjectCacheDelegate.getObject(Report.class, id);
+        if (report == null) {
+            report = new Report();
+            report.load(rs, id);
+        }
+        else {
+            rsi.setFoundInCache(true);
+        }
+        return report;
+    }
+    
+    protected ReportClass getReportClass(ResultSet rs, DataAccessObject.ResultSetInfo rsi) throws SQLException {
+        int id = rs.getInt(1);
+        ReportClass reportClass = (ReportClass) OAObjectCacheDelegate.getObject(ReportClass.class, id);
+        if (reportClass == null) {
+            reportClass = new ReportClass();
+            reportClass.load(rs, id);
+        }
+        else {
+            rsi.setFoundInCache(true);
+        }
+        return reportClass;
+    }
+    
+    protected ReportDef getReportDef(ResultSet rs, DataAccessObject.ResultSetInfo rsi) throws SQLException {
+        int id = rs.getInt(1);
+        ReportDef reportDef = (ReportDef) OAObjectCacheDelegate.getObject(ReportDef.class, id);
+        if (reportDef == null) {
+            reportDef = new ReportDef();
+            reportDef.load(rs, id);
+        }
+        else {
+            rsi.setFoundInCache(true);
+        }
+        return reportDef;
     }
 }

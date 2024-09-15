@@ -309,6 +309,14 @@ public class AppUserErrorSearchJfc {
         JButton cmd;
         OATextField txt;
         
+        lbl = new JLabel("Custom Query:");
+        txt = createCustomQueryTextField();
+        txt.setLabel(lbl);
+        panel.add(lbl, gc);
+        gc.gridwidth = gc.REMAINDER;
+        panel.add(new OAResizePanel(txt, 95), gc);
+        gc.gridwidth = 1;
+        
         lbl = new JLabel("Max Results:");
         txt = createMaxResultsTextField();
         txt.setLabel(lbl);
@@ -370,12 +378,19 @@ public class AppUserErrorSearchJfc {
     }
     
     
+    public OATextField createCustomQueryTextField() {
+        OATextField txt = new OATextField(getModel().getAppUserErrorSearchHub(), AppUserErrorSearch.P_CustomQuery, 25);
+        txt.setMinimumColumns(10);
+        txt.setMaximumColumns(110);
+        new OATextFieldCodeController(txt, AppUserError.class, OATextFieldCodeController.Type.query);
+        return txt;
+    }
+    
     public OATextField createMaxResultsTextField() {
         OATextField txt = new OATextField(getModel().getAppUserErrorSearchHub(), AppUserErrorSearch.P_MaxResults, 5);
         txt.setToolTipText("set the maximum rows to return");
         return txt;
     }
-    
     
     protected void setup(JTextComponent txt) {
         OATextController tc = new OATextController(txt, Resource.getSpellChecker(), true);

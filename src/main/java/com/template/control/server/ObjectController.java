@@ -12,6 +12,7 @@ import com.viaoa.sync.*;
 import com.viaoa.util.*;
 
 import com.template.delegate.*;
+import com.template.delegate.oa.*;
 import com.template.model.oa.*;
 import com.template.model.oa.trigger.*;
 
@@ -62,6 +63,8 @@ public class ObjectController {
     protected void startCustom() {
         startCustom2();
         /*$$Start: ObjectController.startCustom $$*/
+        // ReportClass
+        ReportClassDelegate.createReportClasses();
         /*$$End: ObjectController.startCustom $$*/
     }
     
