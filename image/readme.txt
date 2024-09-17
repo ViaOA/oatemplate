@@ -4,7 +4,7 @@ Using Gimp (*.xcf)
 
 
 Notes: 
-store App images in image/export folder
+ * see vvia/images project 
 
 
 Images List:
@@ -24,9 +24,10 @@ for each root (/toolbar)
 
 
 get icons (choose free option)      
+    www.iconfinder.com
+        settings: outline, free
     www.iconbuddy.app
     www.thenounproject.com
-    www.iconfinder.com
     www.streamlinehq.com
         custom settings:  size=128,  stroke=8
 
