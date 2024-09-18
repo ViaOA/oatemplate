@@ -61,8 +61,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import com.template.resource.Resource;
-import com.viaoa.jfc.OAButton;
-import com.viaoa.jfc.OACommand;
+import com.viaoa.jfc.*;
 import com.viaoa.jfc.control.CutCopyPasteController;
 import com.viaoa.jfc.control.UndoableController;
 import com.viaoa.jfc.print.PrintController;
@@ -147,7 +146,7 @@ public abstract class ClientFrame extends JFrame {
 		Container cont = getContentPane();
 		cont.setLayout(new BorderLayout());
 
-		cont.add(getToolBar(), BorderLayout.NORTH);
+		cont.add(new OAScroller(getToolBar()), BorderLayout.NORTH);
 		cont.add(getStatusPanel(), BorderLayout.SOUTH);
 
 		setJMenuBar(getMyMenuBar());
