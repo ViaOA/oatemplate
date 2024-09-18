@@ -46,6 +46,7 @@ import com.template.resource.Resource;
 import com.template.view.client.ClientFrame;
 /*$$Start: ClientFrameController.customize0 $$*/
 import com.template.view.client.panel.template.TemplatePanel;
+import com.template.view.client.panel.search.SearchPanel;
 import com.template.view.client.panel.reportDesigner.ReportDesignerPanel;
 import com.template.view.client.panel.server.ServerPanel;
 /*$$End: ClientFrameController.customize0 $$*/
@@ -645,6 +646,8 @@ public abstract class ClientFrameController {
 		/*$$Start: ClientFrameController.customize1 $$*/
         TemplatePanel panTemplate = new TemplatePanel();
         frm.addPanel(panTemplate.getMainComponent(), "TemplatePanel", panTemplate.getMenuItem(), panTemplate.getToggleButton());
+        SearchPanel panSearch = new SearchPanel();
+        frm.addPanel(panSearch.getMainComponent(), "SearchPanel", panSearch.getMenuItem(), panSearch.getToggleButton());
         ReportDesignerPanel panReportDesigner = new ReportDesignerPanel();
         frm.addPanel(panReportDesigner.getMainComponent(), "ReportDesignerPanel", panReportDesigner.getMenuItem(), panReportDesigner.getToggleButton());
         ServerPanel panServer = new ServerPanel();

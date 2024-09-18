@@ -94,7 +94,7 @@ public abstract class SingleController {
     }
 
     public boolean start() throws Exception {
-        String packageName = "com.fose.model.oa";
+        String packageName = "com.template.model.oa";
         String[] cnames = OAReflect.getClasses(packageName);
         for (String fn : cnames) {
             Class c = Class.forName(packageName + "." + fn);

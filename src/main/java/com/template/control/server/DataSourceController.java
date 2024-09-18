@@ -199,6 +199,31 @@ public class DataSourceController {
                 }
             }
         });
+        aiExecutor.incrementAndGet();
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                String msg = "serverRoot.getReportClasses()";
+                try {
+                    alExecutorService.add(msg);
+                    if (isUsingDatabase()) {
+                        select(serverRoot.getReportClasses(), "", null);
+                    }
+                    else {
+                        OAObjectCacheDelegate.setSelectAllHub(serverRoot.getReportClasses());
+                    }
+                }
+                catch (Exception e) {
+                    String s = "DataSourceController error selecting ReportClasses, exception="+e;
+                    alSelectError.add(s);
+                    LOG.log(Level.WARNING, s, e);
+                }
+                finally {
+                    aiExecutor.decrementAndGet();
+                    alExecutorService.remove(msg);
+                }
+            }
+        });
 
 /*$$End: DatasourceController.loadServerRoot $$*/
 

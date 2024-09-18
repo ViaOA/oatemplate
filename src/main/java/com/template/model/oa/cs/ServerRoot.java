@@ -68,7 +68,7 @@ public class ServerRoot extends OAObject {
 
 	/*$$Start: ServerRoot3 $$*/
     // lookups, preselects
-    @OAMany(toClass = AppServer.class, cascadeSave = true)
+    @OAMany(toClass = AppServer.class, cascadeSave = true, isProcessed = true)
     public Hub<AppServer> getAppServers() {
         if (hubAppServers == null) {
             hubAppServers = (Hub<AppServer>) super.getHub(P_AppServers);
@@ -82,7 +82,7 @@ public class ServerRoot extends OAObject {
         }
         return hubAppUsers;
     }
-    @OAMany(toClass = ReportClass.class, cascadeSave = true)
+    @OAMany(toClass = ReportClass.class, cascadeSave = true, isProcessed = true)
     public Hub<ReportClass> getReportClasses() {
         if (hubReportClasses == null) {
             hubReportClasses = (Hub<ReportClass>) super.getHub(P_ReportClasses);

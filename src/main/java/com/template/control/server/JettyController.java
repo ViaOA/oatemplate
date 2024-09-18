@@ -80,7 +80,6 @@ import com.viaoa.util.OAString;
 import com.viaoa.web.filter.OAUserAccessFilter;
 import com.viaoa.web.servlet.HealthCheckServlet;
 import com.viaoa.web.servlet.ImageServlet;
-import com.viaoa.web.servlet.JNLPServlet;
 import com.viaoa.web.servlet.JsonServlet;
 import com.viaoa.web.servlet.OARestServlet;
 import com.viaoa.web.servlet.PdfServlet;
@@ -94,7 +93,7 @@ import com.viaoa.web.servlet.SecurityServlet;
 /**
  * Embedded Jetty webserver that supports: http, https, webservices (jax-ws), servlets, JSP, file explorer, NCSARequestLog logging Servlets
  * <p>
- * for: REST/json, pdf, images, security, jnlp
+ * for: REST/json, pdf, images, security
  * <p>
  * For OpenAPI/Swagger<br>
  * see: ../src/main/webapp/swagger-ui/index.html
@@ -298,7 +297,6 @@ public class JettyController {
 		servletContextHandler.setContextPath("/"); // url prefix
 		servletContextHandler.setResourceBase(dirName);
 
-		// 20180201
 		// see:  https://github.com/jetty-project/embedded-jetty-jsp/blob/master/src/main/java/org/eclipse/jetty/demo/Main.java
 		// Set Classloader of Context to be same (needed for JSTL)
 		// JSP requires a non-System classloader, this simply wraps the
@@ -446,68 +444,16 @@ public class JettyController {
 		SecurityServlet servletSecure = new SecurityServlet("user", "password");
 		servletContextHandler.addServlet(new ServletHolder(servletSecure), "/servlet/security");
 
-		// JNLP Servlet, to set correct values in jnlp, and add client args[]
-		JNLPServlet js = new JNLPServlet();
-		s = Resource.getValue(Resource.APP_Server, "");
-		js.addNameValue(Resource.APP_Server, s);
-		s = Resource.getValue(Resource.APP_ServerPort, "");
-		js.addNameValue(Resource.APP_ServerPort, s);
-		s = Resource.getValue(Resource.APP_ClientApplicationName, "");
-		js.addNameValue(Resource.APP_ClientApplicationName, s);
-		s = Resource.getValue(Resource.APP_ServerDisplayName, "");
-		js.addNameValue(Resource.APP_ServerDisplayName, s);
-		s = Resource.getValue(Resource.APP_JettyServer, "");
-		js.addNameValue(Resource.APP_JettyServer, s);
-		s = Resource.getValue(Resource.APP_JettyPort, "");
-		js.addNameValue(Resource.APP_JettyPort, s);
-		s = Resource.getValue(Resource.APP_ClientApplicationName, "");
-		js.addNameValue("jnlp.title", s);
-		servletContextHandler.addServlet(new ServletHolder(js), "*.jnlp");
-
 		// see: http://wiki.eclipse.org/Jetty/Howto/Configure_JSP
 
-		//======= file access for specific directories ==============================
-		// find base directory
-		/*
-		String dirLib = dirName;
-		if (dirLib == null) dirLib = "";
-		pos = dirLib.lastIndexOf('\\');
-		if (pos < 0) pos = dirLib.lastIndexOf('/');
-		if (pos > 1) {
-		    dirLib = dirLib.substring(0, pos + 1);
-		}
-		else dirLib = "./";
-		*/
-		String dirLib = Resource.getValue(Resource.APP_JettyLibDirectory);
-		dirLib = OAFile.convertFileName(dirLib);
-
-		// "/lib" directory
-		ContextHandler libContextHandler = contextHandlerCollection.addContext("/lib", dirLib);
-		// ContextHandler libContextHandler = contextHandlerCollection.addContext("/lib", dirLib + "lib");
-		ResourceHandler libResourceHandler = new ResourceHandler();
-		//qqq comment out
-		libResourceHandler.setDirectoriesListed(true);
-		libContextHandler.setHandler(libResourceHandler);
-
-		// "/jar directory
-		// ContextHandler jarContextHandler = contextHandlerCollection.addContext("/jar", dirLib + "jar");
-		ContextHandler jarContextHandler = contextHandlerCollection.addContext("/jar", dirLib);
-		ResourceHandler jarResourceHandler = new ResourceHandler();
-		// jarResourceHandler.setDirectoriesListed(true);
-		jarContextHandler.setHandler(jarResourceHandler);
-
-		// "/src" directory
-		/*
-		ContextHandler srcContextHandler = contextHandlerCollection.addContext("/src", dirLib + "src");
-		ResourceHandler srcResourceHandler = new ResourceHandler();
-		srcResourceHandler.setDirectoriesListed(true);
-		srcContextHandler.setHandler(srcResourceHandler);
-		*/
-
-		/* replaced with jnlpservlet // "/jnlp" directory ContextHandler jnlpContextHandler =
-		 * contextHandlerCollection.addContext("/jnlp", dirLib + "jnlp"); ResourceHandler
-		 * jnlpResourceHandler = new ResourceHandler(); jnlpResourceHandler.setDirectoriesListed(true);
-		 * jnlpContextHandler.setHandler(jnlpResourceHandler); */
+		//======= file access for shared ==============================
+		ContextHandler contextHandlerShared = contextHandlerCollection.addContext("/shared", dirName + "/shared");
+		ResourceHandler resourceHandlerShared = new ResourceHandler();
+		resourceHandlerShared.setDirectoriesListed(true);
+		contextHandlerShared.setHandler(resourceHandlerShared);
+		
+		
+		
 
 		//======= special purpose handlers ========================================
 		// "hook" to allow redirect, by overwriting getRedirectedPage(..)
@@ -560,7 +506,6 @@ public class JettyController {
 			}
 		};
 
-		// 20180201
 		// Custom subdomain handler to allow for "sub.acme.com" to be redirected to "www.acem.com/login.jsp?sub"
 		// Note: not used, not added to HandlerList
 		Handler subdomainHandler = new AbstractHandler() {
@@ -610,6 +555,7 @@ public class JettyController {
 		handlerList.setHandlers(new Handler[] { 
 		        requestLogHandler, httpsRedirectHandler, 
 		        redirectHandler, servletContextHandler,
+		        contextHandlerShared,
 		        // resourceContextHandler, 
 				new DefaultHandler() });
 		contextHandlerCollection.addHandler(handlerList);

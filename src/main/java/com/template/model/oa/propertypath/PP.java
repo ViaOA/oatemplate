@@ -37,5 +37,23 @@ public class PP {
     public static ImageStorePPx imageStores() {
         return new ImageStorePPx("ImageStores");
     }
+    public static ReportPPx report() {
+        return new ReportPPx("Report");
+    }
+    public static ReportPPx reports() {
+        return new ReportPPx("Reports");
+    }
+    public static ReportClassPPx reportClass() {
+        return new ReportClassPPx("ReportClass");
+    }
+    public static ReportClassPPx reportClasses() {
+        return new ReportClassPPx("ReportClasses");
+    }
+    public static ReportDefPPx reportDef() {
+        return new ReportDefPPx("ReportDef");
+    }
+    public static ReportDefPPx reportDefs() {
+        return new ReportDefPPx("ReportDefs");
+    }
     /*$$End: PPInterface.code $$*/
 }
