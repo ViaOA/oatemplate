@@ -1,0 +1,1293 @@
+
+<!DOCTYPE html>
+<html lang="enUS">
+
+<head>
+<TITLE>OATemplate</TITLE>
+<meta charset="utf-8">
+
+<meta content="text/html; charset=UFT-8" http-equiv=Content-Type>
+<meta http-equiv="Content-Language" content="en-us" />
+<meta http-equiv="Expires" content="Tue, 20 Aug 1996 14:25:27 GMT">
+<meta HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<link rel="shortcut icon" type="image" href="image/icon.gif" />
+
+<meta name="author" content="xxx">
+<meta name="description" content="xxx">
+<meta name="generator" content="xxx">
+<meta name="keywords" content="abc,xyz,etc">
+<meta name="application-name" content="xxx">
+<meta name="robots" content="index,follow">
+<meta name="publisher" content="xxx">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="vendor/jquery-ui-1.12.1/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="vendor/bootstrap-5.3.1/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="vendor/viaoa/oawebTest.css">
+
+<script type="text/javascript" language="javascript" src="vendor/jquery-3.1.1/jquery.js"></script>
+<script type="text/javascript" language="javascript" src="vendor/jquery-ui-1.12.1/jquery-ui.js"></script>
+<script type="text/javascript" language="javascript" src="vendor/bootstrap-3.3.7/js/bootstrap.js"></script>
+<script>
+
+var oaShowMessage;
+if ($().modal) {
+  oaShowMessage = function(title, msg) {
+    $('#oaformDialog .modal-title').html(title);
+    $('#oaformDialog .modal-body').html(msg);
+    $('#oaformDialog').modal({keyboard: true});
+  }
+}
+else {
+  oaShowMessage = function(title, msg) {
+    $('#oaformDialog').dialog('option', 'title', title);
+    $('#oaformDialog').html(msg);
+    $('#oaformDialog').dialog('open');
+  }
+}
+function oaShowSnackbarMessage(msg) {
+  $('#oaFormSnackbarMessage').html(msg);
+  $('#oaFormSnackbarMessage').css({visibility:'visible', opacity: 0.0}).animate({opacity: 1.0},300);
+  setTimeout(function() {
+    $('#oaFormSnackbarMessage').animate({opacity: 0.0}, 2000,
+      function() {
+        $('#oaFormSnackbarMessage').css('visibility','hidden');
+      }
+    );
+  }, 2000);
+}
+var oaSubmitCancelled;
+function oaSubmit(event) {
+  oaSubmitCancelled = true;
+  var errors = [];
+  var requires = [];
+  var regex;
+  var val;
+  if (requires.length > 0) {
+    event.preventDefault();
+    var msg = '';
+    for (var i=0; i<requires.length; i++) {
+      if (i > 0) {
+        msg += ',<br>';
+      }
+      msg += requires[i];
+    }
+    oaShowMessage('Required fields are missing', msg);
+    return false;
+  }
+  if (errors.length > 0) {
+    event.preventDefault();
+    var msg = '';
+    for (var i=0; i<errors.length; i++) {
+      if (i > 0) {
+        msg += ', ';
+        msg += '<br>';
+      }
+      msg += errors[i];
+    }
+    oaShowMessage('Errors on page', msg);
+    return false;
+  }
+  oaSubmitCancelled = false;
+  return true;
+}
+var cntAjaxSubmit = 0;
+function ajaxSubmit(cmdName) {
+  cntAjaxSubmit++;
+  var bUseAsync = (cntAjaxSubmit == 1);
+  if (bUseAsync && cntAjaxSubmit == 1) {
+    $('#oaWait').fadeIn(200, function(){ if (cntAjaxSubmit < 1) {cntAjaxSubmit=0;$('#oaWait').hide();}});
+  }
+  var f1 = function(data) {
+    if (--cntAjaxSubmit < 1) {
+      cntAjaxSubmit=0; 
+      $('#oaWait').hide();
+    }
+    if (data) eval(data);
+  }
+  var f2 = function() {
+    if (--cntAjaxSubmit < 1) {
+      cntAjaxSubmit=0; 
+      $('#oaWait').hide();
+    }
+  }
+  var objAjax = {
+    method: 'POST',
+    url: 'oaajax.jsp?oaform=htmlElement',
+    data: new FormData($('#htmlElement')[0]),
+    processData: false,
+    contentType: false,
+    dataType: 'script',
+    timeout: 30000,
+    async: bUseAsync
+  };
+  $.ajax(objAjax).done(f1).fail(f2);
+}
+function ajaxSubmit2(cmdName) {
+  var args = $('#htmlElement').serialize();
+  if (cmdName != undefined && cmdName) args = cmdName + '=1&' + args;
+  $.ajax({
+    method: 'POST',
+    data: args,
+    url: 'oaajax.jsp',
+    dataType: 'script'
+  }).done(function(data) {if (data) eval(data);});
+}
+var oaFocusValue = '';
+$(document).ready(function() {
+  if ($().modal) {
+    $('#htmlElement').prepend(
+    "<div id='oaformDialog' class='modal fade' tabindex='-1'>" +
+      "<div class='modal-dialog'>" +
+        "<div class='modal-content'>" +
+          "<div class='modal-header'>" +
+            "<button type='button' class='close' data-dismiss='modal'><span>&times;</span></button>" +
+            "<h4 class='modal-title'>" +
+            "</h4>" +
+          "</div>" +
+          "<div class='modal-body'>" +
+          "</div>" +
+          "<div class='modal-footer'>" +
+            "<button type='button' class='btn btn-primary' data-dismiss='modal'>Ok</button>" +
+          "</div>" +
+        "</div>" +
+      "</div>" +
+    "</div>"
+  );
+}
+else {
+  $('#htmlElement').prepend("<div id='oaformDialog'></div>");
+  $('#oaformDialog').dialog({
+    autoOpen : false,
+    title : 'Message',
+    modal : true,
+    width : 420,
+    zIndex: 19999,
+    buttons: [
+      { text: 'Ok', click: function() { $(this).dialog('close'); } }
+    ]
+  });
+}
+$('#htmlElement').prepend(
+  "<div id='oaFormProcess' class='modal fade' tabindex='-1'>" +
+    "<div class='modal-dialog'>" +
+      "<div class='modal-content'>" +
+        "<div class='modal-header'>" +
+          "<button id='oaFormProcessClose' type='button' class='close' data-dismiss='modal'>&times;</button>" +
+          "<h4 class='modal-title' id='myModalLabel'><span id='oaFormProcessTitle'></span></h4>" +
+        "</div>" +
+        "<div class='modal-body center-block'>" +
+          "<div class='progress'>" +
+            "<div id='oaFormProcessProgress' class='progress-bar bar' role='progressbar' style='min-width: 2em; width: 5%;'>" +
+              "" +
+            "</div>" +
+          "</div>" +
+          "<div>" +
+          "<span id='oaFormProcessStep'></span> ... <span id='oaFormProcessMessage'></span>" +
+          "</div>" +
+        "</div>" +
+        "<div id='oaFormProcessFooter' class='modal-footer'>" +
+          "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>" +
+        "</div>" +
+      "</div>" +
+    "</div>" +
+  "</div>"
+);
+$('#oaFormProcess button').click(function() { $('#oaFormProcessClosed').val('true'); } );
+$('body').append(
+  "<div id='oaFormSnackbarMessage'></div>"
+);
+$('body').append("<div id='oaWait'><img src='image/oawait.gif'></div>");
+$('#htmlElement').attr('method', 'post');
+$('#htmlElement').attr('action', 'oaform.jsp');
+$('#htmlElement').prepend("<input type='hidden' name='oaform' value='htmlElement'>");
+$('#htmlElement').prepend("<input id='oaajaxid' type='hidden' name='oaajaxid' value='0'>");
+$('#htmlElement').prepend("<input id='oaFormProcessClosed' type='hidden' name='oaFormProcessClosed' value=''>");
+$('#htmlElement').prepend("<input id='oacommand' type='hidden' name='oacommand' value=''>");
+$('#htmlElement').prepend("<input id='oaparam' type='hidden' name='oaparam' value=''>");
+$('#htmlElement').prepend("<input id='oachanged' type='hidden' name='oachanged' value=''>");
+(function() {
+  var dtNow = new Date();
+  var tzOffsetJan = (new Date(dtNow.getFullYear(),0,1)).getTimezoneOffset();
+  var tzOffsetJul = (new Date(dtNow.getFullYear(),6,1)).getTimezoneOffset();
+  $('#htmlElement').prepend("<input id='jsDate' type='hidden' name='jsDate' value='"+(dtNow.toString())+"'>");
+  $('#htmlElement').prepend("<input id='jsTzRawOffset' type='hidden' name='jsTzRawOffset' value='"+Math.max(tzOffsetJan,tzOffsetJul)+"'>");
+  $('#htmlElement').prepend("<input id='jsDateSupportsDST' type='hidden' name='jsDateSupportsDST' value='"+(tzOffsetJan != tzOffsetJul)+"'>");
+})();
+$('#ele').attr('name', 'ele');
+
+$('#cmdReloadMessage').attr('name', 'cmdReloadMessage');
+
+$('#cmdOAReset').attr('name', 'cmdOAReset');
+
+$('#cmdDoAjaxSubmit').attr('name', 'cmdDoAjaxSubmit');
+$('#cmdDoAjaxSubmit').attr('type', 'button');
+$('#cmdDoAjaxSubmit').blur(function() {$(this).removeClass('oaError');}); 
+$('#cmdDoAjaxSubmit').addClass('oaSubmit');
+$('#cmdDoAjaxSubmit').click(function(event) {
+  $('#oacommand').val('cmdDoAjaxSubmit');
+  var keys = 'KEYS=';
+  if (event.shiftKey) keys += '[SHIFT]';
+  if (event.ctrlKey) keys += '[CTRL]';
+  if (event.altKey) keys += '[ALT]';
+  $('#oaparam').val(keys);
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#eleId').attr('name', 'eleId');
+
+$('#eleValue').attr('name', 'eleValue');
+
+$('#txtLabelId').attr('name', 'txtLabelId');
+$('#txtLabelId').attr('type', 'text');
+$('#txtLabelId').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtLabelId').addClass('oaSubmit');
+$('#lblLabelId').attr('for', 'txtLabelId');
+$('#txtLabelId').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtLabelId');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtFloatLabel').attr('name', 'txtFloatLabel');
+$('#txtFloatLabel').attr('type', 'text');
+$('#txtFloatLabel').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtFloatLabel').addClass('oaSubmit');
+$('#lblFloatLabel').attr('for', 'txtFloatLabel');
+$('#txtFloatLabel').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtFloatLabel');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtPlaceHolder').attr('name', 'txtPlaceHolder');
+$('#txtPlaceHolder').attr('type', 'text');
+$('#txtPlaceHolder').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtPlaceHolder').addClass('oaSubmit');
+$('#lblPlaceHolder').attr('for', 'txtPlaceHolder');
+$('#txtPlaceHolder').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtPlaceHolder');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtTitle').attr('name', 'txtTitle');
+$('#txtTitle').attr('type', 'text');
+$('#txtTitle').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtTitle').addClass('oaSubmit');
+$('#lblTitle').attr('for', 'txtTitle');
+$('#txtTitle').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtTitle');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtToolTipText').attr('name', 'txtToolTipText');
+$('#txtToolTipText').attr('type', 'text');
+$('#txtToolTipText').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtToolTipText').addClass('oaSubmit');
+$('#lblToolTipText').attr('for', 'txtToolTipText');
+$('#txtToolTipText').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtToolTipText');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtPattern').attr('name', 'txtPattern');
+$('#txtPattern').attr('type', 'text');
+$('#txtPattern').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtPattern').addClass('oaSubmit');
+$('#lblPattern').attr('for', 'txtPattern');
+$('#txtPattern').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtPattern');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtAutoComplete').attr('name', 'txtAutoComplete');
+$('#txtAutoComplete').attr('type', 'text');
+$('#txtAutoComplete').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtAutoComplete').addClass('oaSubmit');
+$('#lblAutoComplete').attr('for', 'txtAutoComplete');
+$('#txtAutoComplete').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtAutoComplete');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkFormDebug').attr('name', 'chkFormDebug');
+$('#chkFormDebug').attr('type', 'checkbox');
+$('#chkFormDebug').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkFormDebug').addClass('oaSubmit');
+$('#lblFormDebug').attr('for', 'chkFormDebug');
+$('#chkFormDebug').change(function(event) {
+  $('#oacommand').val('chkFormDebug');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkRequired').attr('name', 'chkRequired');
+$('#chkRequired').attr('type', 'checkbox');
+$('#chkRequired').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkRequired').addClass('oaSubmit');
+$('#lblRequired').attr('for', 'chkRequired');
+$('#chkRequired').change(function(event) {
+  $('#oacommand').val('chkRequired');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkEnabled').attr('name', 'chkEnabled');
+$('#chkEnabled').attr('type', 'checkbox');
+$('#chkEnabled').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkEnabled').addClass('oaSubmit');
+$('#lblEnabled').attr('for', 'chkEnabled');
+$('#chkEnabled').change(function(event) {
+  $('#oacommand').val('chkEnabled');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkReadOnly').attr('name', 'chkReadOnly');
+$('#chkReadOnly').attr('type', 'checkbox');
+$('#chkReadOnly').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkReadOnly').addClass('oaSubmit');
+$('#lblReadOnly').attr('for', 'chkReadOnly');
+$('#chkReadOnly').change(function(event) {
+  $('#oacommand').val('chkReadOnly');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkVisible').attr('name', 'chkVisible');
+$('#chkVisible').attr('type', 'checkbox');
+$('#chkVisible').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkVisible').addClass('oaSubmit');
+$('#lblVisible').attr('for', 'chkVisible');
+$('#chkVisible').change(function(event) {
+  $('#oacommand').val('chkVisible');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkHidden').attr('name', 'chkHidden');
+$('#chkHidden').attr('type', 'checkbox');
+$('#chkHidden').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkHidden').addClass('oaSubmit');
+$('#lblHidden').attr('for', 'chkHidden');
+$('#chkHidden').change(function(event) {
+  $('#oacommand').val('chkHidden');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkAjaxSubmit').attr('name', 'chkAjaxSubmit');
+$('#chkAjaxSubmit').attr('type', 'checkbox');
+$('#chkAjaxSubmit').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkAjaxSubmit').addClass('oaSubmit');
+$('#lblAjaxSubmit').attr('for', 'chkAjaxSubmit');
+$('#chkAjaxSubmit').change(function(event) {
+  $('#oacommand').val('chkAjaxSubmit');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkSubmit').attr('name', 'chkSubmit');
+$('#chkSubmit').attr('type', 'checkbox');
+$('#chkSubmit').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkSubmit').addClass('oaSubmit');
+$('#lblSubmit').attr('for', 'chkSubmit');
+$('#chkSubmit').change(function(event) {
+  $('#oacommand').val('chkSubmit');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkSpellCheck').attr('name', 'chkSpellCheck');
+$('#chkSpellCheck').attr('type', 'checkbox');
+$('#chkSpellCheck').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkSpellCheck').addClass('oaSubmit');
+$('#lblSpellCheck').attr('for', 'chkSpellCheck');
+$('#chkSpellCheck').change(function(event) {
+  $('#oacommand').val('chkSpellCheck');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtHeight').attr('name', 'txtHeight');
+$('#txtHeight').attr('type', 'text');
+$('#txtHeight').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtHeight').addClass('oaSubmit');
+$('#lblHeight').attr('for', 'txtHeight');
+$('#txtHeight').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtHeight');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtWidth').attr('name', 'txtWidth');
+$('#txtWidth').attr('type', 'text');
+$('#txtWidth').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtWidth').addClass('oaSubmit');
+$('#lblWidth').attr('for', 'txtWidth');
+$('#txtWidth').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtWidth');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtMinHeight').attr('name', 'txtMinHeight');
+$('#txtMinHeight').attr('type', 'text');
+$('#txtMinHeight').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMinHeight').addClass('oaSubmit');
+$('#lblMinHeight').attr('for', 'txtMinHeight');
+$('#txtMinHeight').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMinHeight');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtMinWidth').attr('name', 'txtMinWidth');
+$('#txtMinWidth').attr('type', 'text');
+$('#txtMinWidth').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMinWidth').addClass('oaSubmit');
+$('#lblMinWidth').attr('for', 'txtMinWidth');
+$('#txtMinWidth').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMinWidth');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtMaxHeight').attr('name', 'txtMaxHeight');
+$('#txtMaxHeight').attr('type', 'text');
+$('#txtMaxHeight').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMaxHeight').addClass('oaSubmit');
+$('#lblMaxHeight').attr('for', 'txtMaxHeight');
+$('#txtMaxHeight').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMaxHeight');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtMaxWidth').attr('name', 'txtMaxWidth');
+$('#txtMaxWidth').attr('type', 'text');
+$('#txtMaxWidth').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMaxWidth').addClass('oaSubmit');
+$('#lblMaxWidth').attr('for', 'txtMaxWidth');
+$('#txtMaxWidth').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMaxWidth');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtSize').attr('name', 'txtSize');
+$('#txtSize').attr('type', 'number');
+$('#txtSize').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtSize').addClass('oaSubmit');
+$('#lblSize').attr('for', 'txtSize');
+$('#txtSize').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtSize');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+$('#txtSize').attr('inputmode', 'numeric');
+
+$('#txtMinLength').attr('name', 'txtMinLength');
+$('#txtMinLength').attr('type', 'number');
+$('#txtMinLength').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMinLength').addClass('oaSubmit');
+$('#lblMinLength').attr('for', 'txtMinLength');
+$('#txtMinLength').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMinLength');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+$('#txtMinLength').attr('inputmode', 'numeric');
+
+$('#txtMaxLength').attr('name', 'txtMaxLength');
+$('#txtMaxLength').attr('type', 'number');
+$('#txtMaxLength').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMaxLength').addClass('oaSubmit');
+$('#lblMaxLength').attr('for', 'txtMaxLength');
+$('#txtMaxLength').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMaxLength');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+$('#txtMaxLength').attr('inputmode', 'numeric');
+
+$('#txtDataList').attr('name', 'txtDataList');
+$('#txtDataList').attr('type', 'text');
+$('#txtDataList').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtDataList').addClass('oaSubmit');
+$('#lblDataList').attr('for', 'txtDataList');
+$('#txtDataList').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtDataList');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtMin').attr('name', 'txtMin');
+$('#txtMin').attr('type', 'text');
+$('#txtMin').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMin').addClass('oaSubmit');
+$('#lblMin').attr('for', 'txtMin');
+$('#txtMin').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMin');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtMax').attr('name', 'txtMax');
+$('#txtMax').attr('type', 'text');
+$('#txtMax').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMax').addClass('oaSubmit');
+$('#lblMax').attr('for', 'txtMax');
+$('#txtMax').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMax');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtStep').attr('name', 'txtStep');
+$('#txtStep').attr('type', 'text');
+$('#txtStep').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtStep').addClass('oaSubmit');
+$('#lblStep').attr('for', 'txtStep');
+$('#txtStep').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtStep');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#chkMultiple').attr('name', 'chkMultiple');
+$('#chkMultiple').attr('type', 'checkbox');
+$('#chkMultiple').blur(function() {$(this).removeClass('oaError');}); 
+$('#chkMultiple').addClass('oaSubmit');
+$('#lblMultiple').attr('for', 'chkMultiple');
+$('#chkMultiple').change(function(event) {
+  $('#oacommand').val('chkMultiple');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtAccept').attr('name', 'txtAccept');
+$('#txtAccept').attr('type', 'text');
+$('#txtAccept').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtAccept').addClass('oaSubmit');
+$('#lblAccept').attr('for', 'txtAccept');
+$('#txtAccept').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtAccept');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtCapture').attr('name', 'txtCapture');
+$('#txtCapture').attr('type', 'text');
+$('#txtCapture').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtCapture').addClass('oaSubmit');
+$('#lblCapture').attr('for', 'txtCapture');
+$('#txtCapture').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtCapture');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtMaxFileSize').attr('name', 'txtMaxFileSize');
+$('#txtMaxFileSize').attr('type', 'number');
+$('#txtMaxFileSize').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtMaxFileSize').addClass('oaSubmit');
+$('#lblMaxFileSize').attr('for', 'txtMaxFileSize');
+$('#txtMaxFileSize').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtMaxFileSize');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+$('#txtMaxFileSize').attr('inputmode', 'numeric');
+
+$('#txtSrc').attr('name', 'txtSrc');
+$('#txtSrc').attr('type', 'text');
+$('#txtSrc').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtSrc').addClass('oaSubmit');
+$('#lblSrc').attr('for', 'txtSrc');
+$('#txtSrc').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtSrc');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtRows').attr('name', 'txtRows');
+$('#txtRows').attr('type', 'number');
+$('#txtRows').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtRows').addClass('oaSubmit');
+$('#lblRows').attr('for', 'txtRows');
+$('#txtRows').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtRows');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+$('#txtRows').attr('inputmode', 'numeric');
+
+$('#txtCols').attr('name', 'txtCols');
+$('#txtCols').attr('type', 'number');
+$('#txtCols').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtCols').addClass('oaSubmit');
+$('#lblCols').attr('for', 'txtCols');
+$('#txtCols').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtCols');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+$('#txtCols').attr('inputmode', 'numeric');
+
+$('#txtAccessKey').attr('name', 'txtAccessKey');
+$('#txtAccessKey').attr('type', 'text');
+$('#txtAccessKey').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtAccessKey').addClass('oaSubmit');
+$('#lblAccessKey').attr('for', 'txtAccessKey');
+$('#txtAccessKey').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtAccessKey');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtTabIndex').attr('name', 'txtTabIndex');
+$('#txtTabIndex').attr('type', 'number');
+$('#txtTabIndex').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtTabIndex').addClass('oaSubmit');
+$('#lblTabIndex').attr('for', 'txtTabIndex');
+$('#txtTabIndex').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtTabIndex');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+$('#txtTabIndex').attr('inputmode', 'numeric');
+
+$('#txtInnerHtml').attr('name', 'txtInnerHtml');
+$('#txtInnerHtml').attr('type', 'text');
+$('#txtInnerHtml').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtInnerHtml').addClass('oaSubmit');
+$('#lblInnerHtml').attr('for', 'txtInnerHtml');
+$('#txtInnerHtml').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtInnerHtml');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtHref').attr('name', 'txtHref');
+$('#txtHref').attr('type', 'text');
+$('#txtHref').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtHref').addClass('oaSubmit');
+$('#lblHref').attr('for', 'txtHref');
+$('#txtHref').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtHref');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtTarget').attr('name', 'txtTarget');
+$('#txtTarget').attr('type', 'text');
+$('#txtTarget').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtTarget').addClass('oaSubmit');
+$('#lblTarget').attr('for', 'txtTarget');
+$('#txtTarget').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtTarget');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+$('#txtStyle').attr('name', 'txtStyle');
+$('#txtStyle').attr('type', 'text');
+$('#txtStyle').blur(function() {$(this).removeClass('oaError');}); 
+$('#txtStyle').addClass('oaSubmit');
+$('#lblStyle').attr('for', 'txtStyle');
+$('#txtStyle').blur(function(event) {
+if (this.value === this.oaPrevValue) return false;
+this.oaPrevValue = this.value;
+  $('#oacommand').val('txtStyle');
+  ajaxSubmit();
+  $('#oacommand').val('');
+  $('#oaparam').val('');
+  return false;
+});
+
+
+$('#htmlElement').on('submit', oaSubmit);
+$('input:enabled:first').focus();
+  $('#cmdReloadMessage').css({'background-color':'yellow','font-weight':'bold'});
+$('#cmdReloadMessage').css('visibility', 'hidden');
+
+
+ $('#cmdOAReset').tooltip();
+ $('#cmdOAReset').data('bs.tooltip').options.title = 're-create form and components';
+$('#cmdOAReset').data('bs.tooltip').options.placement = 'top';
+
+  $('#cmdDoAjaxSubmit').val('ajaxSubmit');
+
+  $('#eleId').html('ele');
+
+  $('#eleValue').html('');
+$('#eleValue').prop('hidden', true);
+
+  $('#txtLabelId').val('');
+$('#txtLabelId')[0].oaPrevValue = $('#txtLabelId').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#lblLabelId').prop('disabled', true);
+$('#txtLabelId').prop('disabled', true);
+$('#txtLabelId').prop('hidden', true);
+$('#lblLabelId').prop('hidden', true);
+
+  $('#txtFloatLabel').val('');
+$('#txtFloatLabel')[0].oaPrevValue = $('#txtFloatLabel').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#lblFloatLabel').prop('disabled', true);
+$('#txtFloatLabel').prop('disabled', true);
+$('#txtFloatLabel').prop('hidden', true);
+$('#lblFloatLabel').prop('hidden', true);
+
+  $('#txtPlaceHolder').val('');
+$('#txtPlaceHolder')[0].oaPrevValue = $('#txtPlaceHolder').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#lblPlaceHolder').prop('disabled', true);
+$('#txtPlaceHolder').prop('disabled', true);
+$('#txtPlaceHolder').prop('hidden', true);
+$('#lblPlaceHolder').prop('hidden', true);
+
+  $('#txtTitle').val('');
+$('#txtTitle')[0].oaPrevValue = $('#txtTitle').val(); //qqqqqqqqqqqqqqqqqqqqq
+
+  $('#txtToolTipText').val('');
+$('#txtToolTipText')[0].oaPrevValue = $('#txtToolTipText').val(); //qqqqqqqqqqqqqqqqqqqqq
+
+  $('#txtPattern').val('');
+$('#txtPattern')[0].oaPrevValue = $('#txtPattern').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#lblPattern').prop('disabled', true);
+$('#txtPattern').prop('disabled', true);
+$('#txtPattern').prop('hidden', true);
+$('#lblPattern').prop('hidden', true);
+
+  $('#txtAutoComplete').val('');
+$('#txtAutoComplete')[0].oaPrevValue = $('#txtAutoComplete').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#lblAutoComplete').prop('disabled', true);
+$('#txtAutoComplete').prop('disabled', true);
+$('#txtAutoComplete').prop('hidden', true);
+$('#lblAutoComplete').prop('hidden', true);
+
+  $('#chkFormDebug').val('chkFormDebug');
+$('#chkFormDebug')[0].oaPrevValue = $('#chkFormDebug').val(); //qqqqqqqqqqqqqqqqqqqqq
+
+  $('#chkRequired').val('chkRequired');
+$('#chkRequired')[0].oaPrevValue = $('#chkRequired').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#lblRequired').prop('disabled', true);
+$('#chkRequired').prop('disabled', true);
+$('#chkRequired').prop('hidden', true);
+$('#lblRequired').prop('hidden', true);
+
+  $('#chkEnabled').val('chkEnabled');
+$('#chkEnabled')[0].oaPrevValue = $('#chkEnabled').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#lblEnabled').prop('disabled', true);
+$('#chkEnabled').prop('disabled', true);
+$('#chkEnabled').prop('hidden', true);
+$('#lblEnabled').prop('hidden', true);
+$('#chkEnabled').prop('checked', true);
+
+  $('#chkReadOnly').val('chkReadOnly');
+$('#chkReadOnly')[0].oaPrevValue = $('#chkReadOnly').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#lblReadOnly').prop('disabled', true);
+$('#chkReadOnly').prop('disabled', true);
+$('#chkReadOnly').prop('hidden', true);
+$('#lblReadOnly').prop('hidden', true);
+
+  $('#chkVisible').val('chkVisible');
+$('#chkVisible')[0].oaPrevValue = $('#chkVisible').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#chkVisible').prop('checked', true);
+
+  $('#chkHidden').val('chkHidden');
+$('#chkHidden')[0].oaPrevValue = $('#chkHidden').val(); //qqqqqqqqqqqqqqqqqqqqq
+
+  $('#chkAjaxSubmit').val('chkAjaxSubmit');
+$('#chkAjaxSubmit')[0].oaPrevValue = $('#chkAjaxSubmit').val(); //qqqqqqqqqqqqqqqqqqqqq
+
+  $('#chkSubmit').val('chkSubmit');
+$('#chkSubmit')[0].oaPrevValue = $('#chkSubmit').val(); //qqqqqqqqqqqqqqqqqqqqq
+
+  $('#chkSpellCheck').val('chkSpellCheck');
+$('#chkSpellCheck')[0].oaPrevValue = $('#chkSpellCheck').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#lblSpellCheck').prop('disabled', true);
+$('#chkSpellCheck').prop('disabled', true);
+$('#chkSpellCheck').prop('hidden', true);
+$('#lblSpellCheck').prop('hidden', true);
+
+  $('#txtHeight').val('');
+$('#txtHeight')[0].oaPrevValue = $('#txtHeight').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtHeight').attr('size', 8);
+
+  $('#txtWidth').val('');
+$('#txtWidth')[0].oaPrevValue = $('#txtWidth').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtWidth').attr('size', 8);
+
+  $('#txtMinHeight').val('');
+$('#txtMinHeight')[0].oaPrevValue = $('#txtMinHeight').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtMinHeight').attr('size', 8);
+
+  $('#txtMinWidth').val('');
+$('#txtMinWidth')[0].oaPrevValue = $('#txtMinWidth').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtMinWidth').attr('size', 8);
+
+  $('#txtMaxHeight').val('');
+$('#txtMaxHeight')[0].oaPrevValue = $('#txtMaxHeight').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtMaxHeight').attr('size', 8);
+
+  $('#txtMaxWidth').val('');
+$('#txtMaxWidth')[0].oaPrevValue = $('#txtMaxWidth').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtMaxWidth').attr('size', 8);
+
+  $('#txtSize').val('');
+$('#txtSize')[0].oaPrevValue = $('#txtSize').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtSize').css({'width':'5em'});
+$('#lblSize').prop('disabled', true);
+$('#txtSize').prop('disabled', true);
+$('#txtSize').prop('hidden', true);
+$('#lblSize').prop('hidden', true);
+
+  $('#txtMinLength').val('');
+$('#txtMinLength')[0].oaPrevValue = $('#txtMinLength').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtMinLength').css({'width':'5em'});
+$('#lblMinLength').prop('disabled', true);
+$('#txtMinLength').prop('disabled', true);
+$('#txtMinLength').prop('hidden', true);
+$('#lblMinLength').prop('hidden', true);
+
+  $('#txtMaxLength').val('');
+$('#txtMaxLength')[0].oaPrevValue = $('#txtMaxLength').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtMaxLength').css({'width':'5em'});
+$('#lblMaxLength').prop('disabled', true);
+$('#txtMaxLength').prop('disabled', true);
+$('#txtMaxLength').prop('hidden', true);
+$('#lblMaxLength').prop('hidden', true);
+
+  $('#txtDataList').val('');
+$('#txtDataList')[0].oaPrevValue = $('#txtDataList').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtDataList').attr('size', 40);
+$('#lblDataList').prop('disabled', true);
+$('#txtDataList').prop('disabled', true);
+$('#txtDataList').prop('hidden', true);
+$('#lblDataList').prop('hidden', true);
+
+  $('#txtMin').val('null');
+$('#txtMin')[0].oaPrevValue = $('#txtMin').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtMin').attr('size', 12);
+$('#lblMin').prop('disabled', true);
+$('#txtMin').prop('disabled', true);
+$('#txtMin').prop('hidden', true);
+$('#lblMin').prop('hidden', true);
+
+  $('#txtMax').val('null');
+$('#txtMax')[0].oaPrevValue = $('#txtMax').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtMax').attr('size', 12);
+$('#lblMax').prop('disabled', true);
+$('#txtMax').prop('disabled', true);
+$('#txtMax').prop('hidden', true);
+$('#lblMax').prop('hidden', true);
+
+  $('#txtStep').val('');
+$('#txtStep')[0].oaPrevValue = $('#txtStep').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtStep').attr('size', 12);
+$('#lblStep').prop('disabled', true);
+$('#txtStep').prop('disabled', true);
+$('#txtStep').prop('hidden', true);
+$('#lblStep').prop('hidden', true);
+
+  $('#chkMultiple').val('chkMultiple');
+$('#chkMultiple')[0].oaPrevValue = $('#chkMultiple').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#lblMultiple').prop('disabled', true);
+$('#chkMultiple').prop('disabled', true);
+$('#chkMultiple').prop('hidden', true);
+$('#lblMultiple').prop('hidden', true);
+
+  $('#txtAccept').val('');
+$('#txtAccept')[0].oaPrevValue = $('#txtAccept').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtAccept').attr('size', 12);
+$('#lblAccept').prop('disabled', true);
+$('#txtAccept').prop('disabled', true);
+$('#txtAccept').prop('hidden', true);
+$('#lblAccept').prop('hidden', true);
+
+  $('#txtCapture').val('');
+$('#txtCapture')[0].oaPrevValue = $('#txtCapture').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtCapture').attr('size', 12);
+$('#txtCapture').tooltip();
+// $('#txtCapture').data('bs.tooltip').options.title = 'off, name, etc';
+//$('#txtCapture').data('bs.tooltip').options.placement = 'top';
+$('#lblCapture').prop('disabled', true);
+$('#txtCapture').prop('disabled', true);
+$('#txtCapture').prop('hidden', true);
+$('#lblCapture').prop('hidden', true);
+
+  $('#txtMaxFileSize').val('');
+$('#txtMaxFileSize')[0].oaPrevValue = $('#txtMaxFileSize').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtMaxFileSize').css({'width':'7em'});
+$('#lblMaxFileSize').prop('disabled', true);
+$('#txtMaxFileSize').prop('disabled', true);
+$('#txtMaxFileSize').prop('hidden', true);
+$('#lblMaxFileSize').prop('hidden', true);
+
+  $('#txtSrc').val('');
+$('#txtSrc')[0].oaPrevValue = $('#txtSrc').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#lblSrc').prop('disabled', true);
+$('#txtSrc').prop('disabled', true);
+$('#txtSrc').prop('hidden', true);
+$('#lblSrc').prop('hidden', true);
+
+  $('#txtRows').val('');
+$('#txtRows')[0].oaPrevValue = $('#txtRows').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtRows').css({'width':'4em'});
+$('#lblRows').prop('disabled', true);
+$('#txtRows').prop('disabled', true);
+$('#txtRows').prop('hidden', true);
+$('#lblRows').prop('hidden', true);
+
+  $('#txtCols').val('');
+$('#txtCols')[0].oaPrevValue = $('#txtCols').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtCols').css({'width':'4em'});
+$('#lblCols').prop('disabled', true);
+$('#txtCols').prop('disabled', true);
+$('#txtCols').prop('hidden', true);
+$('#lblCols').prop('hidden', true);
+
+  $('#txtAccessKey').val('');
+$('#txtAccessKey')[0].oaPrevValue = $('#txtAccessKey').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtAccessKey').attr('size', 2);
+
+  $('#txtTabIndex').val('');
+$('#txtTabIndex')[0].oaPrevValue = $('#txtTabIndex').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtTabIndex').css({'width':'4em'});
+
+  $('#txtInnerHtml').val('');
+$('#txtInnerHtml')[0].oaPrevValue = $('#txtInnerHtml').val(); //qqqqqqqqqqqqqqqqqqqqq
+
+  $('#txtHref').val('');
+$('#txtHref')[0].oaPrevValue = $('#txtHref').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#lblHref').prop('disabled', true);
+$('#txtHref').prop('disabled', true);
+$('#txtHref').prop('hidden', true);
+$('#lblHref').prop('hidden', true);
+
+  $('#txtTarget').val('');
+$('#txtTarget')[0].oaPrevValue = $('#txtTarget').val(); //qqqqqqqqqqqqqqqqqqqqq
+$('#txtTarget').tooltip();
+//$('#txtTarget').data('bs.tooltip').options.title = '_self, _blank, _parent, _top, or a named frame/window';
+//$('#txtTarget').data('bs.tooltip').options.placement = 'top';
+$('#lblTarget').prop('disabled', true);
+$('#txtTarget').prop('disabled', true);
+$('#txtTarget').prop('hidden', true);
+$('#lblTarget').prop('hidden', true);
+
+  $('#txtStyle').val('');
+$('#txtStyle')[0].oaPrevValue = $('#txtStyle').val(); //qqqqqqqqqqqqqqqqqqqqq
+
+});
+</script>
+</head>
+
+<body>
+    <form id="htmlElement">
+<style>
+body {
+  margin-left: 15px;
+}
+
+#div {
+  border: solid thin;
+}
+</style>
+
+<span id="cmdReloadMessage">Page reload is needed</span> 
+<a id="cmdOAReset" href="oareset.jsp">oareset</a> &nbsp;&nbsp;&nbsp;
+<input type=submit value="submit">
+<input id="cmdDoAjaxSubmit" type=button value="xxx">
+debug <input id="chkFormDebug" type="checkbox">
+
+<fieldset>
+  <legend>Demo HtmlElement</legend>
+  <label id="lbl">Test HtmlElement <span id="ele">span html element text that can be replaced with innerHtml</span></label> <br>
+
+<p><br><br>
+<legend>Property Editor</legend>
+
+<label id="lblId">Id <span id="eleId"></span></label><p>
+
+<label id="lblValue">Value <span id="eleValue"></span></label><p>
+
+<label id="lblLabelId">Label Id <input id="txtLabelId" type="text" size=10></label><p>
+
+<style>
+    table#tablePE tr td {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+</style>
+
+<table id="tablePE">
+<tr>
+<td>
+<label id="lblVisible"><input id="chkVisible" type="checkbox"> Visible</label>
+<td>
+<label id="lblHidden"><input id="chkHidden" type="checkbox"> Hidden</label>
+<td>
+<label id="lblEnabled"><input id="chkEnabled" type="checkbox"> Enabled</label>
+<td>
+<label id="lblReadOnly"><input id="chkReadOnly" type="checkbox"> ReadOnly</label>
+<tr>
+<td>
+<label id="lblSubmit"><input id="chkSubmit" type="checkbox"> Submit</label>
+<td>
+<label id="lblAjaxSubmit"><input id="chkAjaxSubmit" type="checkbox"> AjaxSubmit</label>
+<tr>
+<td>
+<label id="lblRequired"><input id="chkRequired" type="checkbox"> Required</label>
+<td>
+<label id="lblSpellCheck"><input id="chkSpellCheck" type="checkbox"> SpellCheck</label>
+
+<tr>
+<td>
+<!-- file, select -->
+<label id="lblMultiple">Multiple <input id="chkMultiple" type="checkbox"></label><p>
+
+</table>
+<p>
+
+<label id="lblAccessKey">AccessKey <input id="txtAccessKey" type="text" autocomplete="off"></label><p>
+<label id="lblTabIndex">TabIndex <input id="txtTabIndex" type="text"></label><p>
+
+
+<!-- text -->
+<table>
+<tr>
+<td>
+<label id="lblSize">Size <input id="txtSize" type="text"></label><p>
+<tr>
+<td>
+<label id="lblMinLength">MinLength <input id="txtMinLength" type="text"></label><p>
+<td>
+<label id="lblMaxLength">MaxLength <input id="txtMaxLength" type="text"></label><p>
+</table>
+
+
+<label id="lblTitle">Title <input id="txtTitle" type="text" size=20></label><p>
+<label id="lblFloatLabel">Float Label <input id="txtFloatLabel" type="text" size=20></label><p>
+<label id="lblPlaceHolder">PlaceHolder <input id="txtPlaceHolder" type="text" size=20></label><p>
+<label id="lblToolTipText">ToolTipText <input id="txtToolTipText" type="text" size=20></label><p>
+
+<!-- text -->
+<label id="lblPattern">Pattern (regex) <input id="txtPattern" type="text" size=20></label><p>
+<label id="lblAutoComplete">AutoComplete <input id="txtAutoComplete" type="text" size=20></label><p>
+
+<label id="lblStyle">Add Style <input id="txtStyle" type="text" size=20></label><p>
+
+
+
+<!-- range* -->
+<label id="lblMin">min <input id="txtMin" type="text"></label><p>
+<label id="lblMax">max <input id="txtMax" type="text"></label><p>
+<label id="lblStep">step <input id="txtStep" type="text"></label><p>
+
+<!-- text, textarea -->
+<label id="lblDataList">DataList <input id="txtDataList" type="text"></label><p>
+
+<!-- img -->
+<label id="lblSrc">Src <input id="txtSrc" type="text"></label><p>
+
+
+
+<!-- textarea -->
+<label id="lblCols">Cols <input id="txtCols" type="number"></label><p>
+<label id="lblRows">Rows <input id="txtRows" type="number"></label><p>
+
+
+
+<!-- file -->
+<label id="lblAccept">Accept <input id="txtAccept" type="text"></label><p>
+<label id="lblCapture">Capture <input id="txtCapture" type="text"></label><p>
+<label id="lblMaxFileSize">MaxFileSize <input id="txtMaxFileSize" type="number"></label><p>
+
+
+<!-- text -->
+<label id="lblInnerHtml">InnerHtml <input id="txtInnerHtml" type="text"></label><p>
+
+<!-- link -->
+<label id="lblHref">Href <input id="txtHref" type="text"></label><p>
+<label id="lblTarget">Target <input id="txtTarget" type="text"></label><p>
+
+
+<legend>CSS / Style</legend>
+<!-- css -->
+<table>
+<tr>
+<td>
+<label id="lblHeight">Height <input id="txtHeight" type="text"></label>
+<td>
+<label id="lblWidth">Width <input id="txtWidth" type="text"></label>
+<tr>
+<td>
+<label id="lblMinHeight">MinHeight <input id="txtMinHeight" type="text"></label>
+<td>
+<label id="lblMinWidth">MinWidth <input id="txtMinWidth" type="text"></label>
+<tr>
+<td>
+<label id="lblMaxHeight">MaxHeight <input id="txtMaxHeight" type="text"></label><p>
+<td>
+<label id="lblMaxWidth">MaxWidth <input id="txtMaxWidth" type="text"></label>
+</table>
+
+<p><br><br>
+
+
+</fieldset>
+
+</form>
+</body>
+</html>

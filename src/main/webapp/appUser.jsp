@@ -2,9 +2,9 @@
 
 <%
   formId = "appUserJsp";
-  form = oasession.getForm(formId);
-  if (form == null || oasession.isReset()) {
-      form = oasession.createForm(formId);
+  form = oasession.getRequestForm(formId);
+  if (form == null) {
+      form = oasession.createRequestForm(formId);
   
       final AppUserModel model = new AppUserModel(ModelDelegate.getAppUsers());
       final AppUserJsp jspAppUser = new AppUserJsp(ModelDelegate.getAppUsers(), form);

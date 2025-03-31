@@ -179,23 +179,23 @@ public class LogController {
 			log.finest("Starting new log");
 			
 			
-			// [APP_JSP].log
-			s = "oajsp";        
-			//was: s = Resource.getValue(Resource.APP_ClassPath) + ".jsp";        
+			// [APP_WEB].log
+			s = "oaweb";        
+			//was: s = Resource.getValue(Resource.APP_ClassPath) + ".web";        
 			log = Logger.getLogger(s);
 			alLogger.add(log);
 			log.setLevel(Level.FINE);
-			fh = createFileHandler("jsp", Level.FINE);
+			fh = createFileHandler("web", Level.FINE);
 			log.addHandler(fh);
 			log.fine("Starting new log");
 			alLogger.add(log);
 			
-			// second [APP_JSP].log
-			s = Resource.getValue(Resource.APP_ClassPath) + ".jsp";        
+			// second [APP_WEB].log
+			s = Resource.getValue(Resource.APP_ClassPath) + ".web";        
 			log = Logger.getLogger(s);
 			alLogger.add(log);
 			log.setLevel(Level.FINEST);
-			fh = createFileHandler("jsp", Level.FINEST);
+			fh = createFileHandler("web", Level.FINEST);
 			log.addHandler(fh);
 			log.finest("Starting new log");
 			alLogger.add(log);
