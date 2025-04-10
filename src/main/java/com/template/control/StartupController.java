@@ -299,7 +299,7 @@ public class StartupController {
 
         if (bStartupError) LOG.config("Startup errors, will exit now");
         else LOG.config("Looks Great! :) good bye");
-		System.exit(0);
+		System.exit(bStartupError ? 1 : 0);
 	}
 
 	public static void main(String[] args) {

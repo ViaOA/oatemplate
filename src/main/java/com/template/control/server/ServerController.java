@@ -777,19 +777,21 @@ public abstract class ServerController {
             controlObject.stop();
         }
         
-        _saveData();
+        if (!bStartupError) _saveData();
         
         LOG.config("Closing database");
         getDataSourceController().close();
 
-        String s = Resource.getValue(Resource.APP_NewWordsFileName);
-        try {
-            String root = Resource.getRootDirectory();
-            s = OAFile.convertFileName(root + "/" + s);
-            LOG.fine("Saving spellcheck new words data");
-            getSpellCheckController().saveNewWordsTextFile(s);
-        } catch (Throwable e) {
-            LOG.log(Level.WARNING, "Error while saving to file " + s, e);
+        if (!bStartupError) {
+            String s = Resource.getValue(Resource.APP_NewWordsFileName);
+            try {
+                String root = Resource.getRootDirectory();
+                s = OAFile.convertFileName(root + "/" + s);
+                LOG.fine("Saving spellcheck new words data");
+                getSpellCheckController().saveNewWordsTextFile(s);
+            } catch (Throwable e) {
+                LOG.log(Level.WARNING, "Error while saving to file " + s, e);
+            }
         }
         
         if (controlLog != null) {
