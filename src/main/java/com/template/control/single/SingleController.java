@@ -107,8 +107,14 @@ public abstract class SingleController {
         getFrameController().getFrame();
         long ms2 = System.currentTimeMillis();
         LOG.fine("frame load time " + (ms2 - ms) + "ms");
-        getFrameController().getFrame().setVisible(true);
-        setProcessing(false);
+
+		SwingUtilities.invokeAndWait(new Runnable() {
+			@Override
+			public void run() {
+		        getFrameController().getFrame().setVisible(true);
+		        setProcessing(false);
+			}
+		});
 
         int x = Resource.getInt(Resource.CLIENT_CheckAWTThreadMinutes);
         if (x > 0) {

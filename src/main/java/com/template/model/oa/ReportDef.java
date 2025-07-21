@@ -114,7 +114,7 @@ public class ReportDef extends OAObject {
     }
     // root class that will be used for inserting data into html template
     public Class getTemplateTemplateRoot() {
-        Class cz = ReportDefDelegate.getTemplateTemplateRoot(this);
+        Class cz = ReportDefDelegate.getTemplateRoot(this);
         if (cz == null) cz = ReportDef.class;
         return cz;
     }

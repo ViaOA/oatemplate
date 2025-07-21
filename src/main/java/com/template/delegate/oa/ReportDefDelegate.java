@@ -4,7 +4,7 @@ import com.template.model.oa.*;
 
 public class ReportDefDelegate {
 
-    public static Class getTemplateTemplateRoot(ReportDef reportDef) {
+    public static Class getTemplateRoot(ReportDef reportDef) {
         if (reportDef == null) return null;
         
         ReportClass rc = reportDef.getReportClass();
