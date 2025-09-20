@@ -1,0 +1,90 @@
+/* navagation */
+a.navbar-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 9.5pt;
+  font-weight: 600;
+}
+
+a.navbar-brand>img {
+  height: 24px;
+}
+
+.navbar-nav>li.nav-item {
+  flex: 1;
+  max-width: 108px;
+}
+
+.navbar-nav>.nav-item>label.btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 10pt;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn img {
+  max-height: 48px;
+  margin-bottom: 0px;
+}
+
+.radio-label:hover {
+  color: var(--bs-btn-hover-color) !important;
+  background-color: var(--bs-btn-hover-bg) !important;
+  border-color: var(--bs-btn-hover-border-color) !important;
+}
+
+
+body, html {
+  height:  100%;
+  margin: 0;
+}
+
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+nav {
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+
+
+
+
+
+
+
+.panel {
+  background-color: lightgreen;
+  overflow: auto;
+}
+
+
+
+.oa-debug {
+  border: solid red 2px;
+  background: yellow;
+}
+
+/* qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq */                
+[data-oa-name="menuTree"] {
+    position: absolute;
+    display: none; /* Hidden by default */
+    z-index: 1050; /* Ensure it appears above other elements */
+}
+
+
+
+
+

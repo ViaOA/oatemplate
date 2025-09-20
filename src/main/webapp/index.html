@@ -1,64 +1,83 @@
-<html>
-
+<!doctype html>
+<html lang="en">
 <head>
-    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-    <META HTTP-EQUIV="Expires" CONTENT="-1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OATemplate</title>
+
+<link rel="stylesheet" type="text/css" href="vendor/bootstrap-5.3.3/css/bootstrap.css">
+<script src="vendor/bootstrap-5.3.3/js/bootstrap.bundle.js"></script>
+
+<link rel="stylesheet" type="text/css" href="vendor/bootstrap-icons-1.13.1/bootstrap-icons.css">
+<link rel="stylesheet" type="text/css" href="vendor/oa-web-0.0.1/css/oa-web.css">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+
+<script type="importmap">
+{
+  "imports": {
+    "@js/": "/js/",
+    "@oa-web/": "/vendor/oa-web-0.0.1/js/"
+  }
+}
+</script>
+
+<script type="module" src="js/OAWebStartup.js"></script>
+
 </head>
-<body style="color: rgb(50,100,50);" bgcolor="silver" leftmargin="20" alink="blue" topmargin="12" vlink="blue">
+<body class="vh-100 d-flex flex-column overflow-hidden" data-bs-theme="light" style="margin: 0; padding: 0; box-sizing: border-box;">
+
+  <nav data-oa-name="toolbar" class="flex-grow-0 navbar navbar-expand-lg bg-body-secondary sticky-top navbar-nav-scroll">
+
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#"> <img id="imgBrandIcon" alt="Brand" src="/image/splash.png">OATemplate
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapseId">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div id="navbarCollapseId" class="collapse navbar-collapse">
+
+        <ul class="nav navbar-nav navbar-nav-scroll gap-2 w-100">
 
 
-<center>
-    <b style="font-size: 16.0pt; font-weight: bold">Template</b>
-    <br>
-    
-    <font style="font-size: 9.0pt;">Software Installation</font>
-</center>
+<!--$$Start: index.html.navbar $$-->
+          <li class="nav-item">
+            <input id="radStore" type="radio" class="btn-check" name="radNavbar" autocomplete="off">
+            <label class="btn btn-light radio-label" for="radStore">
+              <i class="bi bi-cash oa-image-large-toolbar"></i>
+              <span class="oa-fs-large-toolbar">Store</span>
+            </label>
+          </li>
+<!--$$End: index.html.navbar $$-->
 
-<br>    
-<br>
+         <li class="nav-item" style="flex-grow: 2;">
+            <!-- emtpy -->
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-<table cellpadding="5" border=0>
+  <div data-oa-name="cardPanel" class="h-0 flex-grow-1 overflow-hidden container-fluid bg-light">
 
-  <tr><td colspan='2'>
-     <hr color="rgb(204,175,165)">
-  </td></tr>
+    <div data-oa-name="panSplash" class="collapse h-100 show">
+      <div class="h-100 vstack gap-1 justify-content-center align-items-center">
+        <p class="m-0" style="letter-spacing: 3px;">
+          <b>O'</b>Reilly <b>A</b>uto <b>POS</b>
+        <p class="m-0">
+          <img src="/image/splash.png">
+        <h5 class="fw-bolder border-0 p-0 m-0" style="letter-spacing: 3px;">OATemplate</h5>
+      </div>
+    </div>
 
-  <tr>
-    <td>
-    </td>
-    <td>
-    <nobr>
-    </nobr>
-  </td></tr>
-  <tr><td colspan='2'>
-     <hr color="rgb(204,175,165)">
-  </td></tr>
+<!--$$Start: index.html.panels $$-->
 
-  <tr>
-    <td>
-    </td>
-    <td>
-    <nobr>
-        <a href='installer.html'>Click here for Template Installer</a>
-    </nobr>
-  </td></tr>
-  <tr><td colspan='2'>
-     <hr color="rgb(204,175,165)">
-  </td></tr>
+    <div data-oa-name="panStore" class="collapse h-100 overflow-hidden">TEMPLATE: StorePanel</div>
 
+<!--$$End: index.html.panels $$-->
 
-</table>
-
-<p>
-<br>
-<br>
-<center>
-<small>
-<a href="http://www.viaoa.com">www.viaoa.com</a>
-</small>
-</center>
+    <div class="border border-info">bottom panel</div>
+  </div>
 
 </body>
 </html>
-
-
