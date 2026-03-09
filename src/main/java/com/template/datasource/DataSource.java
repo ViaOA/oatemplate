@@ -8,6 +8,7 @@ import java.sql.*;
 import com.viaoa.object.*;
 import com.viaoa.util.*;
 import com.viaoa.object.OAAnnotationDelegate;
+import com.viaoa.runtime.OARuntime;
 import com.viaoa.annotation.OATable;
 import com.viaoa.datasource.jdbc.*;
 import com.viaoa.datasource.jdbc.db.Database;
@@ -101,7 +102,9 @@ public class DataSource {
             if (c.getAnnotation(OATable.class) == null) continue;
             classes = (Class[]) OAArray.add(Class.class, classes, c);
         }
-        OAAnnotationDelegate.update(database, classes);
+        if (classes != null && classes.length > 0) {
+        	OARuntime.get().graph(classes[0]).objects().getOAObjectDatabaseService().update(database, classes);
+        }
         return database;
     }
     private Database createDatabase() {

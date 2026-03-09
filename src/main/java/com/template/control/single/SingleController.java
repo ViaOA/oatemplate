@@ -98,7 +98,7 @@ public abstract class SingleController {
         String[] cnames = OAReflect.getClasses(packageName);
         for (String fn : cnames) {
             Class c = Class.forName(packageName + "." + fn);
-            OAObjectInfoDelegate.getObjectInfo(c);
+            OAObjectInfoDelegate.callInfoGetObjectInfo(c);
         }
 
         boolean b = _start();
@@ -202,7 +202,7 @@ public abstract class SingleController {
         }
         ModelDelegate.setLocalAppUser(user);
 
-        LOG.config("Initializing OAContext ... as admin user");
+        LOG.config("Initializing OAContext ... as login user");
         OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
 
         // initialize serverRoot, ModelDelegate

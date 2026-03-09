@@ -19,7 +19,7 @@ public class DataGenerator {
         if (stack.size() > 20) {
             return false;
         }
-        OAObjectInfo oi = OAObjectInfoDelegate.getObjectInfo(obj);
+        OAObjectInfo oi = OAObjectInfoDelegate.callInfoGetObjectInfo(obj);
         OALinkInfo li = oi.getLinkInfo(linkName); 
         if (li == null) throw new RuntimeException("link="+linkName+", does not exist for object="+obj);
         if (stack.contains(li)) return false;
@@ -27,7 +27,7 @@ public class DataGenerator {
         return true;
     }
     public void done(OAObject obj, String linkName) {
-        OAObjectInfo oi = OAObjectInfoDelegate.getObjectInfo(obj);
+        OAObjectInfo oi = OAObjectInfoDelegate.callInfoGetObjectInfo(obj);
         OALinkInfo li = oi.getLinkInfo(linkName); 
         if (li == null) throw new RuntimeException("link="+linkName+", does not exist for object="+obj);
         if (stack.pop() != li) {

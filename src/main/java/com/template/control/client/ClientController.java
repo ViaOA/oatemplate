@@ -88,7 +88,7 @@ public abstract class ClientController {
 		String[] cnames = OAReflect.getClasses(packageName);
 		for (String fn : cnames) {
 			Class c = Class.forName(packageName + "." + fn);
-			OAObjectInfoDelegate.getObjectInfo(c);
+			OAObjectInfoDelegate.callInfoGetObjectInfo(c);
 		}
 
 		final StartSwingInfo ssi = new StartSwingInfo();

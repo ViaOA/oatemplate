@@ -45,7 +45,7 @@ public class ObjectController {
 	}
 
     public void start() {
-        if (!OASync.isServer()) return;
+        if (!OASync.callSyncIsServer()) return;
         LOG.fine("starting");
         // getConnectionInfoController().start();
         

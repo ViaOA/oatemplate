@@ -241,7 +241,7 @@ public class JettyController {
 		}
 
 		//======= web log file ========================================================
-		NCSARequestLog ncsaRequestLog = new NCSARequestLog(OAStr.nonNull(Resource.getLogsDirectory(),".") + "/yyyy_mm_dd_jetty.log"); // must use "yyyy_mm_dd", which will be replaced with date format
+		NCSARequestLog ncsaRequestLog = new NCSARequestLog(OAStr.getNonNull(Resource.getLogsDirectory(),".") + "/yyyy_mm_dd_jetty.log"); // must use "yyyy_mm_dd", which will be replaced with date format
 		ncsaRequestLog.setRetainDays(360);
 		ncsaRequestLog.setAppend(true);
 		ncsaRequestLog.setExtended(true);

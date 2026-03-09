@@ -12,6 +12,7 @@ import com.viaoa.concurrent.OAExecutorService;
 import com.viaoa.datasource.*;
 import com.viaoa.datasource.jdbc.OADataSourceJDBC;
 import com.viaoa.datasource.objectcache.OADataSourceObjectCache;
+import com.viaoa.graph.OAGraph;
 import com.viaoa.hub.*;
 import com.viaoa.json.OAJson;
 import com.viaoa.object.*;
@@ -21,7 +22,7 @@ import com.viaoa.transaction.OATransaction;
 import com.viaoa.util.*;
 import com.viaoa.xml.*;
 import com.viaoa.process.*;
-
+import com.viaoa.runtime.OARuntime;
 import com.template.datasource.DataSource;
 import com.template.model.oa.*;
 import com.template.model.oa.propertypath.*;
@@ -144,6 +145,8 @@ public class DataSourceController {
             }
         }
 
+        final OAGraph og = OARuntime.graph();
+        
 		/*$$Start: DatasourceController.loadServerRoot $$*/
         aiExecutor.incrementAndGet();
         executorService.submit(new Runnable() {
@@ -185,7 +188,7 @@ public class DataSourceController {
                         select(serverRoot.getAppUsers(), "", null);
                     }
                     else {
-                        OAObjectCacheDelegate.setSelectAllHub(serverRoot.getAppUsers());
+                    	og.objects().getOAObjectCacheService().setSelectAllHub(serverRoot.getAppUsers());
                     }
                 }
                 catch (Exception e) {
@@ -210,7 +213,8 @@ public class DataSourceController {
                         select(serverRoot.getReportClasses(), "", null);
                     }
                     else {
-                        OAObjectCacheDelegate.setSelectAllHub(serverRoot.getReportClasses());
+//qqqqqqqqqqqqqqqq                    	
+                    	og.objects().getOAObjectCacheService().setSelectAllHub(serverRoot.getReportClasses());
                     }
                 }
                 catch (Exception e) {
@@ -738,7 +742,7 @@ public class DataSourceController {
 			public boolean getUsePropertyCallback(Object obj, String propertyName) {
 				if (obj == serverRoot) {
 					if (oi == null) {
-						oi = OAObjectInfoDelegate.getOAObjectInfo(serverRoot);
+						oi = OAObjectInfoDelegate.callInfoGetObjectInfo(serverRoot);
 					}
 					OALinkInfo li = oi.getLinkInfo(propertyName);
 					if (li != null) {
