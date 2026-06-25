@@ -62,7 +62,7 @@ public abstract class RemoteServerController {
                 }
             };
             
-            OARuntime.defaultGraph().sync().createServer(syncServer);
+            OARuntime.defaultOA().sync().createServer(syncServer);
             
             ClientInfo ci = syncServer.getClientInfo();
             ci.setUserId("");

@@ -16,7 +16,6 @@ import com.viaoa.datasource.jdbc.OADataSourceJDBC;
 import com.viaoa.datasource.objectcache.OADataSourceObjectCache;
 import com.viaoa.datetime.*;
 import com.viaoa.filter.OAFilter;
-import com.viaoa.graph.OAGraph;
 import com.viaoa.hub.*;
 import com.viaoa.io.OAFile;
 import com.viaoa.json.OAJson;
@@ -24,6 +23,7 @@ import com.viaoa.lang.OAString;
 import com.viaoa.log.OALogger;
 import com.viaoa.metadata.OALinkInfo;
 import com.viaoa.metadata.OAObjectInfo;
+import com.viaoa.oa.OA;
 import com.viaoa.object.*;
 import com.viaoa.sync.OASyncServer;
 import com.viaoa.transaction.OATransaction;
@@ -153,7 +153,7 @@ public class DataSourceController {
             }
         }
 
-        final OAGraph og = OARuntime.defaultGraph();
+        final OA oa = OARuntime.defaultOA();
         
 		/*$$Start: DatasourceController.loadServerRoot $$*/
         aiExecutor.incrementAndGet();
@@ -196,7 +196,7 @@ public class DataSourceController {
                         select(serverRoot.getAppUsers(), "", null);
                     }
                     else {
-                    	og.internal().objects().cache().setSelectAllHub(serverRoot.getAppUsers());
+                    	oa.internal().objects().cache().setSelectAllHub(serverRoot.getAppUsers());
                     }
                 }
                 catch (Exception e) {
@@ -221,7 +221,7 @@ public class DataSourceController {
                         select(serverRoot.getReportClasses(), "", null);
                     }
                     else {
-                    	og.internal().objects().cache().setSelectAllHub(serverRoot.getReportClasses());
+                    	oa.internal().objects().cache().setSelectAllHub(serverRoot.getReportClasses());
                     }
                 }
                 catch (Exception e) {
@@ -259,7 +259,7 @@ public class DataSourceController {
         }
 
         // dont need to have these Hubs as selectAll in objectCache
-        og.internal().objects().cache().removeSelectAllHub(serverRoot.getAppUsers());
+        oa.internal().objects().cache().removeSelectAllHub(serverRoot.getAppUsers());
 
         LOG.info("completed selecting startup data");
         executorService.close();
@@ -294,17 +294,17 @@ public class DataSourceController {
         trans.setUseBatch(true);
         trans.start();
 
-        final OAGraph og = OARuntime.defaultGraph();
+        final OA oa = OARuntime.defaultOA();
         
         long ms = System.currentTimeMillis();
         try {
             OACascade cascade = new OACascade();
-            og.internal().objects().save().save(serverRoot, OAObject.CASCADE_ALL_LINKS, cascade);
+            oa.internal().objects().save().save(serverRoot, OAObject.CASCADE_ALL_LINKS, cascade);
 
-            og.internal().hubs().save().saveAll(hubClientRoot, OAObject.CASCADE_ALL_LINKS, cascade);
+            oa.internal().hubs().save().saveAll(hubClientRoot, OAObject.CASCADE_ALL_LINKS, cascade);
             
 
-            OASyncServer ss = og.internal().sync().getServer();
+            OASyncServer ss = oa.internal().sync().getServer();
             if (ss != null) {
                 ss.saveCache(cascade, OAObject.CASCADE_ALL_LINKS);
                 ss.performDGC();
@@ -491,13 +491,13 @@ public class DataSourceController {
 
 		final Map<Class, Integer> hash = new HashMap<Class, Integer>();
 		
-		final OAGraph og = OARuntime.defaultGraph();
+		final OA oa = OARuntime.defaultOA();
 
 		OACallback<? extends OAObject> callback = new OACallback<OAObject>() {
 			@Override
 			public boolean updateObject(OAObject obj) {
 				cacheCnt++;
-				og.internal().objects().state().setNew(obj, true);
+				oa.internal().objects().state().setNew(obj, true);
 				Object objx = obj.getProperty("id");
 				if (objx instanceof Number) {
 					int id = ((Number) objx).intValue();
@@ -510,11 +510,11 @@ public class DataSourceController {
 			}
 		};
 		
-		Class<? extends OAObject>[] cs = og.internal().objects().cache().getClasses();
+		Class<? extends OAObject>[] cs = oa.internal().objects().cache().getClasses();
 		for (Class<? extends OAObject> c : cs) {
 			OACallback<OAObject> cbx = (OACallback<OAObject>) callback;
 			Class<OAObject> cx = (Class<OAObject>) c;
-			OARuntime.defaultGraph().internal().objects().cache().visit(cx, cbx);
+			OARuntime.defaultOA().internal().objects().cache().visit(cx, cbx);
 		}
 		
 		
@@ -755,14 +755,14 @@ public class DataSourceController {
 	}
 
 	protected void _writeToJsonFile(final File file) throws Exception {
-		final OAGraph og = OARuntime.defaultGraph();
+		final OA oa = OARuntime.defaultOA();
 		OAJson oaj = new OAJson() {
 			OAObjectInfo oi;
 			@Override
 			public boolean getUsePropertyCallback(Object obj, String propertyName) {
 				if (obj == serverRoot) {
 					if (oi == null) {
-						oi = og.info(serverRoot);
+						oi = oa.info(serverRoot);
 					}
 					OALinkInfo li = oi.getLinkInfo(propertyName);
 					if (li != null) {

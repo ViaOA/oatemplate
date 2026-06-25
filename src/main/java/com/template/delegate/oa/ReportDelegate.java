@@ -17,7 +17,7 @@ public class ReportDelegate {
         if (report == null) return null;
         
         ReportClass rc = null; 
-        final OAObjectInfo oi = OARuntime.graph().info(Report.class);
+        final OAObjectInfo oi = OARuntime.oa().info(Report.class);
         for (OALinkInfo li : oi.getLinkInfos()) {
             if (li.getType() != OALinkInfo.TYPE_ONE) continue;
             if (!li.getOneAndOnlyOne()) continue;
@@ -40,7 +40,7 @@ public class ReportDelegate {
         ot.setTemplate(template);
         
         OAObject ref = null;
-        final OAObjectInfo oi = OARuntime.graph().info(Report.class);
+        final OAObjectInfo oi = OARuntime.oa().info(Report.class);
         for (OALinkInfo li : oi.getLinkInfos()) {
             if (li.getType() != OALinkInfo.TYPE_ONE) continue;
             if (!li.getOneAndOnlyOne()) continue;

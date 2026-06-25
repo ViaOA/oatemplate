@@ -31,10 +31,10 @@ import com.viaoa.datasource.jdbc.db.Column;
 import com.viaoa.datasource.jdbc.db.Database;
 import com.viaoa.datasource.jdbc.db.Table;
 import com.viaoa.filter.OAFilter;
-import com.viaoa.graph.sibling.OASiblingHelper;
 import com.viaoa.hub.Hub;
 import com.viaoa.io.OAFile;
 import com.viaoa.lang.OAString;
+import com.viaoa.oa.sibling.OASiblingHelper;
 import com.viaoa.object.OAObject;
 import com.viaoa.runtime.OARuntime;
 import com.viaoa.sync.OASyncClient;
@@ -203,7 +203,7 @@ public abstract class RemoteClientController {
     	};
         LOG.config("Starting Client ...");
         syncClient.start();
-        OARuntime.defaultGraph().sync().createClient(syncClient);
+        OARuntime.defaultOA().sync().createClient(syncClient);
         
         int x = Resource.getInt(Resource.APP_AppUpdateInterval);
         if (x > 0) {
@@ -213,7 +213,7 @@ public abstract class RemoteClientController {
     }
     
     public boolean isConnected() {
-    	return (OARuntime.graph().internal().sync().isConnected());
+    	return (OARuntime.oa().internal().sync().isConnected());
     }
     
 	public void close() {

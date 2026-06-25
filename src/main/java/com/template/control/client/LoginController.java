@@ -265,7 +265,7 @@ public abstract class LoginController {
         }
         Resource.save();
         password = OAString.convertToSHAHash(password);
-        int connectionId = OARuntime.graph().internal().sync().getConnectionId();
+        int connectionId = OARuntime.oa().internal().sync().getConnectionId();
         AppUserLogin userLogin = RemoteDelegate.getRemoteApp().getUserLogin(connectionId, userId, password, location, System.getProperty("user.name"));
         return userLogin;
     }

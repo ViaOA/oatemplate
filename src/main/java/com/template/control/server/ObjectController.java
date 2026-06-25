@@ -47,7 +47,7 @@ public class ObjectController {
 	}
 
     public void start() {
-    	if (!OARuntime.defaultGraph().sync().isServer()) return;
+    	if (!OARuntime.defaultOA().sync().isServer()) return;
         LOG.fine("starting");
         // getConnectionInfoController().start();
         

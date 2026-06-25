@@ -99,7 +99,7 @@ public abstract class RemoteClientController {
     	};
         LOG.config("Starting Client ...");
         syncClient.start();
-        OARuntime.graph().sync().createClient(syncClient);
+        OARuntime.oa().sync().createClient(syncClient);
         
         int x = Resource.getInt(Resource.APP_AppUpdateInterval);
         if (x > 0) {
@@ -109,7 +109,7 @@ public abstract class RemoteClientController {
     }
     
     public boolean isConnected() {
-    	return OARuntime.graph().internal().sync().isConnected();
+    	return OARuntime.oa().internal().sync().isConnected();
     }
     
 	public void close() {

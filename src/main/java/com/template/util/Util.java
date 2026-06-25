@@ -70,7 +70,7 @@ public class Util {
 		al.add("   Max: " + String.format("%,d", Runtime.getRuntime().maxMemory(), "#,###"));
 
 		al.add("Object Cache =======================");
-		OARuntime.graph().internal().objects().cache().getInfo(al);
+		OARuntime.oa().internal().objects().cache().getInfo(al);
 
 		al.add("Triggers =======================");
 		//qqqqqqq vecAll.add("total: " + OAObjectInfo.getTotalTriggers());
@@ -86,7 +86,7 @@ public class Util {
 			}
 		}
 
-		OASyncClient sc = OARuntime.defaultGraph().internal().sync().getClient();
+		OASyncClient sc = OARuntime.defaultOA().internal().sync().getClient();
 		if (sc != null) {
 			al.add("OASync Client ======================");
 			OARemoteMultiplexerClient rmc = sc.getRemoteMultiplexerClient();
@@ -103,7 +103,7 @@ public class Util {
 
 		}
 
-		OASyncServer ss = OARuntime.defaultGraph().internal().sync().getServer();
+		OASyncServer ss = OARuntime.defaultOA().internal().sync().getServer();
 		if (ss != null) {
 			al.add("OASync Server ======================");
 

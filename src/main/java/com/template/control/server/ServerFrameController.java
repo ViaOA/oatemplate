@@ -185,7 +185,7 @@ public abstract class ServerFrameController {
 
         al.add("Object Cache ============================");
 		
-        OARuntime.graph().internal().objects().cache().getInfo(al);
+        OARuntime.oa().internal().objects().cache().getInfo(al);
 		
 		al.add("DataSource ============================");
         OADataSource[] oadss = OARuntime.datasource().getAll();

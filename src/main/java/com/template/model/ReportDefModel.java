@@ -49,7 +49,7 @@ public class ReportDefModel extends OAObjectModel {
     public ReportDefModel(Hub<ReportDef> hubReportDef) {
         this();
         if (hubReportDef != null) {
-        	OARuntime.graph().internal().hubs().data().setObjectClass(hubReportDef, ReportDef.class);
+        	OARuntime.oa().internal().hubs().data().setObjectClass(hubReportDef, ReportDef.class);
         }
         this.hub = hubReportDef;
     }
@@ -110,11 +110,11 @@ public class ReportDefModel extends OAObjectModel {
         modelReportClass.setAllowSearch(false);
         modelReportClass.setAllowHubSearch(false);
         modelReportClass.setAllowGotoEdit(false);
-        OALinkInfo li = OARuntime.graph().internal().hubs().detail().getLinkInfoFromDetailToMaster(getOriginalHub());
+        OALinkInfo li = OARuntime.oa().internal().hubs().detail().getLinkInfoFromDetailToMaster(getOriginalHub());
         modelReportClass.setCreateUI(li == null || !ReportDef.P_ReportClass.equalsIgnoreCase(li.getName()) );
         modelReportClass.setViewOnly(getViewOnly());
         // call ReportDef.reportClassModelCallback(ReportClassModel) to be able to customize this model
-        OARuntime.graph().internal().objects().callbacks().onObjectCallbackModel(ReportDef.class, ReportDef.P_ReportClass, modelReportClass);
+        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(ReportDef.class, ReportDef.P_ReportClass, modelReportClass);
     
         return modelReportClass;
     }

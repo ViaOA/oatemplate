@@ -46,7 +46,7 @@ public class StartupController {
 		// must set this first
 		Resource.setRunType(runType);
 
-		OARuntime.createDefaultGraph(AppUser.class.getPackage());
+		OARuntime.createDefaultOA(AppUser.class.getPackage());
 		
         // load args[] into runtime properties before using properties
         Resource.loadArguments(args);

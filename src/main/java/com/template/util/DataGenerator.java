@@ -26,7 +26,7 @@ public class DataGenerator {
         if (stack.size() > 20) {
             return false;
         }
-        OAObjectInfo oi = OARuntime.graph().info(obj);
+        OAObjectInfo oi = OARuntime.oa().info(obj);
         OALinkInfo li = oi.getLinkInfo(linkName); 
         if (li == null) throw new RuntimeException("link="+linkName+", does not exist for object="+obj);
         if (stack.contains(li)) return false;
@@ -34,7 +34,7 @@ public class DataGenerator {
         return true;
     }
     public void done(OAObject obj, String linkName) {
-        OAObjectInfo oi = OARuntime.graph().info(obj);
+        OAObjectInfo oi = OARuntime.oa().info(obj);
         OALinkInfo li = oi.getLinkInfo(linkName); 
         if (li == null) throw new RuntimeException("link="+linkName+", does not exist for object="+obj);
         if (stack.pop() != li) {
@@ -57,7 +57,7 @@ public class DataGenerator {
             // appUserLogin
             AppUserLogin appUserLogin = null;
             if (Math.random() < .75) {
-                appUserLogin = (AppUserLogin) OARuntime.graph().internal().objects().cache().getRandom(AppUserLogin.class, 500);
+                appUserLogin = (AppUserLogin) OARuntime.oa().internal().objects().cache().getRandom(AppUserLogin.class, 500);
                 if (appUserLogin != null) obj.setAppUserLogin(appUserLogin);
             }
             if (appUserLogin == null) {
@@ -194,7 +194,7 @@ public class DataGenerator {
             for (int cnt=0; cnt<tot; cnt++) {
                 Report report = null;
                 if (Math.random() < .75) {
-                    report = (Report) OARuntime.graph().internal().objects().cache().getRandom(Report.class, 500);
+                    report = (Report) OARuntime.oa().internal().objects().cache().getRandom(Report.class, 500);
                     if (report != null) obj.getReports().add(report);
                 }
                 if (report == null) {
@@ -242,7 +242,7 @@ public class DataGenerator {
             for (int cnt=0; cnt<tot; cnt++) {
                 Report report = null;
                 if (Math.random() < .75) {
-                    report = (Report) OARuntime.graph().internal().objects().cache().getRandom(Report.class, 500);
+                    report = (Report) OARuntime.oa().internal().objects().cache().getRandom(Report.class, 500);
                     if (report != null) obj.getReports().add(report);
                 }
                 if (report == null) {
@@ -274,7 +274,7 @@ public class DataGenerator {
             for (int cnt=0; cnt<tot; cnt++) {
                 Report report = null;
                 if (Math.random() < .75) {
-                    report = (Report) OARuntime.graph().internal().objects().cache().getRandom(Report.class, 500);
+                    report = (Report) OARuntime.oa().internal().objects().cache().getRandom(Report.class, 500);
                     if (report != null) obj.getReports().add(report);
                 }
                 if (report == null) {
@@ -322,7 +322,7 @@ public class DataGenerator {
             for (int cnt=0; cnt<tot; cnt++) {
                 Report report = null;
                 if (Math.random() < .75) {
-                    report = (Report) OARuntime.graph().internal().objects().cache().getRandom(Report.class, 500);
+                    report = (Report) OARuntime.oa().internal().objects().cache().getRandom(Report.class, 500);
                     if (report != null) obj.getReports().add(report);
                 }
                 if (report == null) {

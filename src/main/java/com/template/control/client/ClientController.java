@@ -89,7 +89,7 @@ public abstract class ClientController {
 		String[] cnames = OAReflect.getOAObjectClasses(packageName);
 		for (String fn : cnames) {
 			Class c = Class.forName(packageName + "." + fn);
-			OARuntime.graph(c).info(c);
+			OARuntime.oa(c).info(c);
 		}
 
 		final StartSwingInfo ssi = new StartSwingInfo();
@@ -246,7 +246,7 @@ public abstract class ClientController {
 			protected Void doInBackground() throws Exception {
 				LOG.fine("Loading data from server ...");
 				ssi.serverRoot = RemoteDelegate.getRemoteApp().getServerRoot();
-				int connectionId = OARuntime.graph(AppUser.class).sync().getConnectionId();
+				int connectionId = OARuntime.oa(AppUser.class).sync().getConnectionId();
 				ssi.clientRoot = RemoteDelegate.getRemoteApp().getClientRoot(connectionId);
 				LOG.fine("received data from server");
 				return null;
@@ -368,7 +368,7 @@ public abstract class ClientController {
 				if (bCheckingAWT && !Resource.getBoolean(Resource.INI_Debug)) {
 					LOG.warning("AWTThread did not respond to invokeLater, dumping stack traces to log and sending to server.");
 					ArrayList<String> list = controlLog.dumpStackTrace(); // writes to file, sends to server
-					int connectionId = OARuntime.graph().internal().sync().getClientInfo().getConnectionId();
+					int connectionId = OARuntime.oa().internal().sync().getClientInfo().getConnectionId();
 					RemoteDelegate.getRemoteApp().writeToClientLogFile(connectionId, list);
 					if (++errorCount == 3) {
 						callExit();
@@ -454,8 +454,8 @@ public abstract class ClientController {
 					try {
 						Tuple<String, Throwable> t = queErrorMessage.take();
 						System.out.println("Sending warning to server: " + t.a + ", exception: " + t.b.toString());
-						if (OARuntime.graph().internal().sync().getClient().isConnected()) {
-							RemoteSessionInterface rci = OARuntime.graph().internal().sync().getClient().getRemoteSession();
+						if (OARuntime.oa().internal().sync().getClient().isConnected()) {
+							RemoteSessionInterface rci = OARuntime.oa().internal().sync().getClient().getRemoteSession();
 							if (rci != null) {
 								rci.sendException("client exception: " + t.a, t.b);
 							}
@@ -528,14 +528,14 @@ public abstract class ClientController {
 
 				@Override
 				protected void onLogin(String user, String location) {
-					ClientInfo ci = OARuntime.graph().internal().sync().getClient().getClientInfo();
+					ClientInfo ci = OARuntime.oa().internal().sync().getClient().getClientInfo();
 					ci.setUserId(user);
 					ci.setUserName(System.getProperty("user.name"));
 					ci.setLocation(location);
 					int release = OAConv.toInt(Resource.getValue(Resource.APP_Release));
 					ci.setVersion("" + release);
 					try {
-						RemoteSessionInterface sess = OARuntime.graph().internal().sync().getClient().getRemoteSession();
+						RemoteSessionInterface sess = OARuntime.oa().internal().sync().getClient().getRemoteSession();
 						if (sess != null) {
 							sess.update(ci);
 						}

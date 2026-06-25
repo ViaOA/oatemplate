@@ -105,7 +105,7 @@ public abstract class SingleController {
         String[] cnames = OAReflect.getOAObjectClasses(packageName);
         for (String fn : cnames) {
             Class c = Class.forName(packageName + "." + fn);
-            OARuntime.graph().info(c);
+            OARuntime.oa().info(c);
         }
 
         boolean b = _start();

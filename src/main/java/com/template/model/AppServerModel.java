@@ -47,7 +47,7 @@ public class AppServerModel extends OAObjectModel {
     public AppServerModel(Hub<AppServer> hubAppServer) {
         this();
         if (hubAppServer != null) {
-        	OARuntime.graph().internal().hubs().data().setObjectClass(hubAppServer, AppServer.class);        	
+        	OARuntime.oa().internal().hubs().data().setObjectClass(hubAppServer, AppServer.class);        	
         }
         this.hub = hubAppServer;
     }
@@ -107,7 +107,7 @@ public class AppServerModel extends OAObjectModel {
         modelAppUserLogin.setAllowGotoEdit(true);
         modelAppUserLogin.setViewOnly(getViewOnly());
         // call AppServer.appUserLoginModelCallback(AppUserLoginModel) to be able to customize this model
-        OARuntime.graph().internal().objects().callbacks().onObjectCallbackModel(AppServer.class, AppServer.P_AppUserLogin, modelAppUserLogin);
+        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(AppServer.class, AppServer.P_AppUserLogin, modelAppUserLogin);
     
         return modelAppUserLogin;
     }
@@ -117,7 +117,7 @@ public class AppServerModel extends OAObjectModel {
         modelReports.setDisplayName("Report");
         modelReports.setPluralDisplayName("Reports");
         
-        if (OARuntime.graph().internal().hubs().detail().getIsFromSameMasterHub(getOriginalHub(), getReports())) {
+        if (OARuntime.oa().internal().hubs().detail().getIsFromSameMasterHub(getOriginalHub(), getReports())) {
             modelReports.setCreateUI(false);
         }
         modelReports.setForJfc(getForJfc());
@@ -140,7 +140,7 @@ public class AppServerModel extends OAObjectModel {
         modelReports.setAllowCut(false);
         modelReports.setAllowPaste(false);
         // call AppServer.reportsModelCallback(ReportModel) to be able to customize this model
-        OARuntime.graph().internal().objects().callbacks().onObjectCallbackModel(AppServer.class, AppServer.P_Reports, modelReports);
+        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(AppServer.class, AppServer.P_Reports, modelReports);
     
         return modelReports;
     }
@@ -148,7 +148,7 @@ public class AppServerModel extends OAObjectModel {
     public AppUserLoginSearchModel getAppUserLoginSearchModel() {
         if (modelAppUserLoginSearch != null) return modelAppUserLoginSearch;
         modelAppUserLoginSearch = new AppUserLoginSearchModel();
-        OARuntime.graph().internal().hubs().select().adoptWhereHub(modelAppUserLoginSearch.getHub(), AppServer.P_AppUserLogin, getHub());
+        OARuntime.oa().internal().hubs().select().adoptWhereHub(modelAppUserLoginSearch.getHub(), AppServer.P_AppUserLogin, getHub());
         return modelAppUserLoginSearch;
     }
     public ReportSearchModel getReportsSearchModel() {

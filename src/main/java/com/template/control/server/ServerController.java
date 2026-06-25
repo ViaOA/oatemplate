@@ -449,7 +449,7 @@ public abstract class ServerController {
 	private void _preloadData(OAObject obj, OACascade cascade) {
 		LOG.fine(Thread.currentThread().getName() + ", loading data for object=" + obj);
 		OAThread.sleep(((int) (Math.random() * 15)) * 1000);
-		OARuntime.graph().internal().objects().reflect().loadAllReferences(obj, 1, 1, true, cascade, 500);
+		OARuntime.oa().internal().objects().reflect().loadAllReferences(obj, 1, 1, true, cascade, 500);
 	}
 
 	public RemoteServerController getRemoteServerController() {

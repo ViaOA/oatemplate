@@ -16,7 +16,7 @@ public class ReportClassDelegate {
     private static final Map<Class, ReportClass> hmClassReport = new HashMap<>();
     
     public static void createReportClasses() {
-        final OAObjectInfo oi = OARuntime.graph().info(Report.class);
+        final OAObjectInfo oi = OARuntime.oa().info(Report.class);
         
         final Hub<ReportClass> hub = ModelDelegate.getReportClasses();
         
@@ -30,7 +30,7 @@ public class ReportClassDelegate {
             
             ReportClass rc = hub.find(ReportClass.P_ClassName, cn);
             if (rc == null) {
-                OAObjectInfo oiz = OARuntime.graph().info(cz);
+                OAObjectInfo oiz = OARuntime.oa().info(cz);
                 rc = new ReportClass();
                 rc.setName(oiz.getDisplayName());
                 rc.setClassName(cn);

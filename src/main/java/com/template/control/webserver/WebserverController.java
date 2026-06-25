@@ -65,7 +65,7 @@ public class WebserverController {
         
         LOG.fine("Loading data from core server");
         ServerRoot serverRoot = RemoteDelegate.getRemoteApp().getServerRoot();
-        int connectionId = OARuntime.graph().internal().sync().getConnectionId();
+        int connectionId = OARuntime.oa().internal().sync().getConnectionId();
         ClientRoot clientRoot = RemoteDelegate.getRemoteApp().getClientRoot(connectionId);
 
         LOG.fine("Initializing model");

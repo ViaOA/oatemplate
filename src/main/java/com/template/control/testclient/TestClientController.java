@@ -36,7 +36,7 @@ public class TestClientController {
         // this will start OASync client, and create OADataSourceClient
         controlRemote.start(serverName, port);
         
-        int connectionId = OARuntime.graph().internal().sync().getConnectionId();
+        int connectionId = OARuntime.oa().internal().sync().getConnectionId();
         
         OAProperties serverProps = RemoteDelegate.getRemoteApp().getServerProperties();
 
@@ -56,7 +56,7 @@ public class TestClientController {
     }
     
     public void stop() throws Exception {
-    	OARuntime.graph().sync().stop();
+    	OARuntime.oa().sync().stop();
     }
 
     public void custom() throws Exception {

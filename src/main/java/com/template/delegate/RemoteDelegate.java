@@ -30,7 +30,7 @@ public class RemoteDelegate {
     public static RemoteAppInterface getRemoteApp() {
         if (remoteApp != null) return remoteApp;
         
-        OASyncClient sc = OARuntime.graph().internal().sync().getClient();
+        OASyncClient sc = OARuntime.oa().internal().sync().getClient();
         try {
             remoteApp = (RemoteAppInterface) sc.lookup(RemoteAppInterface.BindName);
         }
@@ -46,7 +46,7 @@ public class RemoteDelegate {
     }
     public static RemoteSpellCheckInterface getRemoteSpellCheck() {
         if (remoteSpellCheck != null) return remoteSpellCheck;
-        OASyncClient sc = OARuntime.graph().internal().sync().getClient();
+        OASyncClient sc = OARuntime.oa().internal().sync().getClient();
         try {
             remoteSpellCheck = (RemoteSpellCheckInterface) sc.lookup(RemoteSpellCheckInterface.BindName);
         }
@@ -62,7 +62,7 @@ public class RemoteDelegate {
     }
     public static RemoteFileInterface getRemoteFile() {
         if (remoteFile != null) return remoteFile;
-        OASyncClient sc = OARuntime.graph().internal().sync().getClient();
+        OASyncClient sc = OARuntime.oa().internal().sync().getClient();
         try {
             remoteFile = (RemoteFileInterface) sc.lookup(RemoteFileInterface.BindName);
         }
@@ -86,7 +86,7 @@ public class RemoteDelegate {
      */
     public static AppUserLogin getRemoteRequestAppUserLogin() {
         if (controlConnection == null) return null;
-        int cid = OARuntime.graph().internal().sync().getRequestConnectionId();
+        int cid = OARuntime.oa().internal().sync().getRequestConnectionId();
         if (cid < 0) cid = 0;
         
         AppUserLogin userLogin = controlConnection.getAppUserLogin(cid);

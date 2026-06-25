@@ -54,7 +54,7 @@ public class ReportModel extends OAObjectModel {
     public ReportModel(Hub<Report> hubReport) {
         this();
         if (hubReport != null) {
-        	OARuntime.graph().internal().hubs().data().setObjectClass(hubReport, Report.class);
+        	OARuntime.oa().internal().hubs().data().setObjectClass(hubReport, Report.class);
         }
         this.hub = hubReport;
     }
@@ -123,7 +123,7 @@ public class ReportModel extends OAObjectModel {
         modelCalcReportClass.setAllowGotoEdit(false);
         modelCalcReportClass.setViewOnly(true);
         // call Report.calcReportClassModelCallback(ReportClassModel) to be able to customize this model
-        OARuntime.graph().internal().objects().callbacks().onObjectCallbackModel(Report.class, Report.P_CalcReportClass, modelCalcReportClass);
+        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(Report.class, Report.P_CalcReportClass, modelCalcReportClass);
     
         return modelCalcReportClass;
     }
@@ -144,7 +144,7 @@ public class ReportModel extends OAObjectModel {
         modelReportDef.setAllowGotoEdit(true);
         modelReportDef.setViewOnly(true);
         // call Report.reportDefModelCallback(ReportDefModel) to be able to customize this model
-        OARuntime.graph().internal().objects().callbacks().onObjectCallbackModel(Report.class, Report.P_ReportDef, modelReportDef);
+        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(Report.class, Report.P_ReportDef, modelReportDef);
     
         return modelReportDef;
     }

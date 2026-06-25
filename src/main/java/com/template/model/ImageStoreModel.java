@@ -37,7 +37,7 @@ public class ImageStoreModel extends OAObjectModel {
     public ImageStoreModel(Hub<ImageStore> hubImageStore) {
         this();
         if (hubImageStore != null) {
-        	OARuntime.graph().internal().hubs().data().setObjectClass(hubImageStore, ImageStore.class);
+        	OARuntime.oa().internal().hubs().data().setObjectClass(hubImageStore, ImageStore.class);
         }
         this.hub = hubImageStore;
     }

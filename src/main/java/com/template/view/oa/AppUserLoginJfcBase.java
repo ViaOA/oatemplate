@@ -644,16 +644,16 @@ public class AppUserLoginJfcBase implements OAModelJfcInterface {
     }
     public OATree createSearchTree() {
         Hub h = getHub();
-        Hub h2 = OARuntime.graph().internal().hubs().select().getSelectWhereHub(h);
+        Hub h2 = OARuntime.oa().internal().hubs().select().getSelectWhereHub(h);
         if (h2 == null) {
             h = getHub().getLinkHub(true);
-            if (h != null) h2 = OARuntime.graph().internal().hubs().select().getSelectWhereHub(h);
+            if (h != null) h2 = OARuntime.oa().internal().hubs().select().getSelectWhereHub(h);
             if (h2 == null) {
                 h = getHub().getMasterHub();
-                if (h != null) h2 = OARuntime.graph().internal().hubs().select().getSelectWhereHub(h);
+                if (h != null) h2 = OARuntime.oa().internal().hubs().select().getSelectWhereHub(h);
             }
         }
-        String pp = OARuntime.graph().internal().hubs().select().getSelectWhereHubPropertyPath(h);
+        String pp = OARuntime.oa().internal().hubs().select().getSelectWhereHubPropertyPath(h);
         OATree tree = createSearchTree(h2, pp);
         if (tree == null) tree = createSearchTree2();
         return tree;

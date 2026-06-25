@@ -41,7 +41,7 @@ public class ReportClassModel extends OAObjectModel {
     public ReportClassModel(Hub<ReportClass> hubReportClass) {
         this();
         if (hubReportClass != null) {
-        	OARuntime.graph().internal().hubs().data().setObjectClass(hubReportClass, ReportClass.class);
+        	OARuntime.oa().internal().hubs().data().setObjectClass(hubReportClass, ReportClass.class);
         }
         this.hub = hubReportClass;
     }
@@ -84,7 +84,7 @@ public class ReportClassModel extends OAObjectModel {
         modelReportDefs = new ReportDefModel(getReportDefs());
         modelReportDefs.setDisplayName("Report Def");
         modelReportDefs.setPluralDisplayName("Report Defs");
-        if (OARuntime.graph().internal().hubs().detail().getIsFromSameMasterHub(getOriginalHub(), getReportDefs())) {
+        if (OARuntime.oa().internal().hubs().detail().getIsFromSameMasterHub(getOriginalHub(), getReportDefs())) {
             modelReportDefs.setCreateUI(false);
         }
         modelReportDefs.setForJfc(getForJfc());
@@ -107,7 +107,7 @@ public class ReportClassModel extends OAObjectModel {
         modelReportDefs.setAllowCut(false);
         modelReportDefs.setAllowPaste(false);
         // call ReportClass.reportDefsModelCallback(ReportDefModel) to be able to customize this model
-        OARuntime.graph().internal().objects().callbacks().onObjectCallbackModel(ReportClass.class, ReportClass.P_ReportDefs, modelReportDefs);
+        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(ReportClass.class, ReportClass.P_ReportDefs, modelReportDefs);
     
         return modelReportDefs;
     }
