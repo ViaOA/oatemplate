@@ -14,33 +14,36 @@ import com.template.control.client.FileDialogController;
 import com.template.delegate.JfcDelegate;
 import com.viaoa.hub.Hub;
 import com.viaoa.object.OAObject;
-import com.viaoa.util.OADownloadCsv;
+
 
 public class DownloadDialog<F extends OAObject> {
     private Hub<F> hub;
     private Window window;
     private File directory;
-    private JFileChooser fileChooser; 
-    private final OADownloadCsv<F> downloadCsv;
+    private JFileChooser fileChooser;
+//qqqqqqqqq get from oa-extras    
+//    private final OADownloadCsv<F> downloadCsv;
     private volatile PrintWriter writer;
     
     
     public DownloadDialog(Hub<F> hub) {
         this.window = JfcDelegate.getMainWindow();
         this.hub = hub;
+/*qqqqqqq        
         this.downloadCsv = new OADownloadCsv<F>(hub) {
             @Override
             protected void onWriteLine(String txt) {
                 if (writer != null) writer.println(txt);
             }
         };
+*/        
     }
     public void setDirectory(File file) {
         this.directory = file;
     }
     
     public void addProperty(String title, String propPath) {
-        downloadCsv.addProperty(title, propPath);
+//        downloadCsv.addProperty(title, propPath);
     }
 
     public void download() {
@@ -81,7 +84,8 @@ public class DownloadDialog<F extends OAObject> {
                 OutputStreamWriter os = new OutputStreamWriter(fos);
                 DownloadDialog.this.writer = new PrintWriter(os);
                 
-                downloadCsv.download();
+//qqqqqqqqq                
+//                downloadCsv.download();
 
                 DownloadDialog.this.writer.close();
                 DownloadDialog.this.writer = null;

@@ -3,9 +3,13 @@ package com.template.model;
 
 import java.util.logging.*;
 import com.viaoa.object.*;
+import com.viaoa.runtime.OARuntime;
 import com.viaoa.annotation.*;
 import com.viaoa.hub.*;
-import com.viaoa.util.*;
+import com.viaoa.hub.copy.HubCopy;
+import com.viaoa.hub.merge.HubMerger;
+import com.viaoa.hub.view.HubCombined;
+import com.viaoa.metadata.OAObjectModel;
 import com.viaoa.filter.*;
 import com.viaoa.datasource.*;
 
@@ -49,7 +53,9 @@ public class ReportModel extends OAObjectModel {
     
     public ReportModel(Hub<Report> hubReport) {
         this();
-        if (hubReport != null) HubDelegate.setObjectClass(hubReport, Report.class);
+        if (hubReport != null) {
+        	OARuntime.graph().internal().hubs().data().setObjectClass(hubReport, Report.class);
+        }
         this.hub = hubReport;
     }
     public ReportModel(Report report) {
@@ -117,7 +123,7 @@ public class ReportModel extends OAObjectModel {
         modelCalcReportClass.setAllowGotoEdit(false);
         modelCalcReportClass.setViewOnly(true);
         // call Report.calcReportClassModelCallback(ReportClassModel) to be able to customize this model
-        OAObjectCallbackDelegate.onObjectCallbackModel(Report.class, Report.P_CalcReportClass, modelCalcReportClass);
+        OARuntime.graph().internal().objects().callbacks().onObjectCallbackModel(Report.class, Report.P_CalcReportClass, modelCalcReportClass);
     
         return modelCalcReportClass;
     }
@@ -138,7 +144,7 @@ public class ReportModel extends OAObjectModel {
         modelReportDef.setAllowGotoEdit(true);
         modelReportDef.setViewOnly(true);
         // call Report.reportDefModelCallback(ReportDefModel) to be able to customize this model
-        OAObjectCallbackDelegate.onObjectCallbackModel(Report.class, Report.P_ReportDef, modelReportDef);
+        OARuntime.graph().internal().objects().callbacks().onObjectCallbackModel(Report.class, Report.P_ReportDef, modelReportDef);
     
         return modelReportDef;
     }

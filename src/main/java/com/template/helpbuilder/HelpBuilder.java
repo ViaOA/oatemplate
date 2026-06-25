@@ -12,7 +12,7 @@ import com.template.view.AboutDialog;
 import com.template.view.client.ClientFrame;
 import com.viaoa.jfc.*;
 import com.viaoa.image.OAImageUtil;
-import com.viaoa.util.OAFile;
+import com.viaoa.io.OAFile;
 
 /**
  * This is used to create screen shots for all areas of the UI.

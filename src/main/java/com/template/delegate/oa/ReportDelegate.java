@@ -1,9 +1,12 @@
 package com.template.delegate.oa;
 
 import com.template.model.oa.*;
+import com.viaoa.datetime.OADateTime;
+import com.viaoa.metadata.OALinkInfo;
+import com.viaoa.metadata.OAObjectInfo;
 import com.viaoa.object.*;
+import com.viaoa.runtime.OARuntime;
 import com.viaoa.template.OATemplate;
-import com.viaoa.util.OADateTime;
 
 public class ReportDelegate {
 
@@ -14,7 +17,7 @@ public class ReportDelegate {
         if (report == null) return null;
         
         ReportClass rc = null; 
-        final OAObjectInfo oi = OAObjectInfoDelegate.callInfoGetObjectInfo(Report.class);
+        final OAObjectInfo oi = OARuntime.graph().info(Report.class);
         for (OALinkInfo li : oi.getLinkInfos()) {
             if (li.getType() != OALinkInfo.TYPE_ONE) continue;
             if (!li.getOneAndOnlyOne()) continue;
@@ -37,7 +40,7 @@ public class ReportDelegate {
         ot.setTemplate(template);
         
         OAObject ref = null;
-        final OAObjectInfo oi = OAObjectInfoDelegate.callInfoGetObjectInfo(Report.class);
+        final OAObjectInfo oi = OARuntime.graph().info(Report.class);
         for (OALinkInfo li : oi.getLinkInfos()) {
             if (li.getType() != OALinkInfo.TYPE_ONE) continue;
             if (!li.getOneAndOnlyOne()) continue;

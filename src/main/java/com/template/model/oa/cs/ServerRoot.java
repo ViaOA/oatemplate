@@ -5,8 +5,8 @@ import java.util.*;
 
 import com.viaoa.annotation.*;
 import com.viaoa.hub.*;
+import com.viaoa.hub.merge.HubMerger;
 import com.viaoa.object.*;
-import com.viaoa.util.*;
 import com.template.model.oa.ReportClass;
 import com.template.model.oa.*;
 import com.template.model.oa.propertypath.*;

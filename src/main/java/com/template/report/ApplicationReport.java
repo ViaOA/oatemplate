@@ -28,8 +28,10 @@ import javax.swing.SwingWorker;
 import com.template.control.client.PdfController;
 import com.template.delegate.JfcDelegate;
 import com.template.resource.Resource;
+import com.viaoa.config.OAProperties;
 import com.viaoa.hub.Hub;
-import com.viaoa.hub.HubChangeListener;
+import com.viaoa.hub.listener.HubChangeListener;
+import com.viaoa.io.OAFile;
 import com.viaoa.jfc.OAButton;
 import com.viaoa.jfc.OAScroller;
 import com.viaoa.jfc.control.OAJfcController;
@@ -38,8 +40,9 @@ import com.viaoa.jfc.editor.html.control.OAHTMLTextPaneController;
 import com.viaoa.jfc.editor.html.view.HtmlDebug;
 import com.viaoa.jfc.print.PrintController;
 import com.viaoa.jfc.report.OAHTMLReport;
+import com.viaoa.lang.OAStr;
+import com.viaoa.lang.OAString;
 import com.viaoa.object.OAObject;
-import com.viaoa.util.*;
 
 public class ApplicationReport<F extends OAObject> extends OAHTMLReport<F> {
     private static Logger LOG = Logger.getLogger(ApplicationReport.class.getName());;

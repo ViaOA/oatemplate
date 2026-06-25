@@ -13,8 +13,10 @@ import com.template.model.oa.AppUser;
 import com.template.model.oa.AppUserLogin;
 import com.template.resource.Resource;
 import com.template.view.client.LoginDialog;
-import com.viaoa.sync.OASyncDelegate;
-import com.viaoa.util.*;
+import com.viaoa.converter.OAConv;
+import com.viaoa.lang.OAString;
+import com.viaoa.runtime.OARuntime;
+import com.viaoa.secure.OAEncryption;
 
 public abstract class LoginController {
     private static Logger LOG = Logger.getLogger(LoginController.class.getName());
@@ -263,7 +265,7 @@ public abstract class LoginController {
         }
         Resource.save();
         password = OAString.convertToSHAHash(password);
-        int connectionId = OASyncDelegate.getConnectionId();
+        int connectionId = OARuntime.graph().internal().sync().getConnectionId();
         AppUserLogin userLogin = RemoteDelegate.getRemoteApp().getUserLogin(connectionId, userId, password, location, System.getProperty("user.name"));
         return userLogin;
     }

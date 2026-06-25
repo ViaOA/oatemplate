@@ -4,9 +4,16 @@ import java.util.Stack;
 import java.math.*;
 import java.awt.Color;
 import com.viaoa.object.*;
+import com.viaoa.runtime.OARuntime;
+import com.viaoa.select.OASelect;
 import com.viaoa.hub.*;
+import com.viaoa.lang.OAString;
+import com.viaoa.metadata.OALinkInfo;
+import com.viaoa.metadata.OAObjectInfo;
+import com.viaoa.converter.OAConv;
 import com.viaoa.datasource.*;
-import com.viaoa.util.*;
+import com.viaoa.datetime.OADate;
+import com.viaoa.datetime.OADateTime;
 import com.template.model.oa.*;
 import com.template.model.oa.filter.*;
 import com.template.delegate.*;
@@ -19,7 +26,7 @@ public class DataGenerator {
         if (stack.size() > 20) {
             return false;
         }
-        OAObjectInfo oi = OAObjectInfoDelegate.callInfoGetObjectInfo(obj);
+        OAObjectInfo oi = OARuntime.graph().info(obj);
         OALinkInfo li = oi.getLinkInfo(linkName); 
         if (li == null) throw new RuntimeException("link="+linkName+", does not exist for object="+obj);
         if (stack.contains(li)) return false;
@@ -27,7 +34,7 @@ public class DataGenerator {
         return true;
     }
     public void done(OAObject obj, String linkName) {
-        OAObjectInfo oi = OAObjectInfoDelegate.callInfoGetObjectInfo(obj);
+        OAObjectInfo oi = OARuntime.graph().info(obj);
         OALinkInfo li = oi.getLinkInfo(linkName); 
         if (li == null) throw new RuntimeException("link="+linkName+", does not exist for object="+obj);
         if (stack.pop() != li) {
@@ -50,7 +57,7 @@ public class DataGenerator {
             // appUserLogin
             AppUserLogin appUserLogin = null;
             if (Math.random() < .75) {
-                appUserLogin = (AppUserLogin) OAObjectCacheDelegate.getRandom(AppUserLogin.class, 500);
+                appUserLogin = (AppUserLogin) OARuntime.graph().internal().objects().cache().getRandom(AppUserLogin.class, 500);
                 if (appUserLogin != null) obj.setAppUserLogin(appUserLogin);
             }
             if (appUserLogin == null) {
@@ -176,7 +183,7 @@ public class DataGenerator {
         int tot;
         // id is auto assigned
         // created has a default value
-        obj.setStarted((new OADateTime()).addDays((int) (Math.random() * 1000)));
+        obj.setStarted((new OADateTime()).plusDays((int) (Math.random() * 1000)));
         obj.setDemoMode(Math.random() < .5 ? true : false);
         obj.setTestOnly(Math.random() < .5 ? true : false);
         obj.setRelease(OAString.getDummyText(12, 0, 18));
@@ -187,7 +194,7 @@ public class DataGenerator {
             for (int cnt=0; cnt<tot; cnt++) {
                 Report report = null;
                 if (Math.random() < .75) {
-                    report = (Report) OAObjectCacheDelegate.getRandom(Report.class, 500);
+                    report = (Report) OARuntime.graph().internal().objects().cache().getRandom(Report.class, 500);
                     if (report != null) obj.getReports().add(report);
                 }
                 if (report == null) {
@@ -214,7 +221,7 @@ public class DataGenerator {
         obj.setEditProcessed(Math.random() < .5 ? true : false);
         obj.setFirstName(OAString.getDummyText(12, 0, 35));
         obj.setLastName(OAString.getDummyText(22, 0, 55));
-        if (Math.random() < .8) obj.setInactiveDate((OADate)(new OADate()).addDays((int) (Math.random() * 1000)));
+        if (Math.random() < .8) obj.setInactiveDate((OADate)(new OADate()).plusDays((int) (Math.random() * 1000)));
         obj.setNote(OAString.getDummyText(20, 0, 500));
         if (add(obj, AppUser.P_AppUserLogins)) {
             // appUserLogins
@@ -235,7 +242,7 @@ public class DataGenerator {
             for (int cnt=0; cnt<tot; cnt++) {
                 Report report = null;
                 if (Math.random() < .75) {
-                    report = (Report) OAObjectCacheDelegate.getRandom(Report.class, 500);
+                    report = (Report) OARuntime.graph().internal().objects().cache().getRandom(Report.class, 500);
                     if (report != null) obj.getReports().add(report);
                 }
                 if (report == null) {
@@ -255,10 +262,10 @@ public class DataGenerator {
         int x;
         int tot;
         // id is auto assigned
-        obj.setDateTime((new OADateTime()).addDays((int) (Math.random() * 1000)));
+        obj.setDateTime((new OADateTime()).plusDays((int) (Math.random() * 1000)));
         obj.setMessage(OAString.getDummyText(35, 0, 250));
         obj.setStackTrace(OAString.getDummyText(40, 0, 500));
-        obj.setReviewed((OADate)(new OADate()).addDays((int) (Math.random() * 1000)));
+        obj.setReviewed((OADate)(new OADate()).plusDays((int) (Math.random() * 1000)));
         obj.setReviewNote(OAString.getDummyText(40, 0, 254));
         if (add(obj, AppUserError.P_Reports)) {
             // reports
@@ -267,7 +274,7 @@ public class DataGenerator {
             for (int cnt=0; cnt<tot; cnt++) {
                 Report report = null;
                 if (Math.random() < .75) {
-                    report = (Report) OAObjectCacheDelegate.getRandom(Report.class, 500);
+                    report = (Report) OARuntime.graph().internal().objects().cache().getRandom(Report.class, 500);
                     if (report != null) obj.getReports().add(report);
                 }
                 if (report == null) {
@@ -290,7 +297,7 @@ public class DataGenerator {
         // created has a default value
         obj.setLocation(OAString.getDummyText(18, 0, 50));
         obj.setComputerName(OAString.getDummyText(14, 0, 50));
-        obj.setDisconnected((new OADateTime()).addDays((int) (Math.random() * 1000)));
+        obj.setDisconnected((new OADateTime()).plusDays((int) (Math.random() * 1000)));
         obj.setConnectionId((int) (Math.random() * 900));
         obj.setHostName(OAString.getDummyText(14, 0, 50));
         obj.setIpAddress(OAString.getDummyText(15, 0, 20));
@@ -315,7 +322,7 @@ public class DataGenerator {
             for (int cnt=0; cnt<tot; cnt++) {
                 Report report = null;
                 if (Math.random() < .75) {
-                    report = (Report) OAObjectCacheDelegate.getRandom(Report.class, 500);
+                    report = (Report) OARuntime.graph().internal().objects().cache().getRandom(Report.class, 500);
                     if (report != null) obj.getReports().add(report);
                 }
                 if (report == null) {
@@ -348,7 +355,7 @@ public class DataGenerator {
         int tot;
         // id is auto assigned
         // created has a default value
-        obj.setGenerated((new OADateTime()).addDays((int) (Math.random() * 1000)));
+        obj.setGenerated((new OADateTime()).plusDays((int) (Math.random() * 1000)));
         obj.setHtml(OAString.getDummyText(30, 0, 500));
         if (add(obj, Report.P_ReportDef)) {
             // reportDef
@@ -476,7 +483,7 @@ public class DataGenerator {
     private Hub<Report> hubReport = new Hub<Report>(Report.class);
     
     public static void main(String[] args) {
-        OAObjectCallbackDelegate.demoAllowAllToPass(true);
+        //qqqqqq OAObjectCallbackDelegate.demoAllowAllToPass(true);
         DataGenerator dg = new DataGenerator();
         dg.createSamples();
         System.out.println("createSamples is done");

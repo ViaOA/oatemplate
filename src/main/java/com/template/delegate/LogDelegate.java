@@ -1,7 +1,7 @@
 package com.template.delegate;
 
 import com.template.control.LogController;
-import com.viaoa.util.OADateTime;
+import com.viaoa.datetime.OADateTime;
 
 public class LogDelegate {
     

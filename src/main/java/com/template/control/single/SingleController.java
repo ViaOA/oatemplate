@@ -24,14 +24,21 @@ import com.template.model.oa.AppUserLogin;
 import com.template.model.oa.cs.ClientRoot;
 import com.template.model.oa.cs.ServerRoot;
 import com.template.resource.Resource;
-import com.viaoa.context.OAContext;
+import com.viaoa.converter.OAConv;
+import com.viaoa.datetime.OADate;
+import com.viaoa.datetime.OADateTime;
+import com.viaoa.datetime.OATime;
 import com.viaoa.hub.Hub;
+import com.viaoa.io.OAFile;
 import com.viaoa.jfc.OAJfcUtil;
 import com.viaoa.jfc.text.spellcheck.SpellChecker;
+import com.viaoa.lang.OAStr;
+import com.viaoa.lang.OAString;
 import com.viaoa.object.OAObject;
-import com.viaoa.object.OAObjectInfoDelegate;
 import com.viaoa.process.OACronProcessor;
-import com.viaoa.util.*;
+import com.viaoa.reflect.OAReflect;
+import com.viaoa.runtime.OARuntime;
+import com.viaoa.runtime.context.OAContext;
 
 /**
  * Main controller for starting in Single User mode.
@@ -95,10 +102,10 @@ public abstract class SingleController {
 
     public boolean start() throws Exception {
         String packageName = "com.template.model.oa";
-        String[] cnames = OAReflect.getClasses(packageName);
+        String[] cnames = OAReflect.getOAObjectClasses(packageName);
         for (String fn : cnames) {
             Class c = Class.forName(packageName + "." + fn);
-            OAObjectInfoDelegate.callInfoGetObjectInfo(c);
+            OARuntime.graph().info(c);
         }
 
         boolean b = _start();
@@ -203,7 +210,8 @@ public abstract class SingleController {
         ModelDelegate.setLocalAppUser(user);
 
         LOG.config("Initializing OAContext ... as login user");
-        OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
+//qqqqqqqqqqqqqq todo:  same as ServerController        
+//        OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
 
         // initialize serverRoot, ModelDelegate
         ModelDelegate.initialize(getServerRoot(), getClientRoot());

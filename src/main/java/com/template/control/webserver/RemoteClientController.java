@@ -10,12 +10,11 @@ import com.viaoa.datasource.clientserver.OADataSourceClient;
 import com.viaoa.datasource.jdbc.db.Column;
 import com.viaoa.datasource.jdbc.db.Database;
 import com.viaoa.datasource.jdbc.db.Table;
+import com.viaoa.filter.OAFilter;
 import com.viaoa.hub.Hub;
 import com.viaoa.object.OAObject;
-import com.viaoa.object.OAThreadLocalDelegate;
+import com.viaoa.runtime.OARuntime;
 import com.viaoa.sync.OASyncClient;
-import com.viaoa.util.OAFilter;
-import com.viaoa.sync.OASync;
 
 /**
 	Connection to RemoteServer, that allows distributed method calls. 
@@ -73,8 +72,7 @@ public abstract class RemoteClientController {
         };
 
         LOG.config("connecting to RemoteServer "+serverName+", on port="+port);
-        Package p = AppUser.class.getPackage();
-    	syncClient = new OASyncClient(p, serverName, port) {
+    	syncClient = new OASyncClient(serverName, port) {
             private AtomicInteger aiDetailCnt = new AtomicInteger();
             private AtomicInteger aiCursorCnt = new AtomicInteger();
             
@@ -88,13 +86,20 @@ public abstract class RemoteClientController {
                 super.onSocketException(e);
                 onDisconnect(e);
             }
-            @Override
-            public OADataSourceClient getOADataSourceClient() {
-                return dsClient;
-            }
+			@Override
+			protected void createRemoteDataSource() {
+				// TODO Auto-generated method stub
+				
+			}
+			@Override
+			protected void closeRemoteDataSource() {
+				// TODO Auto-generated method stub
+				//qqqqqqqqq
+			}
     	};
         LOG.config("Starting Client ...");
         syncClient.start();
+        OARuntime.graph().sync().createClient(syncClient);
         
         int x = Resource.getInt(Resource.APP_AppUpdateInterval);
         if (x > 0) {
@@ -104,7 +109,7 @@ public abstract class RemoteClientController {
     }
     
     public boolean isConnected() {
-    	return (OASync.isConnected());
+    	return OARuntime.graph().internal().sync().isConnected();
     }
     
 	public void close() {

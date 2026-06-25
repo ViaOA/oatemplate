@@ -72,11 +72,10 @@ import org.eclipse.jetty.webapp.Configuration;
 import com.template.control.LogController;
 import com.template.resource.Resource;
 import com.template.servlet.HelloServlet;
-import com.viaoa.context.OAUserAccess;
+import com.viaoa.io.OAFile;
+import com.viaoa.lang.OAStr;
+import com.viaoa.lang.OAString;
 import com.viaoa.object.OAObject;
-import com.viaoa.util.OAFile;
-import com.viaoa.util.OAStr;
-import com.viaoa.util.OAString;
 import com.viaoa.web.filter.OAUserAccessFilter;
 import com.viaoa.web.servlet.HealthCheckServlet;
 import com.viaoa.web.servlet.ImageServlet;
@@ -405,10 +404,12 @@ public class JettyController {
 					return null;
 				}
 
+/*qqqqqqqqqqqqq todo:				
 				@Override
 				protected OAUserAccess getContextUserAccess(OAObject webUser, OAObject contextUser) {
 					return null;
 				}
+*/				
 			};
 		}
 

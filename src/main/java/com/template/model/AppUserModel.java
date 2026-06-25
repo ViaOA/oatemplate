@@ -3,9 +3,11 @@ package com.template.model;
 
 import java.util.logging.*;
 import com.viaoa.object.*;
+import com.viaoa.runtime.OARuntime;
 import com.viaoa.annotation.*;
 import com.viaoa.hub.*;
-import com.viaoa.util.*;
+import com.viaoa.hub.copy.HubCopy;
+import com.viaoa.metadata.OAObjectModel;
 import com.viaoa.filter.*;
 import com.viaoa.datasource.*;
 
@@ -43,7 +45,9 @@ public class AppUserModel extends OAObjectModel {
     
     public AppUserModel(Hub<AppUser> hubAppUser) {
         this();
-        if (hubAppUser != null) HubDelegate.setObjectClass(hubAppUser, AppUser.class);
+        if (hubAppUser != null) {
+        	OARuntime.graph().internal().hubs().data().setObjectClass(hubAppUser, AppUser.class);
+        }
         this.hub = hubAppUser;
     }
     public AppUserModel(AppUser appUser) {
@@ -91,7 +95,7 @@ public class AppUserModel extends OAObjectModel {
         modelAppUserLogins = new AppUserLoginModel(getAppUserLogins());
         modelAppUserLogins.setDisplayName("App User Login");
         modelAppUserLogins.setPluralDisplayName("App User Logins");
-        if (HubDetailDelegate.getIsFromSameMasterHub(getOriginalHub(), getAppUserLogins())) {
+        if (OARuntime.graph().internal().hubs().detail().getIsFromSameMasterHub(getOriginalHub(), getAppUserLogins())) {
             modelAppUserLogins.setCreateUI(false);
         }
         modelAppUserLogins.setForJfc(getForJfc());
@@ -114,7 +118,7 @@ public class AppUserModel extends OAObjectModel {
         modelAppUserLogins.setAllowCut(false);
         modelAppUserLogins.setAllowPaste(false);
         // call AppUser.appUserLoginsModelCallback(AppUserLoginModel) to be able to customize this model
-        OAObjectCallbackDelegate.onObjectCallbackModel(AppUser.class, AppUser.P_AppUserLogins, modelAppUserLogins);
+        OARuntime.graph().internal().objects().callbacks().onObjectCallbackModel(AppUser.class, AppUser.P_AppUserLogins, modelAppUserLogins);
     
         return modelAppUserLogins;
     }
@@ -123,7 +127,7 @@ public class AppUserModel extends OAObjectModel {
         modelReports = new ReportModel(getReports());
         modelReports.setDisplayName("Report");
         modelReports.setPluralDisplayName("Reports");
-        if (HubDetailDelegate.getIsFromSameMasterHub(getOriginalHub(), getReports())) {
+        if (OARuntime.graph().internal().hubs().detail().getIsFromSameMasterHub(getOriginalHub(), getReports())) {
             modelReports.setCreateUI(false);
         }
         modelReports.setForJfc(getForJfc());
@@ -146,7 +150,7 @@ public class AppUserModel extends OAObjectModel {
         modelReports.setAllowCut(false);
         modelReports.setAllowPaste(false);
         // call AppUser.reportsModelCallback(ReportModel) to be able to customize this model
-        OAObjectCallbackDelegate.onObjectCallbackModel(AppUser.class, AppUser.P_Reports, modelReports);
+        OARuntime.graph().internal().objects().callbacks().onObjectCallbackModel(AppUser.class, AppUser.P_Reports, modelReports);
     
         return modelReports;
     }

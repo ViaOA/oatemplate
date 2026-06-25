@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.viaoa.util.OAString;
+import com.viaoa.lang.OAString;
 
 public class RemoteFileImpl implements RemoteFileInterface {
     private static Logger LOG = Logger.getLogger(RemoteFileImpl.class.getName());

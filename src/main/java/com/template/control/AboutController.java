@@ -57,11 +57,8 @@ public class AboutController {
                     String txt;
                     @Override
                     protected Void doInBackground() throws Exception {
-                        Vector v = Util.getInfo();
                         StringBuilder sb = new StringBuilder(4 * 1024);
-                        int x = v.size();
-                        for (int i=0; i<x; i++) {
-                            String sx = (String) v.elementAt(i);
+                        for (String sx : Util.getInfo()) {
                             if (sx == null) continue;
                             sx = sx.replace('\n', ' ');
                             sx = sx.replace('\r', ' ');

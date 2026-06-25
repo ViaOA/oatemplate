@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.logging.Logger;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JFrame;
@@ -29,15 +30,14 @@ import com.viaoa.datasource.clientserver.OADataSourceClient;
 import com.viaoa.datasource.jdbc.db.Column;
 import com.viaoa.datasource.jdbc.db.Database;
 import com.viaoa.datasource.jdbc.db.Table;
+import com.viaoa.filter.OAFilter;
+import com.viaoa.graph.sibling.OASiblingHelper;
 import com.viaoa.hub.Hub;
+import com.viaoa.io.OAFile;
+import com.viaoa.lang.OAString;
 import com.viaoa.object.OAObject;
-import com.viaoa.object.OASiblingHelper;
-import com.viaoa.object.OAThreadLocalDelegate;
+import com.viaoa.runtime.OARuntime;
 import com.viaoa.sync.OASyncClient;
-import com.viaoa.util.OAFile;
-import com.viaoa.util.OAFilter;
-import com.viaoa.util.OAString;
-import com.viaoa.sync.OASync;
 
 /**
 	Connection to RemoteServer, that allows distributed method calls. 
@@ -50,7 +50,7 @@ public abstract class RemoteClientController {
     private String serverName;
 	private int port;
     private OASyncClient syncClient;
-    private final ArrayList<OASiblingHelper> alSiblingHelperAWTThreadCache = new ArrayList<>();
+    private final List<OASiblingHelper<?>> alSiblingHelperAWTThreadCache = new ArrayList<>();
 
     public OASyncClient getSyncClient() {
         return syncClient;
@@ -96,8 +96,7 @@ public abstract class RemoteClientController {
         };
 
         LOG.config("connecting to RemoteServer "+serverName+", on port="+port);
-        Package p = AppUser.class.getPackage();
-    	syncClient = new OASyncClient(p, serverName, port) {
+    	syncClient = new OASyncClient(serverName, port) {
             private AtomicInteger aiDetailCnt = new AtomicInteger();
             private AtomicInteger aiCursorCnt = new AtomicInteger();
             
@@ -107,10 +106,10 @@ public abstract class RemoteClientController {
                 //LOG.finer("OAClient.getDetail, masterObject=" + masterObject + ", propertyName=" + propertyName);
 
                 boolean bUseSameThread = (getFrame() == null || !SwingUtilities.isEventDispatchThread());
-                ArrayList<OASiblingHelper> alSiblingHelper = OAThreadLocalDelegate.getSiblingHelpers();
+                List<OASiblingHelper<?>> alSiblingHelper = OARuntime.thread().getThreadLocalService().getSiblingHelpers();
 
                 if (!bUseSameThread && (alSiblingHelper != null)) {
-                    for (OASiblingHelper sh : alSiblingHelper) {
+                    for (OASiblingHelper<?> sh : alSiblingHelper) {
                         if (bUseSameThread = sh.getUseSameThread()) break;
                     }
                 }
@@ -132,8 +131,8 @@ public abstract class RemoteClientController {
                     }
                 }
 
-                final ArrayList<OASiblingHelper> alSiblingHelperX = alSiblingHelper;
-                final boolean bForMerger = OAThreadLocalDelegate.isHubMergerChanging();
+                final List<OASiblingHelper<?>> alSiblingHelperX = alSiblingHelper;
+                final boolean bForMerger = OARuntime.thread().getThreadLocalService().isHubMergerChanging();
                 
                 SwingWorker<Object, Void> sw = new SwingWorker<Object, Void>() {
                     @Override
@@ -142,17 +141,17 @@ public abstract class RemoteClientController {
                         try {
                             if (alSiblingHelperX != null) {
                                 for (OASiblingHelper sh : alSiblingHelperX) {
-                                    OAThreadLocalDelegate.addSiblingHelper(sh);
+                                	OARuntime.thread().getThreadLocalService().addSiblingHelper(sh);
                                 }
                             }
-                            if (bForMerger) OAThreadLocalDelegate.setHubMergerChanging(true);
+                            if (bForMerger) OARuntime.thread().getThreadLocalService().setHubMergerChanging(true);
                             obj = getDetail(masterObject, propertyName);
                         }
                         finally {
-                            if (bForMerger) OAThreadLocalDelegate.setHubMergerChanging(false);
+                            if (bForMerger) OARuntime.thread().getThreadLocalService().setHubMergerChanging(false);
                             if (alSiblingHelperX != null) {
                                 for (OASiblingHelper sh : alSiblingHelperX) {
-                                    OAThreadLocalDelegate.removeSiblingHelper(sh);
+                                	OARuntime.thread().getThreadLocalService().removeSiblingHelper(sh);
                                 }
                             }
                         }
@@ -195,13 +194,16 @@ public abstract class RemoteClientController {
                 super.onSocketException(e);
                 onDisconnect(e);
             }
-            @Override
-            public OADataSourceClient getOADataSourceClient() {
-                return dsClient;
-            }
+			@Override
+			protected void createRemoteDataSource() {
+			}
+			@Override
+			protected void closeRemoteDataSource() {
+			}
     	};
         LOG.config("Starting Client ...");
         syncClient.start();
+        OARuntime.defaultGraph().sync().createClient(syncClient);
         
         int x = Resource.getInt(Resource.APP_AppUpdateInterval);
         if (x > 0) {
@@ -211,7 +213,7 @@ public abstract class RemoteClientController {
     }
     
     public boolean isConnected() {
-    	return (OASync.isConnected());
+    	return (OARuntime.graph().internal().sync().isConnected());
     }
     
 	public void close() {

@@ -5,7 +5,8 @@ import java.util.*;
 import java.util.logging.*;
 
 import com.template.delegate.RemoteDelegate;
-import com.viaoa.util.*;
+import com.viaoa.lang.OAArray;
+import com.viaoa.lang.OAString;
 
 /**
  * Works with ServerDelegate to manage trees of words and soundexes.

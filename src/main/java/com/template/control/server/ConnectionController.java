@@ -5,8 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.template.model.oa.AppUserLogin;
 import com.template.model.oa.cs.ClientRoot;
+import com.viaoa.lang.OAString;
 import com.viaoa.sync.model.ClientInfo;
-import com.viaoa.util.OAString;
 
 /**
  * Manages Client connections to the server.

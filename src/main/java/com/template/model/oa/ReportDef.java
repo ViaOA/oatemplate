@@ -6,10 +6,8 @@ import java.util.logging.*;
 import java.sql.*;
 import com.viaoa.object.*;
 import com.viaoa.hub.*;
-import com.viaoa.scheduler.*;
-import com.viaoa.util.*;
 import com.viaoa.annotation.*;
-import com.viaoa.util.OADateTime;
+import com.viaoa.datetime.OADateTime;
 import com.template.delegate.oa.*;
 import com.template.model.oa.filter.*;
 import com.template.model.oa.propertypath.*;
@@ -181,7 +179,7 @@ public class ReportDef extends OAObject {
         this.name = rs.getString(3);
         this.template = rs.getString(4);
         this.seq = rs.getInt(5);
-        OAObjectInfoDelegate.setPrimitiveNull(this, P_Seq, rs.wasNull());
+        setPrimitiveNull(P_Seq, rs.wasNull());
         int reportClassFkey = rs.getInt(6);
         setFkeyProperty(P_ReportClass, rs.wasNull() ? null : reportClassFkey);
 

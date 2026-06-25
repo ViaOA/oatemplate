@@ -4,7 +4,8 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import com.viaoa.util.*;
+import com.viaoa.lang.OAArray;
+import com.viaoa.lang.OAString;
 
 public class ServerSpellCheckController {
     private static Logger LOG = Logger.getLogger(ServerSpellCheckController.class.getName());

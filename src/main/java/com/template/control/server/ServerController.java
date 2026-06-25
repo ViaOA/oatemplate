@@ -15,22 +15,23 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import com.viaoa.context.OAContext;
-import com.viaoa.context.OAUserAccess;
+import com.viaoa.cascade.OACascade;
+import com.viaoa.config.OAProperties;
+import com.viaoa.converter.OAConv;
+import com.viaoa.datetime.OADate;
+import com.viaoa.datetime.OADateTime;
+import com.viaoa.datetime.OATime;
 import com.viaoa.hub.Hub;
+import com.viaoa.io.OAFile;
 import com.viaoa.jfc.text.spellcheck.SpellChecker;
-import com.viaoa.object.OACascade;
+import com.viaoa.lang.OAString;
 import com.viaoa.object.OAObject;
-import com.viaoa.object.OAObjectReflectDelegate;
 import com.viaoa.process.OACronProcessor;
+import com.viaoa.runtime.OARuntime;
+import com.viaoa.runtime.context.OAContext;
+import com.viaoa.runtime.context.OAContextUser;
+import com.viaoa.runtime.thread.OAThread;
 import com.viaoa.sync.model.ClientInfo;
-import com.viaoa.util.OAConv;
-import com.viaoa.util.OADate;
-import com.viaoa.util.OADateTime;
-import com.viaoa.util.OAFile;
-import com.viaoa.util.OAProperties;
-import com.viaoa.util.OAString;
-import com.viaoa.util.OATime;
 import com.viaoa.web.filter.OAUserAccessFilter;
 
 import com.template.control.LogController;
@@ -214,8 +215,13 @@ public abstract class ServerController {
         ModelDelegate.setLocalAppUser(user);
 
         LOG.config("Initializing OAContext ... as admin user");
-        OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
-
+		OAContext<String, AppUser> ctx = new OAContext<>();
+		OARuntime.context().register(ctx);
+		OAContextUser<AppUser> ctxu = new OAContextUser<>(ctx, ModelDelegate.getLocalAppUserHub());
+		ctx.addContextUser("", ctxu);
+		OARuntime.context().setDefaultContextUser(ctxu);
+        
+        
         // initialize serverRoot, ModelDelegate
         ModelDelegate.initialize(serverRoot, null);
 
@@ -380,12 +386,13 @@ public abstract class ServerController {
 				// customize this to return the context user that is defined in the OABuilder model, ex: AppUser that would be used for webUser
 				return webUser;
 			}
-
+/*qqqqqq todo:
 			@Override
 			protected OAUserAccess getContextUserAccess(OAObject webUser, OAObject contextUser) {
 				// customize this to allow for user access
 				return null;
 			}
+*/			
 		};
 		filterUserAccess.setAuthType(OAUserAccessFilter.AuthType.HttpBasic);
 		return filterUserAccess;
@@ -441,11 +448,8 @@ public abstract class ServerController {
 
 	private void _preloadData(OAObject obj, OACascade cascade) {
 		LOG.fine(Thread.currentThread().getName() + ", loading data for object=" + obj);
-		try {
-			Thread.sleep(((int) (Math.random() * 15)) * 1000);
-		} catch (Exception e) {
-		}
-		OAObjectReflectDelegate.loadAllReferences(obj, 1, 1, true, cascade, 500);
+		OAThread.sleep(((int) (Math.random() * 15)) * 1000);
+		OARuntime.graph().internal().objects().reflect().loadAllReferences(obj, 1, 1, true, cascade, 500);
 	}
 
 	public RemoteServerController getRemoteServerController() {

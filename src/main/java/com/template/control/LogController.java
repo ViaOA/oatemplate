@@ -20,10 +20,10 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import com.template.resource.Resource;
-import com.viaoa.util.OADate;
-import com.viaoa.util.OADateTime;
-import com.viaoa.util.OAFile;
-import com.viaoa.util.OAString;
+import com.viaoa.datetime.OADate;
+import com.viaoa.datetime.OADateTime;
+import com.viaoa.io.OAFile;
+import com.viaoa.lang.OAString;
 
 /*
  * Sets up Logging environment for complete application.  Root package level has Log Handlers
@@ -408,9 +408,9 @@ public class LogController {
 						}
 
 						if (msNextDateChange == 0) {
-							msNextDateChange = ((new OADate()).addDays(1).getTime()); // next day                            
+							msNextDateChange = ((new OADate()).plusDays(1).getTime()); // next day                            
 						} else if (System.currentTimeMillis() >= msNextDateChange) {
-							msNextDateChange = ((new OADate()).addDays(1).getTime()); // next day                            
+							msNextDateChange = ((new OADate()).plusDays(1).getTime()); // next day                            
 							FileHandler fh = handler;
 							if (fh == null) {
 								fh = this;
@@ -461,9 +461,9 @@ public class LogController {
 						}
 
 						if (msNextDateChange == 0) {
-							msNextDateChange = ((new OADate()).addDays(1).getTime()); // next day                            
+							msNextDateChange = ((new OADate()).plusDays(1).getTime()); // next day                            
 						} else if (System.currentTimeMillis() >= msNextDateChange) {
-							msNextDateChange = ((new OADate()).addDays(1).getTime()); // next day                            
+							msNextDateChange = ((new OADate()).plusDays(1).getTime()); // next day                            
 							FileHandler fh = handler;
 							if (fh == null) {
 								fh = this;
@@ -502,9 +502,9 @@ public class LogController {
 
 	public void removeOldLogFiles(int regularDays, int errorDays) {
 		final OADate today = new OADate();
-		final OADate dateExpire = (OADate) today.addDays(-regularDays);
+		final OADate dateExpire = (OADate) today.plusDays(-regularDays);
 		// OADate dateError = (OADate) today.addDays(-errorDays);
-		final OADate yesterday = (OADate) (new OADate()).addDays(-1);
+		final OADate yesterday = (OADate) (new OADate()).plusDays(-1);
 
 		String s = Resource.getLogsDirectory();
 		s = OAString.convertFileName(s);
@@ -844,7 +844,7 @@ public class LogController {
 			}
 		}
 		OADate date = new OADate();
-		msNextLogDateChange = date.addDays(1).getTime();
+		msNextLogDateChange = date.plusDays(1).getTime();
 		if (pwFast != null) {
 			pwFast.close();
 			pwFast = null;

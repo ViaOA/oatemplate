@@ -6,9 +6,13 @@ import java.util.logging.*;
 import com.template.model.oa.*;
 import com.template.model.oa.propertypath.*;
 import com.viaoa.annotation.*;
+import com.viaoa.cache.OAObjectCacheFilter;
+import com.viaoa.datetime.OADateTime;
 import com.viaoa.object.*;
 import com.viaoa.hub.*;
-import com.viaoa.util.*;
+import com.viaoa.hub.filter.CustomHubFilter;
+import com.viaoa.hub.filter.HubFilter;
+
 import java.util.*;
 import com.template.model.search.*;
 import com.template.model.oa.search.*;
@@ -103,7 +107,7 @@ public class AppUserLoginLastDayFilter extends OAObject implements CustomHubFilt
     public boolean isUsed(AppUserLogin appUserLogin) {
         OADateTime created = appUserLogin.getCreated();
         if (created == null) return false;
-        OADateTime d1 = created.addDays(1);
+        OADateTime d1 = created.plusDays(1);
         OADateTime d2 = new OADateTime();
         if (d1.before(d2)) return false;
         return true;

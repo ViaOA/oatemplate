@@ -6,9 +6,12 @@ import java.util.logging.*;
 import com.template.model.oa.*;
 import com.template.model.oa.propertypath.*;
 import com.viaoa.annotation.*;
+import com.viaoa.cache.OAObjectCacheFilter;
 import com.viaoa.object.*;
 import com.viaoa.hub.*;
-import com.viaoa.util.*;
+import com.viaoa.hub.filter.CustomHubFilter;
+import com.viaoa.hub.filter.HubFilter;
+
 import java.util.*;
 import com.template.model.search.*;
 import com.template.model.oa.search.*;

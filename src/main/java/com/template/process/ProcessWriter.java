@@ -6,9 +6,9 @@ import java.io.PrintWriter;
 import java.util.logging.Logger;
 
 import com.template.resource.Resource;
+import com.viaoa.datetime.OADate;
+import com.viaoa.lang.OAString;
 import com.viaoa.object.OAObject;
-import com.viaoa.util.*;
-
 
 /**
  * used to write objects to a log/text file.  A form a "fast" logger.
@@ -44,7 +44,7 @@ public class ProcessWriter {
         }
 
         OADate date = new OADate();
-        msNextDateChange = date.addDays(1).getTime();
+        msNextDateChange = date.plusDays(1).getTime();
         
         String fileName = Resource.getLogsDirectory() + "/" + date.toString("yyyyMMdd") + "_Status.csv";
         fileName = OAString.convertFileName(fileName);

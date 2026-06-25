@@ -6,10 +6,8 @@ import java.util.logging.*;
 import java.sql.*;
 import com.viaoa.object.*;
 import com.viaoa.hub.*;
-import com.viaoa.scheduler.*;
-import com.viaoa.util.*;
 import com.viaoa.annotation.*;
-import com.viaoa.util.OADateTime;
+import com.viaoa.datetime.OADateTime;
 import com.template.delegate.oa.*;
 import com.template.model.oa.filter.*;
 import com.template.model.oa.propertypath.*;
@@ -281,13 +279,13 @@ public class AppUserLogin extends OAObject {
         timestamp = rs.getTimestamp(5);
         if (timestamp != null) this.disconnected = new OADateTime(timestamp);
         this.connectionId = rs.getInt(6);
-        OAObjectInfoDelegate.setPrimitiveNull(this, P_ConnectionId, rs.wasNull());
+        this.setPrimitiveNull(P_ConnectionId, rs.wasNull());
         this.hostName = rs.getString(7);
         this.ipAddress = rs.getString(8);
         this.totalMemory = rs.getLong(9);
-        OAObjectInfoDelegate.setPrimitiveNull(this, P_TotalMemory, rs.wasNull());
+        this.setPrimitiveNull(P_TotalMemory, rs.wasNull());
         this.freeMemory = rs.getLong(10);
-        OAObjectInfoDelegate.setPrimitiveNull(this, P_FreeMemory, rs.wasNull());
+        this.setPrimitiveNull(P_FreeMemory, rs.wasNull());
         int appUserFkey = rs.getInt(11);
         setFkeyProperty(P_AppUser, rs.wasNull() ? null : appUserFkey);
 

@@ -5,11 +5,13 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.logging.*;
 
+import com.viaoa.datetime.OADateTime;
 import com.viaoa.hub.*;
 import com.viaoa.object.*;
 import com.viaoa.remote.*;
+import com.viaoa.runtime.OARuntime;
+import com.viaoa.runtime.OAThreadLocalService;
 import com.viaoa.sync.*;
-import com.viaoa.util.*;
 
 import com.template.delegate.*;
 import com.template.delegate.oa.*;
@@ -45,7 +47,7 @@ public class ObjectController {
 	}
 
     public void start() {
-        if (!OASync.callSyncIsServer()) return;
+    	if (!OARuntime.defaultGraph().sync().isServer()) return;
         LOG.fine("starting");
         // getConnectionInfoController().start();
         
@@ -79,7 +81,9 @@ public class ObjectController {
                     if (user.getAdmin()) return;
                     if ("admin".equalsIgnoreCase(user.getLoginId())) admin = user;
                 }
-                boolean b = OASync.sendMessages(true);
+                OAThreadLocalService tls = OARuntime.thread().getThreadLocalService();
+                boolean b = tls.getSendSyncMessages();
+                tls.setSendSyncMessages(true);
                 if (admin == null) {
                     admin = new AppUser();
                     admin.setLoginId("admin");
@@ -87,7 +91,7 @@ public class ObjectController {
                     ModelDelegate.getAppUsers().add(admin);
                 }
                 admin.setAdmin(true);
-                OASync.sendMessages(b);
+                tls.setSendSyncMessages(b);
             }
         });
 
@@ -98,12 +102,12 @@ public class ObjectController {
                 if (login.getDisconnected() == null) login.setDisconnected(new OADateTime());
                 OADateTime created = login.getCreated();
                 if (created != null) {
-                    OADateTime d1 = created.addDays(1);
+                    OADateTime d1 = created.plusDays(1);
                     OADateTime d2 = new OADateTime();
                     if (d1.after(d2)) {
                         if (login.getConnectionId() != 0) continue;
                         // dont need extra connection=0 (server) logins
-                        d1 = created.addMinutes(3);
+                        d1 = created.plusMinutes(3);
                         if (d1.after(d2)) continue;
                     }
                 }

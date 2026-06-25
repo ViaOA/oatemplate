@@ -1,7 +1,7 @@
 package com.template.view.oa;
 
 import com.viaoa.hub.Hub;
-import com.viaoa.object.OAObjectModel;
+import com.viaoa.metadata.OAObjectModel;
 
 public interface OAModelJfcInterface {
 

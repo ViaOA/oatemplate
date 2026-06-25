@@ -8,7 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import com.template.resource.Resource;
-import com.viaoa.util.OAFile;
+import com.viaoa.io.OAFile;
 
 public class FileDialogController {
     

@@ -27,8 +27,8 @@ import com.viaoa.jfc.table.*;
 import com.viaoa.jfc.text.*;
 import com.viaoa.image.*;
 import com.viaoa.jfcapp.*;
-import com.viaoa.util.*;
-
+import com.viaoa.lang.OAArray;
+import com.viaoa.lang.OAString;
 import com.template.model.*;
 import com.template.model.search.*;
 import com.template.model.oa.AppUser;
@@ -2111,7 +2111,7 @@ public class AppUserJfcBase implements OAModelJfcInterface {
         TestDelegate td = new TestDelegate();
         td.createSampleData(null);
         
-        com.viaoa.context.OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
+      //qqq  com.viaoa.context.OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
         AppUserJfc ui = new AppUserJfc(ModelDelegate.getAppUsers().createSharedHub()) {
             @Override
             protected AppUserSearchJfc getSearchJfc() {

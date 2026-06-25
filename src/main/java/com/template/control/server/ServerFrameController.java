@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.Map.Entry;
@@ -26,16 +27,18 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 
-import com.viaoa.util.*;
 import com.template.control.AboutController;
 import com.template.control.HelpController;
 import com.template.delegate.JfcDelegate;
 import com.template.resource.Resource;
 import com.template.view.server.ServerFrame;
+import com.viaoa.converter.OAConv;
 import com.viaoa.datasource.OADataSource;
 import com.viaoa.datasource.jdbc.OADataSourceJDBC;
+import com.viaoa.datetime.OADateTime;
 import com.viaoa.jfc.*;
-import com.viaoa.object.OAObjectCacheDelegate;
+import com.viaoa.lang.OAString;
+import com.viaoa.runtime.OARuntime;
 
 public abstract class ServerFrameController {
 	private static Logger LOG = Logger.getLogger(ServerFrameController.class.getName());
@@ -173,31 +176,30 @@ public abstract class ServerFrameController {
 	
 	public String getInfo() {
         System.gc();
-        Vector vec = new Vector(50);
-        vec.addElement("Memory ============================");
-//        vec.addElement(" Total: %,d"+OAString.format(Runtime.getRuntime().totalMemory(),"#,###"));;
-        vec.addElement(String.format(" Total: %,d", Runtime.getRuntime().totalMemory()));;
-        vec.addElement("  Free: "+OAString.format(Runtime.getRuntime().freeMemory(), "#,###"));
-        vec.addElement("   Max: "+OAString.format(Runtime.getRuntime().maxMemory(), "#,###"));
+        List<String> al = new ArrayList();
+        al.add("Memory ============================");
+//        al.add(" Total: %,d"+OAString.format(Runtime.getRuntime().totalMemory(),"#,###"));;
+        al.add(String.format(" Total: %,d", Runtime.getRuntime().totalMemory()));;
+        al.add("  Free: "+OAString.format(Runtime.getRuntime().freeMemory(), "#,###"));
+        al.add("   Max: "+OAString.format(Runtime.getRuntime().maxMemory(), "#,###"));
 
-        vec.addElement("Object Cache ============================");
-		OAObjectCacheDelegate.getInfo(vec);
+        al.add("Object Cache ============================");
 		
-		vec.addElement("DataSource ============================");
-        OADataSource[] oadss = OADataSource.getDataSources();
+        OARuntime.graph().internal().objects().cache().getInfo(al);
+		
+		al.add("DataSource ============================");
+        OADataSource[] oadss = OARuntime.datasource().getAll();
         for (int i=0; oadss != null && i < oadss.length; i++) {
             OADataSource oads = oadss[i]; 
             OADataSourceJDBC ds = null;
             if (oads instanceof OADataSourceJDBC) {
             	ds = (OADataSourceJDBC) oads;
-                ds.getInfo(vec);
+                ds.getInfo(al);
             }
         }
         StringBuilder sb = new StringBuilder(1024*8);
-        int x = vec.size(); 
-        for (int i=0; i<x; i++) {
-            String s = (String) vec.elementAt(i);
-            sb.append(s + "\r\n");
+        for (String s : al) {
+            sb.append(s + OAString.NL);
         }
         return new String(sb);
 	}

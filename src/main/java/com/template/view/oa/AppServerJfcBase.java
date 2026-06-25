@@ -19,6 +19,7 @@ import javax.swing.event.*;
 
 import com.viaoa.object.*;
 import com.viaoa.hub.*;
+import com.viaoa.metadata.*;
 import com.viaoa.jfc.*;
 import com.viaoa.jfc.OAButton.*;
 import com.viaoa.jfc.border.*;
@@ -27,8 +28,8 @@ import com.viaoa.jfc.table.*;
 import com.viaoa.jfc.text.*;
 import com.viaoa.image.*;
 import com.viaoa.jfcapp.*;
-import com.viaoa.util.*;
-
+import com.viaoa.lang.OAArray;
+import com.viaoa.lang.OAString;
 import com.template.model.*;
 import com.template.model.search.*;
 import com.template.model.oa.AppServer;
@@ -128,8 +129,6 @@ public class AppServerJfcBase implements OAModelJfcInterface {
     public AppServerModel getModel() {
         return model;
     }
-    
-    
     
     // Images
     public static Icon getIcon() {
@@ -1942,7 +1941,7 @@ public class AppServerJfcBase implements OAModelJfcInterface {
         TestDelegate td = new TestDelegate();
         td.createSampleData(null);
         
-        com.viaoa.context.OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
+      //qqq  com.viaoa.context.OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
         AppServerJfc ui = new AppServerJfc(ModelDelegate.getCreateOneAppServerHub().createSharedHub()) {
             @Override
             protected AppServerSearchJfc getSearchJfc() {

@@ -7,7 +7,7 @@ import com.template.model.oa.AppUserLogin;
 import com.template.model.oa.cs.ClientRoot;
 import com.template.model.oa.cs.ServerRoot;
 import com.template.resource.Resource;
-import com.viaoa.util.OAProperties;
+import com.viaoa.config.OAProperties;
 
 public abstract class RemoteAppImpl implements RemoteAppInterface {
 

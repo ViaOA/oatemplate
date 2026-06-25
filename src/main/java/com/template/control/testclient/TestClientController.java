@@ -11,9 +11,11 @@ import com.template.model.oa.*;
 import com.template.model.oa.cs.*;
 import com.template.remote.RemoteAppInterface;
 import com.viaoa.comm.multiplexer.OAMultiplexerClient;
+import com.viaoa.config.OAProperties;
+import com.viaoa.lang.OAString;
+import com.viaoa.log.OALogUtil;
 import com.viaoa.object.OAObject;
-import com.viaoa.sync.OASync;
-import com.viaoa.util.*;
+import com.viaoa.runtime.OARuntime;
 
 public class TestClientController {
 	private static Logger LOG = Logger.getLogger(RemoteClientController.class.getName());
@@ -34,7 +36,7 @@ public class TestClientController {
         // this will start OASync client, and create OADataSourceClient
         controlRemote.start(serverName, port);
         
-        int connectionId = OASync.getConnectionId();
+        int connectionId = OARuntime.graph().internal().sync().getConnectionId();
         
         OAProperties serverProps = RemoteDelegate.getRemoteApp().getServerProperties();
 
@@ -54,7 +56,7 @@ public class TestClientController {
     }
     
     public void stop() throws Exception {
-        OASync.getSyncClient().stop(true);
+    	OARuntime.graph().sync().stop();
     }
 
     public void custom() throws Exception {

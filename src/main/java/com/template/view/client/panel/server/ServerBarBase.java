@@ -52,7 +52,7 @@ public class ServerBarBase {
     
         // appServer - AppServer - 
         Hub<AppServer> hubAppServer = ModelDelegate.getCreateOneAppServerHub().createSharedHub();
-        HubAODelegate.keepActiveObject(hubAppServer);  // createOne=true, auto set active object
+        // HubAODelegate.keepActiveObject(hubAppServer);  // createOne=true, auto set active object
         AppServerJfc jfcAppServer = new AppServerJfc(hubAppServer) {
             JPanel panx;
             @Override

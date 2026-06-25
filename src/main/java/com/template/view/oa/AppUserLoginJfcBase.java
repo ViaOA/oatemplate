@@ -18,6 +18,7 @@ import javax.swing.text.*;
 import javax.swing.event.*;
 
 import com.viaoa.object.*;
+import com.viaoa.runtime.OARuntime;
 import com.viaoa.hub.*;
 import com.viaoa.jfc.*;
 import com.viaoa.jfc.OAButton.*;
@@ -27,8 +28,8 @@ import com.viaoa.jfc.table.*;
 import com.viaoa.jfc.text.*;
 import com.viaoa.image.*;
 import com.viaoa.jfcapp.*;
-import com.viaoa.util.*;
-
+import com.viaoa.lang.OAArray;
+import com.viaoa.lang.OAString;
 import com.template.model.*;
 import com.template.model.search.*;
 import com.template.model.oa.AppUserLogin;
@@ -643,16 +644,16 @@ public class AppUserLoginJfcBase implements OAModelJfcInterface {
     }
     public OATree createSearchTree() {
         Hub h = getHub();
-        Hub h2 = HubSelectDelegate.getSelectWhereHub(h);
+        Hub h2 = OARuntime.graph().internal().hubs().select().getSelectWhereHub(h);
         if (h2 == null) {
             h = getHub().getLinkHub(true);
-            if (h != null) h2 = HubSelectDelegate.getSelectWhereHub(h);
+            if (h != null) h2 = OARuntime.graph().internal().hubs().select().getSelectWhereHub(h);
             if (h2 == null) {
                 h = getHub().getMasterHub();
-                if (h != null) h2 = HubSelectDelegate.getSelectWhereHub(h);
+                if (h != null) h2 = OARuntime.graph().internal().hubs().select().getSelectWhereHub(h);
             }
         }
-        String pp = HubSelectDelegate.getSelectWhereHubPropertyPath(h);
+        String pp = OARuntime.graph().internal().hubs().select().getSelectWhereHubPropertyPath(h);
         OATree tree = createSearchTree(h2, pp);
         if (tree == null) tree = createSearchTree2();
         return tree;
@@ -2383,7 +2384,7 @@ public class AppUserLoginJfcBase implements OAModelJfcInterface {
         TestDelegate td = new TestDelegate();
         td.createSampleData(null);
         
-        com.viaoa.context.OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
+      //qqq  com.viaoa.context.OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
         AppUserLoginJfc ui = new AppUserLoginJfc() {
             @Override
             protected AppUserLoginSearchJfc getSearchJfc() {

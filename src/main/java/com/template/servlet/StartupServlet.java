@@ -13,8 +13,7 @@ import com.template.control.StartupController;
 import com.template.control.server.ServerController;
 import com.template.control.webserver.WebserverController;
 import com.template.resource.Resource;
-import com.viaoa.util.OAString;
-
+import com.viaoa.lang.OAString;
 
 /**
  * Can be used by servlet engine (tomcat) to start OA as a server or client.

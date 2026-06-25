@@ -47,6 +47,11 @@
             <artifactId>oa-web</artifactId>
             <version>4.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.viaoa</groupId>
+            <artifactId>oa-datasource-jdbc</artifactId>
+            <version>4.0.0</version>
+        </dependency>
 
         <dependency>
             <groupId>javax.help</groupId>
@@ -167,8 +172,13 @@
           <version>2.3.2</version>
           <type>pom</type>
         </dependency>
-        
-        
+
+
+        <dependency>
+        	<groupId>com.oreillyauto.pos</groupId>
+        	<artifactId>oapos</artifactId>
+        	<version>0.0.1</version>
+        </dependency>
 	</dependencies>
 
 	<build>

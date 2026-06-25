@@ -16,10 +16,11 @@ import java.util.logging.Logger;
 import com.template.model.oa.*;
 import com.template.resource.Resource;
 import com.viaoa.comm.multiplexer.io.VirtualSocket;
+import com.viaoa.converter.OAConv;
+import com.viaoa.datetime.OADateTime;
+import com.viaoa.runtime.OARuntime;
 import com.viaoa.sync.OASyncServer;
 import com.viaoa.sync.model.ClientInfo;
-import com.viaoa.util.OAConv;
-import com.viaoa.util.OADateTime;
 
 public abstract class RemoteServerController {
 
@@ -34,8 +35,7 @@ public abstract class RemoteServerController {
 
     public OASyncServer getSyncServer() {
         if (syncServer == null) {
-            Package p = AppServer.class.getPackage();
-            syncServer = new OASyncServer(p, port) {
+            syncServer = new OASyncServer(port) {
                 @Override
                 protected String getLogFileName() {
                     return RemoteServerController.this.getLogFileName();
@@ -61,6 +61,8 @@ public abstract class RemoteServerController {
                     RemoteServerController.this.onClientException(ci, msg, ex);
                 }
             };
+            
+            OARuntime.defaultGraph().sync().createServer(syncServer);
             
             ClientInfo ci = syncServer.getClientInfo();
             ci.setUserId("");

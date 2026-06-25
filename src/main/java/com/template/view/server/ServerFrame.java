@@ -57,6 +57,7 @@ import com.template.view.oa.AppServerJfc;
 import com.template.view.oa.AppUserErrorJfc;
 import com.template.view.oa.AppUserJfc;
 import com.template.view.oa.AppUserLoginJfc;
+import com.viaoa.datetime.OADateTime;
 import com.viaoa.hub.Hub;
 import com.viaoa.hub.HubEvent;
 import com.viaoa.hub.HubListenerAdapter;
@@ -64,7 +65,7 @@ import com.viaoa.jfc.OACommand;
 import com.viaoa.jfc.OAJfcUtil;
 import com.viaoa.jfc.control.CutCopyPasteController;
 import com.viaoa.jfc.control.UndoableController;
-import com.viaoa.util.OADateTime;
+
 
 public abstract class ServerFrame extends JFrame implements ActionListener {
 	private final int TAB_Home = 0;

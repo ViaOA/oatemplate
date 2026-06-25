@@ -2,8 +2,10 @@ package com.template.util;
 
 import java.awt.Desktop;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.logging.Logger;
@@ -16,12 +18,10 @@ import com.viaoa.comm.multiplexer.OAMultiplexerClient;
 import com.viaoa.comm.multiplexer.OAMultiplexerServer;
 import com.viaoa.datasource.OADataSource;
 import com.viaoa.datasource.jdbc.OADataSourceJDBC;
-import com.viaoa.object.OAObjectCacheDelegate;
-import com.viaoa.object.OAObjectInfo;
 import com.viaoa.remote.multiplexer.OARemoteMultiplexerClient;
 import com.viaoa.remote.multiplexer.OARemoteMultiplexerServer;
+import com.viaoa.runtime.OARuntime;
 import com.viaoa.sync.OASyncClient;
-import com.viaoa.sync.OASyncDelegate;
 import com.viaoa.sync.OASyncServer;
 
 public class Util {
@@ -60,135 +60,135 @@ public class Util {
 		Desktop.getDesktop().browse(new URI(url));
 	}
 
-	public static Vector<String> getInfo() {
-		Vector<String> vecAll = new Vector<String>();
+	public static List<String> getInfo() {
+		final List<String> al = new ArrayList<String>();
 
 		System.gc();
-		vecAll.addElement("Memory ============================");
-		vecAll.addElement(" Total: " + String.format("%,d", Runtime.getRuntime().totalMemory(), "#,###"));
-		vecAll.addElement("  Free: " + String.format("%,d", Runtime.getRuntime().freeMemory(), "#,###"));
-		vecAll.addElement("   Max: " + String.format("%,d", Runtime.getRuntime().maxMemory(), "#,###"));
+		al.add("Memory ============================");
+		al.add(" Total: " + String.format("%,d", Runtime.getRuntime().totalMemory(), "#,###"));
+		al.add("  Free: " + String.format("%,d", Runtime.getRuntime().freeMemory(), "#,###"));
+		al.add("   Max: " + String.format("%,d", Runtime.getRuntime().maxMemory(), "#,###"));
 
-		vecAll.addElement("Object Cache =======================");
-		OAObjectCacheDelegate.getInfo(vecAll);
+		al.add("Object Cache =======================");
+		OARuntime.graph().internal().objects().cache().getInfo(al);
 
-		vecAll.addElement("Triggers =======================");
-		vecAll.addElement("total: " + OAObjectInfo.getTotalTriggers());
+		al.add("Triggers =======================");
+		//qqqqqqq vecAll.add("total: " + OAObjectInfo.getTotalTriggers());
 
-		vecAll.addElement("DataSource =========================");
-		OADataSource[] oadss = OADataSource.getDataSources();
+		al.add("DataSource =========================");
+		OADataSource[] oadss = OARuntime.datasource().getAll();
 		for (int i = 0; oadss != null && i < oadss.length; i++) {
 			OADataSource oads = oadss[i];
 			OADataSourceJDBC ds = null;
 			if (oads instanceof OADataSourceJDBC) {
 				ds = (OADataSourceJDBC) oads;
-				ds.getInfo(vecAll);
+				ds.getInfo(al);
 			}
 		}
 
-		OASyncClient sc = OASyncDelegate.getSyncClient();
+		OASyncClient sc = OARuntime.defaultGraph().internal().sync().getClient();
 		if (sc != null) {
-			vecAll.addElement("OASync Client ======================");
+			al.add("OASync Client ======================");
 			OARemoteMultiplexerClient rmc = sc.getRemoteMultiplexerClient();
-			vecAll.addElement(" remote methods called: " + String.format("%,d", rmc.getMethodCallCount(), "#,###"));
-			vecAll.addElement("   received: " + String.format("%,d", rmc.getReceivedMethodCount(), "#,###"));
+			al.add(" remote methods called: " + String.format("%,d", rmc.getMethodCallCount(), "#,###"));
+			al.add("   received: " + String.format("%,d", rmc.getReceivedMethodCount(), "#,###"));
 
 			OAMultiplexerClient mc = rmc.getMultiplexerClient();
-			vecAll.addElement(" vsockets live: " + String.format("%,d", mc.getLiveSocketCount(), "#,###"));
-			vecAll.addElement("   created: " + String.format("%,d", mc.getCreatedSocketCount(), "#,###"));
-			vecAll.addElement(" read count: " + String.format("%,d", mc.getReadCount(), "#,###"));
-			vecAll.addElement("   size: " + String.format("%,d", mc.getReadSize(), "#,###"));
-			vecAll.addElement(" write count: " + String.format("%,d", mc.getWriteCount(), "#,###"));
-			vecAll.addElement("   size: " + String.format("%,d", mc.getWriteSize(), "#,###"));
+			al.add(" vsockets live: " + String.format("%,d", mc.getLiveSocketCount(), "#,###"));
+			al.add("   created: " + String.format("%,d", mc.getCreatedSocketCount(), "#,###"));
+			al.add(" read count: " + String.format("%,d", mc.getReadCount(), "#,###"));
+			al.add("   size: " + String.format("%,d", mc.getReadSize(), "#,###"));
+			al.add(" write count: " + String.format("%,d", mc.getWriteCount(), "#,###"));
+			al.add("   size: " + String.format("%,d", mc.getWriteSize(), "#,###"));
 
 		}
 
-		OASyncServer ss = OASyncDelegate.getSyncServer();
+		OASyncServer ss = OARuntime.defaultGraph().internal().sync().getServer();
 		if (ss != null) {
-			vecAll.addElement("OASync Server ======================");
+			al.add("OASync Server ======================");
 
 			OARemoteMultiplexerServer rms = ss.getRemoteMultiplexerServer();
-			vecAll.addElement(" remote methods called: " + String.format("%,d", rms.getMethodCallCount(), "#,###"));
-			vecAll.addElement("   received: " + String.format("%,d", rms.getReceivedMethodCount(), "#,###"));
+			al.add(" remote methods called: " + String.format("%,d", rms.getMethodCallCount(), "#,###"));
+			al.add("   received: " + String.format("%,d", rms.getReceivedMethodCount(), "#,###"));
 
-			vecAll.addElement(" queue position: " + String.format("%,d", rms.getQueueHeadPos(), "#,###"));
+			al.add(" queue position: " + String.format("%,d", rms.getQueueHeadPos(), "#,###"));
 
 			OAMultiplexerServer ms = rms.getMultiplexerServer();
-			vecAll.addElement(" connections live: " + String.format("%,d", ms.getLiveConnectionCount(), "#,###"));
-			vecAll.addElement("   created: " + String.format("%,d", ms.getCreatedConnectionCount(), "#,###"));
+			al.add(" connections live: " + String.format("%,d", ms.getLiveConnectionCount(), "#,###"));
+			al.add("   created: " + String.format("%,d", ms.getCreatedConnectionCount(), "#,###"));
 
-			vecAll.addElement(" read count: " + String.format("%,d", ms.getReadCount(), "#,###"));
-			vecAll.addElement("   size: " + String.format("%,d", ms.getReadSize(), "#,###"));
-			vecAll.addElement(" write count: " + String.format("%,d", ms.getWriteCount(), "#,###"));
-			vecAll.addElement("   size: " + String.format("%,d", ms.getWriteSize(), "#,###"));
+			al.add(" read count: " + String.format("%,d", ms.getReadCount(), "#,###"));
+			al.add("   size: " + String.format("%,d", ms.getReadSize(), "#,###"));
+			al.add(" write count: " + String.format("%,d", ms.getWriteCount(), "#,###"));
+			al.add("   size: " + String.format("%,d", ms.getWriteSize(), "#,###"));
 		}
-		vecAll.addElement(" ");
+		al.add(" ");
 
 		Vector vec;
 		Enumeration enumx;
 
-		vecAll.add("================== Resource properties ==================");
+		al.add("================== Resource properties ==================");
 		vec = new Vector();
 		enumx = Resource.getBundleProperties().keys();
 		for (; enumx.hasMoreElements();) {
 			String key = (String) enumx.nextElement();
-			vec.addElement(key + " = " + convertValue(key, Resource.getValue(key)));
+			vec.add(key + " = " + convertValue(key, Resource.getValue(key)));
 		}
 		Collections.sort(vec);
-		vecAll.addAll(vec);
+		al.addAll(vec);
 
-		vecAll.add("================== Runtime arguments ==================");
+		al.add("================== Runtime arguments ==================");
 		vec = new Vector();
 		enumx = Resource.getRuntimeProperties().keys();
 		for (; enumx.hasMoreElements();) {
 			String key = (String) enumx.nextElement();
-			vec.addElement(key + " = " + convertValue(key, Resource.getValue(key)));
+			vec.add(key + " = " + convertValue(key, Resource.getValue(key)));
 		}
 		Collections.sort(vec);
-		vecAll.addAll(vec);
+		al.addAll(vec);
 
-		vecAll.add("================== server.ini properties ==================");
+		al.add("================== server.ini properties ==================");
 		vec = new Vector();
 		enumx = Resource.getServerProperties().keys();
 		for (; enumx.hasMoreElements();) {
 			String key = (String) enumx.nextElement();
-			vec.addElement(key + " = " + convertValue(key, Resource.getValue(key)));
+			vec.add(key + " = " + convertValue(key, Resource.getValue(key)));
 		}
 		Collections.sort(vec);
-		vecAll.addAll(vec);
+		al.addAll(vec);
 
-		vecAll.add("================== client.ini properties ==================");
+		al.add("================== client.ini properties ==================");
 		vec = new Vector();
 		enumx = Resource.getClientProperties().keys();
 		for (; enumx.hasMoreElements();) {
 			String key = (String) enumx.nextElement();
-			vec.addElement(key + " = " + convertValue(key, Resource.getValue(key)));
+			vec.add(key + " = " + convertValue(key, Resource.getValue(key)));
 		}
 		Collections.sort(vec);
-		vecAll.addAll(vec);
+		al.addAll(vec);
 
-		vecAll.add("================== single.ini properties ==================");
+		al.add("================== single.ini properties ==================");
 		vec = new Vector();
 		enumx = Resource.getSingleProperties().keys();
 		for (; enumx.hasMoreElements();) {
 			String key = (String) enumx.nextElement();
-			vec.addElement(key + " = " + convertValue(key, Resource.getValue(key)));
+			vec.add(key + " = " + convertValue(key, Resource.getValue(key)));
 		}
 		Collections.sort(vec);
-		vecAll.addAll(vec);
+		al.addAll(vec);
 
-		vecAll.add("================== System properties ==================");
+		al.add("================== System properties ==================");
 		vec = new Vector();
 		Properties props = System.getProperties();
 		enumx = props.keys();
 		for (; enumx.hasMoreElements();) {
 			String key = (String) enumx.nextElement();
-			vec.addElement(key + ": " + props.getProperty(key));
+			vec.add(key + ": " + props.getProperty(key));
 		}
 		Collections.sort(vec);
-		vecAll.addAll(vec);
+		al.addAll(vec);
 
-		return vecAll;
+		return al;
 	}
 
 	protected static String convertValue(String key, String val) {

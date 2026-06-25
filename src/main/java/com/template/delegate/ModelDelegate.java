@@ -128,7 +128,8 @@ public class ModelDelegate {
 	private static final AtomicInteger aiExecutor = new AtomicInteger();
 
 	private static void setSharedHub(final Hub h1, final Hub h2) {
-		HubAODelegate.warnOnSettingAO(h1);
+		//qqqqqqqqqqq todo: ??
+		// HubAODelegate.warnOnSettingAO(h1);
 		if (executorService == null) {
 			queExecutorService = new LinkedBlockingQueue<Runnable>(Integer.MAX_VALUE);
 			// min/max must be equal, since new threads are only created when queue is full

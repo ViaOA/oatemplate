@@ -3,9 +3,12 @@ package com.template.model;
 
 import java.util.logging.*;
 import com.viaoa.object.*;
+import com.viaoa.runtime.OARuntime;
 import com.viaoa.annotation.*;
 import com.viaoa.hub.*;
-import com.viaoa.util.*;
+import com.viaoa.hub.copy.HubCopy;
+import com.viaoa.metadata.OALinkInfo;
+import com.viaoa.metadata.OAObjectModel;
 import com.viaoa.filter.*;
 import com.viaoa.datasource.*;
 
@@ -43,7 +46,9 @@ public class AppUserErrorModel extends OAObjectModel {
     
     public AppUserErrorModel(Hub<AppUserError> hubAppUserError) {
         this();
-        if (hubAppUserError != null) HubDelegate.setObjectClass(hubAppUserError, AppUserError.class);
+        if (hubAppUserError != null) {
+        	OARuntime.graph().internal().hubs().data().setObjectClass(hubAppUserError, AppUserError.class);
+        }
         this.hub = hubAppUserError;
     }
     public AppUserErrorModel(AppUserError appUserError) {
@@ -101,11 +106,12 @@ public class AppUserErrorModel extends OAObjectModel {
         modelAppUserLogin.setAllowSearch(false);
         modelAppUserLogin.setAllowHubSearch(false);
         modelAppUserLogin.setAllowGotoEdit(true);
-        OALinkInfo li = HubDetailDelegate.callDetailGetLinkInfoFromDetailToMaster(getOriginalHub());
+        OARuntime.graph().internal().hubs().detail().getLinkInfoFromDetailToMaster(getOriginalHub());
+        OALinkInfo li = OARuntime.graph().internal().hubs().detail().getLinkInfoFromDetailToMaster(getOriginalHub());
         modelAppUserLogin.setCreateUI(li == null || !AppUserError.P_AppUserLogin.equalsIgnoreCase(li.getName()) );
         modelAppUserLogin.setViewOnly(getViewOnly());
         // call AppUserError.appUserLoginModelCallback(AppUserLoginModel) to be able to customize this model
-        OAObjectCallbackDelegate.onObjectCallbackModel(AppUserError.class, AppUserError.P_AppUserLogin, modelAppUserLogin);
+        OARuntime.graph().internal().objects().callbacks().onObjectCallbackModel(AppUserError.class, AppUserError.P_AppUserLogin, modelAppUserLogin);
     
         return modelAppUserLogin;
     }
@@ -114,7 +120,7 @@ public class AppUserErrorModel extends OAObjectModel {
         modelReports = new ReportModel(getReports());
         modelReports.setDisplayName("Report");
         modelReports.setPluralDisplayName("Reports");
-        if (HubDetailDelegate.getIsFromSameMasterHub(getOriginalHub(), getReports())) {
+        if (OARuntime.graph().internal().hubs().detail().getIsFromSameMasterHub(getOriginalHub(), getReports())) {
             modelReports.setCreateUI(false);
         }
         modelReports.setForJfc(getForJfc());
@@ -137,7 +143,7 @@ public class AppUserErrorModel extends OAObjectModel {
         modelReports.setAllowCut(false);
         modelReports.setAllowPaste(false);
         // call AppUserError.reportsModelCallback(ReportModel) to be able to customize this model
-        OAObjectCallbackDelegate.onObjectCallbackModel(AppUserError.class, AppUserError.P_Reports, modelReports);
+        OARuntime.graph().internal().objects().callbacks().onObjectCallbackModel(AppUserError.class, AppUserError.P_Reports, modelReports);
     
         return modelReports;
     }

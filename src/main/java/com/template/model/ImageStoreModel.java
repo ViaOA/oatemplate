@@ -3,9 +3,11 @@ package com.template.model;
 
 import java.util.logging.*;
 import com.viaoa.object.*;
+import com.viaoa.runtime.OARuntime;
 import com.viaoa.annotation.*;
 import com.viaoa.hub.*;
-import com.viaoa.util.*;
+import com.viaoa.hub.copy.HubCopy;
+import com.viaoa.metadata.OAObjectModel;
 import com.viaoa.filter.*;
 import com.viaoa.datasource.*;
 
@@ -34,7 +36,9 @@ public class ImageStoreModel extends OAObjectModel {
     
     public ImageStoreModel(Hub<ImageStore> hubImageStore) {
         this();
-        if (hubImageStore != null) HubDelegate.setObjectClass(hubImageStore, ImageStore.class);
+        if (hubImageStore != null) {
+        	OARuntime.graph().internal().hubs().data().setObjectClass(hubImageStore, ImageStore.class);
+        }
         this.hub = hubImageStore;
     }
     public ImageStoreModel(ImageStore imageStore) {

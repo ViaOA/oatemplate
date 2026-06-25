@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import com.oreillyauto.pos.model.oa.AppUser;
 import com.template.control.client.ClientController;
 import com.template.control.server.ServerController;
 import com.template.control.single.SingleController;
@@ -14,11 +15,11 @@ import com.template.control.webserver.WebserverController;
 import com.template.resource.Resource;
 import com.template.view.DummyFrame;
 import com.template.view.SplashWindow;
+import com.viaoa.converter.OAConv;
+import com.viaoa.converter.OAConverter;
+import com.viaoa.lang.OAString;
 import com.viaoa.object.OAObject;
-import com.viaoa.util.OAConv;
-import com.viaoa.util.OAConverter;
-import com.viaoa.util.OANetwork;
-import com.viaoa.util.OAString;
+import com.viaoa.runtime.OARuntime;
 
 /**
  * startup that has the main(). Verifies that the run type is correct, else displays a usage console message. Verifies the JVM version.
@@ -45,6 +46,8 @@ public class StartupController {
 		// must set this first
 		Resource.setRunType(runType);
 
+		OARuntime.createDefaultGraph(AppUser.class.getPackage());
+		
         // load args[] into runtime properties before using properties
         Resource.loadArguments(args);
 		
@@ -54,15 +57,18 @@ public class StartupController {
 		String hostIPAddress = Resource.getValue(Resource.APP_HostIPAddress);
 		try {
 			if (OAString.isEmpty(hostName)) {
-				hostName = OANetwork.getHostName();
-				Resource.setValue(Resource.TYPE_Runtime, Resource.APP_HostName, hostName);
+//qqqqqqqqqq				
+//				hostName = OANetwork.getHostName();
+//				Resource.setValue(Resource.TYPE_Runtime, Resource.APP_HostName, hostName);
 			}
 			if (OAString.isEmpty(hostIPAddress)) {
-				hostIPAddress = OANetwork.getIPAddress();
-				Resource.setValue(Resource.TYPE_Runtime, Resource.APP_HostIPAddress, hostIPAddress);
+//qqqqqqqqq				
+//				hostIPAddress = OANetwork.getIPAddress();
+//				Resource.setValue(Resource.TYPE_Runtime, Resource.APP_HostIPAddress, hostIPAddress);
 			}
-			String s = OANetwork.getIPAddresses();
-			Resource.setValue(Resource.TYPE_Runtime, Resource.APP_HostIPAddresses, s);
+//qqqqqqqq			
+//			String s = OANetwork.getIPAddresses();
+//			Resource.setValue(Resource.TYPE_Runtime, Resource.APP_HostIPAddresses, s);
 		} catch (Exception e) {
 		}
 

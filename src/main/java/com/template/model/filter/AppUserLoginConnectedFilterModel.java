@@ -6,7 +6,6 @@ import java.util.logging.*;
 import com.viaoa.object.*;
 import com.viaoa.annotation.*;
 import com.viaoa.hub.*;
-import com.viaoa.util.*;
 import com.viaoa.datasource.*;
 
 import com.template.model.*;

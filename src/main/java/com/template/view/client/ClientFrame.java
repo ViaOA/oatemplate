@@ -61,13 +61,14 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import com.template.resource.Resource;
+import com.viaoa.datetime.OADateTime;
 import com.viaoa.jfc.*;
 import com.viaoa.jfc.control.CutCopyPasteController;
 import com.viaoa.jfc.control.UndoableController;
 import com.viaoa.jfc.print.PrintController;
 //import net.java.balloontip.BalloonTip;
 //import net.java.balloontip.BalloonTip;
-import com.viaoa.util.OADateTime;
+
 
 public abstract class ClientFrame extends JFrame {
 	private static Logger LOG = Logger.getLogger(ClientFrame.class.getName());

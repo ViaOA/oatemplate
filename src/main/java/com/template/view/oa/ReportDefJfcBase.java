@@ -27,8 +27,10 @@ import com.viaoa.jfc.table.*;
 import com.viaoa.jfc.text.*;
 import com.viaoa.image.*;
 import com.viaoa.jfcapp.*;
+import com.viaoa.lang.OAArray;
+import com.viaoa.lang.OAString;
 import com.viaoa.jfc.editor.html.OAHTMLTextPane;
-import com.viaoa.util.*;
+
 
 import com.template.model.*;
 import com.template.model.search.*;
@@ -1697,7 +1699,7 @@ public class ReportDefJfcBase implements OAModelJfcInterface {
         TestDelegate td = new TestDelegate();
         td.createSampleData(null);
         
-        com.viaoa.context.OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
+      //qqq  com.viaoa.context.OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
         ReportDefJfc ui = new ReportDefJfc() {
             @Override
             protected ReportDefSearchJfc getSearchJfc() {

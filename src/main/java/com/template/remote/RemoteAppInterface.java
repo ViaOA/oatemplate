@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import com.template.model.oa.AppUserLogin;
 import com.template.model.oa.cs.ClientRoot;
 import com.template.model.oa.cs.ServerRoot;
+import com.viaoa.config.OAProperties;
 import com.viaoa.remote.multiplexer.annotation.OARemoteInterface;
-import com.viaoa.util.OAProperties;
 
 @OARemoteInterface
 public interface RemoteAppInterface {

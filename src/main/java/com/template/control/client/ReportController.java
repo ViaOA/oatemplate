@@ -9,7 +9,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.template.resource.Resource;
-import com.viaoa.util.*;
+import com.viaoa.io.OAFile;
+import com.viaoa.lang.OAString;
 
 /**
  * Support for:

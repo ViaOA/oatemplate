@@ -27,8 +27,10 @@ import com.viaoa.jfc.table.*;
 import com.viaoa.jfc.text.*;
 import com.viaoa.image.*;
 import com.viaoa.jfcapp.*;
+import com.viaoa.lang.OAArray;
+import com.viaoa.lang.OAString;
 import com.viaoa.jfc.editor.image.OAImageEditor;
-import com.viaoa.util.*;
+
 
 import com.template.model.*;
 import com.template.model.search.*;
@@ -1621,7 +1623,7 @@ public class ImageStoreJfcBase implements OAModelJfcInterface {
         TestDelegate td = new TestDelegate();
         td.createSampleData(null);
         
-        com.viaoa.context.OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
+      //qqq  com.viaoa.context.OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
         ImageStoreJfc ui = new ImageStoreJfc() {
             @Override
             protected ImageStoreSearchJfc getSearchJfc() {

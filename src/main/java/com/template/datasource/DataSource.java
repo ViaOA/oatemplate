@@ -6,16 +6,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.*;
 import com.viaoa.object.*;
-import com.viaoa.util.*;
-import com.viaoa.object.OAAnnotationDelegate;
+import com.viaoa.reflect.OAReflect;
 import com.viaoa.runtime.OARuntime;
+import com.viaoa.secure.Base64;
 import com.viaoa.annotation.OATable;
-import com.viaoa.datasource.jdbc.*;
-import com.viaoa.datasource.jdbc.db.Database;
-import com.viaoa.datasource.jdbc.db.Table;
-import com.viaoa.datasource.jdbc.db.Column;
-import com.viaoa.datasource.jdbc.db.Index;
+import com.viaoa.datasource.jdbc.OADataSourceJDBC;
+import com.viaoa.datasource.jdbc.OADatabaseService;
 import com.viaoa.datasource.jdbc.db.*;
+import com.viaoa.graph.OAGraph;
+import com.viaoa.lang.OAArray;
+import com.viaoa.lang.OAString;
 import com.template.resource.Resource;
 import com.template.model.oa.*;
 
@@ -24,11 +24,13 @@ public class DataSource {
     protected OADataSourceJDBC jdbcDataSource;
     protected Database database;
     protected DBMetaData dbmd;
+    protected OAGraph og;
     
     public DataSource() {
     }
     
     public void open() throws Exception {
+    	og = OARuntime.defaultGraph();
         String driver = Resource.getValue(Resource.DB_JDBC_Driver);
         String jdbcUrl = Resource.getValue(Resource.DB_JDBC_URL);
         String user = Resource.getValue(Resource.DB_User);
@@ -56,6 +58,7 @@ public class DataSource {
         dbmd.setMinConnections(min);
         dbmd.setMaxConnections(max);
         jdbcDataSource = new OADataSourceJDBC(db, dbmd);
+        OARuntime.datasource().register(jdbcDataSource);
     }
     
     public DBMetaData getDBMetaData() {
@@ -94,7 +97,7 @@ public class DataSource {
         table.setColumns(columns);
         database.addTable(table);
         String packageName = AppServer.class.getPackage().getName();
-        String[] fnames = OAReflect.getClasses(packageName);
+        String[] fnames = OAReflect.getOAObjectClasses(packageName);
     
         Class[] classes = null;
         for (String fn : fnames) {
@@ -103,7 +106,8 @@ public class DataSource {
             classes = (Class[]) OAArray.add(Class.class, classes, c);
         }
         if (classes != null && classes.length > 0) {
-        	OARuntime.get().graph(classes[0]).objects().getOAObjectDatabaseService().update(database, classes);
+        	OADatabaseService dbs = new OADatabaseService();
+        	dbs.update(database, classes);
         }
         return database;
     }
@@ -500,7 +504,7 @@ public class DataSource {
     
     protected AppServer getAppServer(ResultSet rs, DataAccessObject.ResultSetInfo rsi) throws SQLException {
         int id = rs.getInt(1);
-        AppServer appServer = (AppServer) OAObjectCacheDelegate.getObject(AppServer.class, id);
+        AppServer appServer = (AppServer) og.internal().objects().cache().getObject(AppServer.class, id);
         if (appServer == null) {
             appServer = new AppServer();
             appServer.load(rs, id);
@@ -513,7 +517,7 @@ public class DataSource {
     
     protected AppUser getAppUser(ResultSet rs, DataAccessObject.ResultSetInfo rsi) throws SQLException {
         int id = rs.getInt(1);
-        AppUser appUser = (AppUser) OAObjectCacheDelegate.getObject(AppUser.class, id);
+        AppUser appUser = (AppUser) og.internal().objects().cache().getObject(AppUser.class, id);
         if (appUser == null) {
             appUser = new AppUser();
             appUser.load(rs, id);
@@ -526,7 +530,7 @@ public class DataSource {
     
     protected AppUserError getAppUserError(ResultSet rs, DataAccessObject.ResultSetInfo rsi) throws SQLException {
         int id = rs.getInt(1);
-        AppUserError appUserError = (AppUserError) OAObjectCacheDelegate.getObject(AppUserError.class, id);
+        AppUserError appUserError = (AppUserError) og.internal().objects().cache().getObject(AppUserError.class, id);
         if (appUserError == null) {
             appUserError = new AppUserError();
             appUserError.load(rs, id);
@@ -539,7 +543,7 @@ public class DataSource {
     
     protected AppUserLogin getAppUserLogin(ResultSet rs, DataAccessObject.ResultSetInfo rsi) throws SQLException {
         int id = rs.getInt(1);
-        AppUserLogin appUserLogin = (AppUserLogin) OAObjectCacheDelegate.getObject(AppUserLogin.class, id);
+        AppUserLogin appUserLogin = (AppUserLogin) og.internal().objects().cache().getObject(AppUserLogin.class, id);
         if (appUserLogin == null) {
             appUserLogin = new AppUserLogin();
             appUserLogin.load(rs, id);
@@ -552,7 +556,7 @@ public class DataSource {
     
     protected ImageStore getImageStore(ResultSet rs, DataAccessObject.ResultSetInfo rsi) throws SQLException {
         int id = rs.getInt(1);
-        ImageStore imageStore = (ImageStore) OAObjectCacheDelegate.getObject(ImageStore.class, id);
+        ImageStore imageStore = (ImageStore) og.internal().objects().cache().getObject(ImageStore.class, id);
         if (imageStore == null) {
             imageStore = new ImageStore();
             imageStore.load(rs, id);
@@ -565,7 +569,7 @@ public class DataSource {
     
     protected Report getReport(ResultSet rs, DataAccessObject.ResultSetInfo rsi) throws SQLException {
         int id = rs.getInt(1);
-        Report report = (Report) OAObjectCacheDelegate.getObject(Report.class, id);
+        Report report = (Report) og.internal().objects().cache().getObject(Report.class, id);
         if (report == null) {
             report = new Report();
             report.load(rs, id);
@@ -578,7 +582,7 @@ public class DataSource {
     
     protected ReportClass getReportClass(ResultSet rs, DataAccessObject.ResultSetInfo rsi) throws SQLException {
         int id = rs.getInt(1);
-        ReportClass reportClass = (ReportClass) OAObjectCacheDelegate.getObject(ReportClass.class, id);
+        ReportClass reportClass = (ReportClass) og.internal().objects().cache().getObject(ReportClass.class, id);
         if (reportClass == null) {
             reportClass = new ReportClass();
             reportClass.load(rs, id);
@@ -591,7 +595,7 @@ public class DataSource {
     
     protected ReportDef getReportDef(ResultSet rs, DataAccessObject.ResultSetInfo rsi) throws SQLException {
         int id = rs.getInt(1);
-        ReportDef reportDef = (ReportDef) OAObjectCacheDelegate.getObject(ReportDef.class, id);
+        ReportDef reportDef = (ReportDef) og.internal().objects().cache().getObject(ReportDef.class, id);
         if (reportDef == null) {
             reportDef = new ReportDef();
             reportDef.load(rs, id);

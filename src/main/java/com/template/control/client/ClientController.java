@@ -19,28 +19,29 @@ import com.template.datasource.DataSource;
 import com.template.delegate.LogDelegate;
 import com.template.delegate.ModelDelegate;
 import com.template.delegate.RemoteDelegate;
+import com.template.model.oa.AppUser;
 import com.template.model.oa.AppUserLogin;
 import com.template.model.oa.cs.ClientRoot;
 import com.template.model.oa.cs.ServerRoot;
 import com.template.resource.Resource;
 import com.template.util.Util;
-import com.viaoa.context.OAContext;
+import com.viaoa.runtime.OARuntime;
+import com.viaoa.runtime.context.OAContext;
+import com.viaoa.runtime.context.OAContextAccess;
+import com.viaoa.runtime.context.OAContextUser;
+import com.viaoa.secure.OAEncryption;
+import com.viaoa.config.OAProperties;
+import com.viaoa.converter.OAConv;
 import com.viaoa.datasource.OADataSource;
 import com.viaoa.jfc.OAJfcUtil;
 import com.viaoa.jfc.text.spellcheck.SpellChecker;
-import com.viaoa.object.OAObjectInfoDelegate;
-import com.viaoa.sync.OASync;
+import com.viaoa.lang.OAString;
+import com.viaoa.lang.Tuple;
+import com.viaoa.log.OALogger;
+import com.viaoa.reflect.OAReflect;
 import com.viaoa.sync.OASyncClient;
-import com.viaoa.sync.OASyncDelegate;
 import com.viaoa.sync.model.ClientInfo;
 import com.viaoa.sync.remote.RemoteSessionInterface;
-import com.viaoa.util.OAConv;
-import com.viaoa.util.OAEncryption;
-import com.viaoa.util.OALogger;
-import com.viaoa.util.OAProperties;
-import com.viaoa.util.OAReflect;
-import com.viaoa.util.OAString;
-import com.viaoa.util.Tuple;
 
 /**
  * Main controller for starting in Client mode, login and frame.
@@ -85,10 +86,10 @@ public abstract class ClientController {
 		getLogController();
 
 		String packageName = "com.template.model.oa";
-		String[] cnames = OAReflect.getClasses(packageName);
+		String[] cnames = OAReflect.getOAObjectClasses(packageName);
 		for (String fn : cnames) {
 			Class c = Class.forName(packageName + "." + fn);
-			OAObjectInfoDelegate.callInfoGetObjectInfo(c);
+			OARuntime.graph(c).info(c);
 		}
 
 		final StartSwingInfo ssi = new StartSwingInfo();
@@ -186,8 +187,13 @@ public abstract class ClientController {
 		};
 		sw0.execute();
 
-		LOG.fine("Initiale OAContext");
-		OAContext.setContextHub(null, ModelDelegate.getLocalAppUserHub());
+		LOG.fine("Initiate OAContext");
+		OAContext<String, AppUser> ctx = new OAContext<>();
+		OARuntime.context().register(ctx);
+		OAContextUser<AppUser> ctxu = new OAContextUser<>(ctx, ModelDelegate.getLocalAppUserHub());
+		ctx.addContextUser("", ctxu);
+		OARuntime.context().setDefaultContextUser(ctxu);
+		
 
 		setLookAndFeel(null);
 
@@ -240,7 +246,7 @@ public abstract class ClientController {
 			protected Void doInBackground() throws Exception {
 				LOG.fine("Loading data from server ...");
 				ssi.serverRoot = RemoteDelegate.getRemoteApp().getServerRoot();
-				int connectionId = OASync.getConnectionId();
+				int connectionId = OARuntime.graph(AppUser.class).sync().getConnectionId();
 				ssi.clientRoot = RemoteDelegate.getRemoteApp().getClientRoot(connectionId);
 				LOG.fine("received data from server");
 				return null;
@@ -362,7 +368,7 @@ public abstract class ClientController {
 				if (bCheckingAWT && !Resource.getBoolean(Resource.INI_Debug)) {
 					LOG.warning("AWTThread did not respond to invokeLater, dumping stack traces to log and sending to server.");
 					ArrayList<String> list = controlLog.dumpStackTrace(); // writes to file, sends to server
-					int connectionId = OASync.getSyncClient().getClientInfo().getConnectionId();
+					int connectionId = OARuntime.graph().internal().sync().getClientInfo().getConnectionId();
 					RemoteDelegate.getRemoteApp().writeToClientLogFile(connectionId, list);
 					if (++errorCount == 3) {
 						callExit();
@@ -448,8 +454,8 @@ public abstract class ClientController {
 					try {
 						Tuple<String, Throwable> t = queErrorMessage.take();
 						System.out.println("Sending warning to server: " + t.a + ", exception: " + t.b.toString());
-						if (OASyncDelegate.isConnected()) {
-							RemoteSessionInterface rci = OASyncDelegate.getRemoteSession();
+						if (OARuntime.graph().internal().sync().getClient().isConnected()) {
+							RemoteSessionInterface rci = OARuntime.graph().internal().sync().getClient().getRemoteSession();
 							if (rci != null) {
 								rci.sendException("client exception: " + t.a, t.b);
 							}
@@ -522,16 +528,19 @@ public abstract class ClientController {
 
 				@Override
 				protected void onLogin(String user, String location) {
-					ClientInfo ci = OASync.getSyncClient().getClientInfo();
+					ClientInfo ci = OARuntime.graph().internal().sync().getClient().getClientInfo();
 					ci.setUserId(user);
 					ci.setUserName(System.getProperty("user.name"));
 					ci.setLocation(location);
 					int release = OAConv.toInt(Resource.getValue(Resource.APP_Release));
 					ci.setVersion("" + release);
-					RemoteSessionInterface sess = OASync.getRemoteSession();
-					if (sess != null) {
-						sess.update(ci);
+					try {
+						RemoteSessionInterface sess = OARuntime.graph().internal().sync().getClient().getRemoteSession();
+						if (sess != null) {
+							sess.update(ci);
+						}
 					}
+					catch (Exception ex) {}
 				}
 
 				@Override

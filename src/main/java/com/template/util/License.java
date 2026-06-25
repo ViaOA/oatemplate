@@ -3,7 +3,9 @@ package com.template.util;
 import java.io.*;
 import java.util.*;
 
-import com.viaoa.util.*;
+import com.viaoa.converter.OAConv;
+import com.viaoa.datetime.OADate;
+import com.viaoa.lang.OAString;
 
 /**
     Used to create and validate license strings based on the following format:
@@ -372,8 +374,8 @@ public class License {
      */
     public static String getBackdoorCode(int mod) {
     	OADate d = new OADate();
-        int chkdig = d.getDay() % mod;
-        String s = (new Character((char)('A' + chkdig))) + "" + chkdig + "" + (new Character((char)('Z' - chkdig)));
+        int chkdig = d.getDayOfMonth() % mod;
+        String s = (Character.valueOf((char)('A' + chkdig))) + "" + chkdig + "" + (new Character((char)('Z' - chkdig)));
         return s;
     }
 

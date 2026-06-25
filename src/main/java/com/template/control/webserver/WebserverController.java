@@ -10,8 +10,9 @@ import com.template.control.server.JettyController;
 import com.template.delegate.*;
 import com.template.model.oa.cs.*;
 import com.template.resource.*;
-import com.viaoa.sync.OASync;
-import com.viaoa.util.*;
+import com.viaoa.converter.OAConv;
+import com.viaoa.lang.OAString;
+import com.viaoa.runtime.OARuntime;
 
 /**
  *  Main controller for starting a webserver that connects to the core server.
@@ -64,7 +65,7 @@ public class WebserverController {
         
         LOG.fine("Loading data from core server");
         ServerRoot serverRoot = RemoteDelegate.getRemoteApp().getServerRoot();
-        int connectionId = OASync.getConnectionId();
+        int connectionId = OARuntime.graph().internal().sync().getConnectionId();
         ClientRoot clientRoot = RemoteDelegate.getRemoteApp().getClientRoot(connectionId);
 
         LOG.fine("Initializing model");

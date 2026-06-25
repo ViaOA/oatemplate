@@ -10,7 +10,7 @@ import javax.swing.*;
 import javax.help.*;
 
 import com.template.resource.Resource;
-import com.viaoa.util.OALogger;
+import com.viaoa.log.OALogger;
 
 public class HelpController implements CSH.Manager {
 

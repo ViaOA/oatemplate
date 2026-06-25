@@ -12,6 +12,7 @@ import com.template.model.search.*;
 import com.template.resource.Resource;
 import com.template.view.oa.*;
 import com.viaoa.hub.*;
+import com.viaoa.hub.listener.HubChangeListener;
 import com.viaoa.jfc.*;
 import com.viaoa.jfc.control.*;
 import com.viaoa.jfc.border.ShadowBorder;
