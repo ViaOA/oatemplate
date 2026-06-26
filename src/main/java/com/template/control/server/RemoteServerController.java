@@ -34,51 +34,48 @@ public abstract class RemoteServerController {
     }
 
     public OASyncServer getSyncServer() {
-        if (syncServer == null) {
-            syncServer = new OASyncServer(port) {
-                @Override
-                protected String getLogFileName() {
-                    return RemoteServerController.this.getLogFileName();
-                }
-                @Override
-                protected void onClientConnect(Socket socket, int connectionId) {
-                    super.onClientConnect(socket, connectionId);
-                    RemoteServerController.this.onClientConnect(socket, connectionId);
-                }
-                @Override
-                protected void onClientDisconnect(int connectionId) {
-                    super.onClientDisconnect(connectionId);
-                    RemoteServerController.this.onClientDisconnect(connectionId);
-                }
-                @Override
-                public void onUpdate(ClientInfo ci) {
-                    super.onUpdate(ci);
-                    RemoteServerController.this.onUpdate(ci);
-                }
-                @Override
-                protected void onClientException(ClientInfo ci, String msg, Throwable ex) {
-                    //super.onClientException(ci, msg, ex);
-                    RemoteServerController.this.onClientException(ci, msg, ex);
-                }
-            };
-            
-            OARuntime.defaultOA().sync().createServer(syncServer);
-            
-            ClientInfo ci = syncServer.getClientInfo();
-            ci.setUserId("");
-            ci.setUserName(System.getProperty("user.name"));
-            try {
-                InetAddress localHost = InetAddress.getLocalHost();
-                ci.setHostName(localHost.getHostName());
-                ci.setIpAddress(localHost.getHostAddress());
+        if (syncServer != null) return syncServer;
+        syncServer = new OASyncServer(port) {
+            @Override
+            protected String getLogFileName() {
+                return RemoteServerController.this.getLogFileName();
             }
-            catch (Exception e) {
+            @Override
+            protected void onClientConnect(Socket socket, int connectionId) {
+                super.onClientConnect(socket, connectionId);
+                RemoteServerController.this.onClientConnect(socket, connectionId);
             }
-            ci.setLocation("");
-            int release = OAConv.toInt(Resource.getValue(Resource.APP_Release));
-            ci.setVersion(""+release);
-            onUpdate(ci);
+            @Override
+            protected void onClientDisconnect(int connectionId) {
+                super.onClientDisconnect(connectionId);
+                RemoteServerController.this.onClientDisconnect(connectionId);
+            }
+            @Override
+            public void onUpdate(ClientInfo ci) {
+                super.onUpdate(ci);
+                RemoteServerController.this.onUpdate(ci);
+            }
+            @Override
+            protected void onClientException(ClientInfo ci, String msg, Throwable ex) {
+                //super.onClientException(ci, msg, ex);
+                RemoteServerController.this.onClientException(ci, msg, ex);
+            }
+        };
+        
+        ClientInfo ci = syncServer.getClientInfo();
+        ci.setUserId("");
+        ci.setUserName(System.getProperty("user.name"));
+        try {
+            InetAddress localHost = InetAddress.getLocalHost();
+            ci.setHostName(localHost.getHostName());
+            ci.setIpAddress(localHost.getHostAddress());
         }
+        catch (Exception e) {
+        }
+        ci.setLocation("");
+        int release = OAConv.toInt(Resource.getValue(Resource.APP_Release));
+        ci.setVersion(""+release);
+        onUpdate(ci);
         return syncServer;
     }
     
@@ -99,6 +96,9 @@ public abstract class RemoteServerController {
         msg += ", started=" + (new OADateTime());
         getSyncServer().setInvalidConnectionMessage(msg);
         getSyncServer().start();
+        
+        OARuntime.defaultOA().sync().createServer(getSyncServer());
+        
         
         Thread t = new Thread(new Runnable() {
             @Override
@@ -125,23 +125,27 @@ public abstract class RemoteServerController {
     protected void runUpdateClientSoftware() throws Exception {
         ServerSocket ss = getSyncServer().getMultiplexerServer().createServerSocket("getJarFile");
         for ( ;; ) {
-            final Socket socket = ss.accept();
-            new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        updateClientSoftware(socket);
-                    }
-                    catch (Exception e) {
-                        // TODO: handle exception
-                        LOG.log(Level.WARNING, "getJarFile exception", e);
-                    }
-                }
-            }, "UpdateClientSoftwareSocket").start();
+        	try {
+	            final Socket socket = ss.accept();
+	            new Thread(new Runnable() {
+	                public void run() {
+	                    try {
+	                        updateClientSoftware(socket);
+	                    }
+	                    catch (Exception e) {
+	                        // TODO: handle exception
+	                        LOG.log(Level.WARNING, "getJarFile exception", e);
+	                    }
+	                }
+	            }, "UpdateClientSoftwareSocket").start();
+        	}
+        	catch (Exception e) {}
         }
     }
 
     protected void updateClientSoftware(Socket socket) throws Exception {
         // see ClientController.onUpdateSoftwareForWindows
+    	if (socket == null) return;
         String fn = Resource.getValue(Resource.APP_JarFileName);
         if (fn.toLowerCase().endsWith(".jar")) fn = fn.substring(0, fn.length()-4);
         

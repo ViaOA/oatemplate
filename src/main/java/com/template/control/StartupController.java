@@ -6,12 +6,11 @@ import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-
-import com.oreillyauto.pos.model.oa.AppUser;
 import com.template.control.client.ClientController;
 import com.template.control.server.ServerController;
 import com.template.control.single.SingleController;
 import com.template.control.webserver.WebserverController;
+import com.template.model.oa.AppUser;
 import com.template.resource.Resource;
 import com.template.view.DummyFrame;
 import com.template.view.SplashWindow;
