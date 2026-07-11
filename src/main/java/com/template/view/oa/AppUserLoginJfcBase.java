@@ -653,7 +653,7 @@ public class AppUserLoginJfcBase implements OAModelJfcInterface {
                 if (h != null) h2 = OARuntime.oa().internal().hubs().select().getSelectWhereHub(h);
             }
         }
-        String pp = OARuntime.oa().internal().hubs().select().getSelectWhereHubPropertyPath(h);
+        String pp = OARuntime.oa().internal().hubs().select().getSelectWhereHubPath(h);
         OATree tree = createSearchTree(h2, pp);
         if (tree == null) tree = createSearchTree2();
         return tree;

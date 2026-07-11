@@ -118,7 +118,7 @@ public class AppUserModel extends OAObjectModel {
         modelAppUserLogins.setAllowCut(false);
         modelAppUserLogins.setAllowPaste(false);
         // call AppUser.appUserLoginsModelCallback(AppUserLoginModel) to be able to customize this model
-        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(AppUser.class, AppUser.P_AppUserLogins, modelAppUserLogins);
+        OARuntime.oa().internal().objects().rules().onObjectCallbackModel(AppUser.class, AppUser.P_AppUserLogins, modelAppUserLogins);
     
         return modelAppUserLogins;
     }
@@ -150,7 +150,7 @@ public class AppUserModel extends OAObjectModel {
         modelReports.setAllowCut(false);
         modelReports.setAllowPaste(false);
         // call AppUser.reportsModelCallback(ReportModel) to be able to customize this model
-        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(AppUser.class, AppUser.P_Reports, modelReports);
+        OARuntime.oa().internal().objects().rules().onObjectCallbackModel(AppUser.class, AppUser.P_Reports, modelReports);
     
         return modelReports;
     }

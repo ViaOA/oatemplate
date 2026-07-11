@@ -107,7 +107,7 @@ public class AppServerModel extends OAObjectModel {
         modelAppUserLogin.setAllowGotoEdit(true);
         modelAppUserLogin.setViewOnly(getViewOnly());
         // call AppServer.appUserLoginModelCallback(AppUserLoginModel) to be able to customize this model
-        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(AppServer.class, AppServer.P_AppUserLogin, modelAppUserLogin);
+        OARuntime.oa().internal().objects().rules().onObjectCallbackModel(AppServer.class, AppServer.P_AppUserLogin, modelAppUserLogin);
     
         return modelAppUserLogin;
     }
@@ -140,7 +140,7 @@ public class AppServerModel extends OAObjectModel {
         modelReports.setAllowCut(false);
         modelReports.setAllowPaste(false);
         // call AppServer.reportsModelCallback(ReportModel) to be able to customize this model
-        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(AppServer.class, AppServer.P_Reports, modelReports);
+        OARuntime.oa().internal().objects().rules().onObjectCallbackModel(AppServer.class, AppServer.P_Reports, modelReports);
     
         return modelReports;
     }

@@ -123,7 +123,7 @@ public class ReportModel extends OAObjectModel {
         modelCalcReportClass.setAllowGotoEdit(false);
         modelCalcReportClass.setViewOnly(true);
         // call Report.calcReportClassModelCallback(ReportClassModel) to be able to customize this model
-        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(Report.class, Report.P_CalcReportClass, modelCalcReportClass);
+        OARuntime.oa().internal().objects().rules().onObjectCallbackModel(Report.class, Report.P_CalcReportClass, modelCalcReportClass);
     
         return modelCalcReportClass;
     }
@@ -144,7 +144,7 @@ public class ReportModel extends OAObjectModel {
         modelReportDef.setAllowGotoEdit(true);
         modelReportDef.setViewOnly(true);
         // call Report.reportDefModelCallback(ReportDefModel) to be able to customize this model
-        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(Report.class, Report.P_ReportDef, modelReportDef);
+        OARuntime.oa().internal().objects().rules().onObjectCallbackModel(Report.class, Report.P_ReportDef, modelReportDef);
     
         return modelReportDef;
     }

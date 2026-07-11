@@ -38,7 +38,6 @@ import com.viaoa.object.OAObject;
 import com.viaoa.process.OACronProcessor;
 import com.viaoa.reflect.OAReflect;
 import com.viaoa.runtime.OARuntime;
-import com.viaoa.runtime.context.OAContext;
 
 /**
  * Main controller for starting in Single User mode.

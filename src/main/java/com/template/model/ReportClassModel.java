@@ -107,7 +107,7 @@ public class ReportClassModel extends OAObjectModel {
         modelReportDefs.setAllowCut(false);
         modelReportDefs.setAllowPaste(false);
         // call ReportClass.reportDefsModelCallback(ReportDefModel) to be able to customize this model
-        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(ReportClass.class, ReportClass.P_ReportDefs, modelReportDefs);
+        OARuntime.oa().internal().objects().rules().onObjectCallbackModel(ReportClass.class, ReportClass.P_ReportDefs, modelReportDefs);
     
         return modelReportDefs;
     }

@@ -17,6 +17,7 @@ import com.template.view.SplashWindow;
 import com.viaoa.converter.OAConv;
 import com.viaoa.converter.OAConverter;
 import com.viaoa.lang.OAString;
+import com.viaoa.net.OANetwork;
 import com.viaoa.object.OAObject;
 import com.viaoa.runtime.OARuntime;
 
@@ -56,18 +57,15 @@ public class StartupController {
 		String hostIPAddress = Resource.getValue(Resource.APP_HostIPAddress);
 		try {
 			if (OAString.isEmpty(hostName)) {
-//qqqqqqqqqq				
-//				hostName = OANetwork.getHostName();
-//				Resource.setValue(Resource.TYPE_Runtime, Resource.APP_HostName, hostName);
+				hostName = OANetwork.getHostName();
+				Resource.setValue(Resource.TYPE_Runtime, Resource.APP_HostName, hostName);
 			}
 			if (OAString.isEmpty(hostIPAddress)) {
-//qqqqqqqqq				
-//				hostIPAddress = OANetwork.getIPAddress();
-//				Resource.setValue(Resource.TYPE_Runtime, Resource.APP_HostIPAddress, hostIPAddress);
+				hostIPAddress = OANetwork.getIPAddress();
+				Resource.setValue(Resource.TYPE_Runtime, Resource.APP_HostIPAddress, hostIPAddress);
 			}
-//qqqqqqqq			
-//			String s = OANetwork.getIPAddresses();
-//			Resource.setValue(Resource.TYPE_Runtime, Resource.APP_HostIPAddresses, s);
+			String s = OANetwork.getIPAddresses();
+			Resource.setValue(Resource.TYPE_Runtime, Resource.APP_HostIPAddresses, s);
 		} catch (Exception e) {
 		}
 

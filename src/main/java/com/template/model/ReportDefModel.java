@@ -114,7 +114,7 @@ public class ReportDefModel extends OAObjectModel {
         modelReportClass.setCreateUI(li == null || !ReportDef.P_ReportClass.equalsIgnoreCase(li.getName()) );
         modelReportClass.setViewOnly(getViewOnly());
         // call ReportDef.reportClassModelCallback(ReportClassModel) to be able to customize this model
-        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(ReportDef.class, ReportDef.P_ReportClass, modelReportClass);
+        OARuntime.oa().internal().objects().rules().onObjectCallbackModel(ReportDef.class, ReportDef.P_ReportClass, modelReportClass);
     
         return modelReportClass;
     }

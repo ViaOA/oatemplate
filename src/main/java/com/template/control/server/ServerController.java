@@ -28,9 +28,8 @@ import com.viaoa.lang.OAString;
 import com.viaoa.object.OAObject;
 import com.viaoa.process.OACronProcessor;
 import com.viaoa.runtime.OARuntime;
-import com.viaoa.runtime.context.OAContext;
-import com.viaoa.runtime.context.OAContextUser;
 import com.viaoa.runtime.thread.OAThread;
+import com.viaoa.session.OASessionUser;
 import com.viaoa.sync.model.ClientInfo;
 import com.viaoa.web.filter.OAUserAccessFilter;
 
@@ -214,14 +213,11 @@ public abstract class ServerController {
         }
         ModelDelegate.setLocalAppUser(user);
 
-        LOG.config("Initializing OAContext ... as admin user");
-		OAContext<String, AppUser> ctx = new OAContext<>();
-		OARuntime.context().register(ctx);
-		OAContextUser<AppUser> ctxu = new OAContextUser<>(ctx, ModelDelegate.getLocalAppUserHub());
-		ctx.addContextUser("", ctxu);
-		OARuntime.context().setDefaultContextUser(ctxu);
-        
-        
+
+//qqqqqqqqqqqqqqqqqq        
+        LOG.config("Initializing model user");
+		OARuntime.oa().modelUser().setCurrent(ModelDelegate.getLocalAppUserHub());
+		
         // initialize serverRoot, ModelDelegate
         ModelDelegate.initialize(serverRoot, null);
 

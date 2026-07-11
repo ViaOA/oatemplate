@@ -111,7 +111,7 @@ public class AppUserErrorModel extends OAObjectModel {
         modelAppUserLogin.setCreateUI(li == null || !AppUserError.P_AppUserLogin.equalsIgnoreCase(li.getName()) );
         modelAppUserLogin.setViewOnly(getViewOnly());
         // call AppUserError.appUserLoginModelCallback(AppUserLoginModel) to be able to customize this model
-        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(AppUserError.class, AppUserError.P_AppUserLogin, modelAppUserLogin);
+        OARuntime.oa().internal().objects().rules().onObjectCallbackModel(AppUserError.class, AppUserError.P_AppUserLogin, modelAppUserLogin);
     
         return modelAppUserLogin;
     }
@@ -143,7 +143,7 @@ public class AppUserErrorModel extends OAObjectModel {
         modelReports.setAllowCut(false);
         modelReports.setAllowPaste(false);
         // call AppUserError.reportsModelCallback(ReportModel) to be able to customize this model
-        OARuntime.oa().internal().objects().callbacks().onObjectCallbackModel(AppUserError.class, AppUserError.P_Reports, modelReports);
+        OARuntime.oa().internal().objects().rules().onObjectCallbackModel(AppUserError.class, AppUserError.P_Reports, modelReports);
     
         return modelReports;
     }

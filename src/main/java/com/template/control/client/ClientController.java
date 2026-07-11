@@ -26,10 +26,9 @@ import com.template.model.oa.cs.ServerRoot;
 import com.template.resource.Resource;
 import com.template.util.Util;
 import com.viaoa.runtime.OARuntime;
-import com.viaoa.runtime.context.OAContext;
-import com.viaoa.runtime.context.OAContextAccess;
-import com.viaoa.runtime.context.OAContextUser;
 import com.viaoa.secure.OAEncryption;
+import com.viaoa.session.OASessionAccess;
+import com.viaoa.session.OASessionUser;
 import com.viaoa.config.OAProperties;
 import com.viaoa.converter.OAConv;
 import com.viaoa.datasource.OADataSource;
@@ -187,14 +186,9 @@ public abstract class ClientController {
 		};
 		sw0.execute();
 
-		LOG.fine("Initiate OAContext");
-		OAContext<String, AppUser> ctx = new OAContext<>();
-		OARuntime.context().register(ctx);
-		OAContextUser<AppUser> ctxu = new OAContextUser<>(ctx, ModelDelegate.getLocalAppUserHub());
-		ctx.addContextUser("", ctxu);
-		OARuntime.context().setDefaultContextUser(ctxu);
+        LOG.fine("Initializing model user");
+		OARuntime.oa().modelUser().setCurrent(ModelDelegate.getLocalAppUserHub());
 		
-
 		setLookAndFeel(null);
 
 		// go ahead and build frame in a background thread
