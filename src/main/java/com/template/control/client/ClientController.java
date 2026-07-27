@@ -187,7 +187,6 @@ public abstract class ClientController {
 		sw0.execute();
 
         LOG.fine("Initializing model user");
-		OARuntime.oa().modelUser().setCurrent(ModelDelegate.getLocalAppUserHub());
 		
 		setLookAndFeel(null);
 

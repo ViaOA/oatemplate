@@ -105,10 +105,8 @@ public class DataSource {
             if (c.getAnnotation(OATable.class) == null) continue;
             classes = (Class[]) OAArray.add(Class.class, classes, c);
         }
-        if (classes != null && classes.length > 0) {
-        	OADatabaseService dbs = new OADatabaseService();
-        	dbs.update(database, classes);
-        }
+    	OADatabaseService dbs = new OADatabaseService();
+    	dbs.update(database, classes);
         return database;
     }
     private Database createDatabase() {

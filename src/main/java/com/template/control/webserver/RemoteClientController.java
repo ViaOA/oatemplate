@@ -70,6 +70,7 @@ public abstract class RemoteClientController {
                 return ds;
             }
         };
+        OARuntime.datasource().register(dsClient);
 
         LOG.config("connecting to RemoteServer "+serverName+", on port="+port);
     	syncClient = new OASyncClient(serverName, port) {

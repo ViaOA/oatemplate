@@ -3,6 +3,7 @@ package com.template.control.testserver;
 import com.template.datasource.DataSource;
 import com.template.resource.Resource;
 import com.viaoa.datasource.objectcache.OADataSourceObjectCache;
+import com.viaoa.runtime.OARuntime;
 
 /**
  * barebones test server, with only db connection.
@@ -25,6 +26,7 @@ public class TestServerController {
         dataSource.getOADataSource().setAssignIdOnCreate(true);
 
         OADataSourceObjectCache dsObjectCache = new OADataSourceObjectCache(); // for non-DB objects
+        OARuntime.datasource().register(dsObjectCache);
     }
     
     

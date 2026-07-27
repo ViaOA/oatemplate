@@ -198,12 +198,12 @@ public abstract class SingleController {
         }
         if (user == null) {
             user = new AppUser();
+            user.setLoginId("admin");
             user.setFirstName("Admin");
             user.setLastName("Admin");
             user.setAdmin(true);
-            user.setLoginId("admin");
             user.setPassword(OAString.convertToSHAHash("admin"));
-            user.save();
+            // user.save();
             getServerRoot().getAppUsers().add(user);
         }
         ModelDelegate.setLocalAppUser(user);

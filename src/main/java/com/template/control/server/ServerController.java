@@ -69,7 +69,7 @@ public abstract class ServerController {
     private ServerFrameController controlServerFrame;
     private ServerSpellCheckController controlServerSpellCheck;
     private JettyController controlJetty;
-    private OAUserAccessFilter filterUserAccess;
+    private OAUserAccessFilter<AppUser, AppUser> filterUserAccess;
     private ConnectionController controlConnection;
     private SpellChecker spellChecker;
 
@@ -208,15 +208,12 @@ public abstract class ServerController {
             user.setAdmin(true);
             user.setLoginId("admin");
             user.setPassword(OAString.convertToSHAHash("admin"));
-            user.save();
+            // user.save();
             getServerRoot().getAppUsers().add(user);
         }
         ModelDelegate.setLocalAppUser(user);
 
-
-//qqqqqqqqqqqqqqqqqq        
         LOG.config("Initializing model user");
-		OARuntime.oa().modelUser().setCurrent(ModelDelegate.getLocalAppUserHub());
 		
         // initialize serverRoot, ModelDelegate
         ModelDelegate.initialize(serverRoot, null);
@@ -364,31 +361,38 @@ public abstract class ServerController {
 		}
 		return controlJetty;
 	}
-
-	public OAUserAccessFilter getJettyUserAccessFilter() {
+	
+	public OAUserAccessFilter<AppUser, AppUser> getJettyUserAccessFilter() {
 		if (filterUserAccess != null) {
 			return filterUserAccess;
 		}
-		filterUserAccess = new OAUserAccessFilter() {
+		
+		filterUserAccess = new OAUserAccessFilter<>(OARuntime.defaultOA()) {
 			@Override
-			protected OAObject getWebUser(String userId, String password) {
-				// customize this to allow other types of users, ex: Employee, Customer
+			protected AppUser getLoginSessionObject(String userId, String password) {
 				AppUser user = _getUser(-1, userId, password, "", "");
 				return user;
 			}
 
 			@Override
-			protected OAObject getContextUser(OAObject webUser) {
-				// customize this to return the context user that is defined in the OABuilder model, ex: AppUser that would be used for webUser
-				return webUser;
+			protected OASessionUser<AppUser> createSessionUser(final AppUser obj) {
+				OASessionUser<AppUser> su = new OASessionUser<>(ModelDelegate.getLocalAppUserHub().createSharedHub());
+				Hub<AppUser> hub = su.getHub();
+				if (su != null && !hub.contains(su)) hub.add(obj);
+				hub.setAO(obj);
+				return su;
 			}
-/*qqqqqq todo:
+
 			@Override
-			protected OAUserAccess getContextUserAccess(OAObject webUser, OAObject contextUser) {
-				// customize this to allow for user access
-				return null;
+			protected Hub<AppUser> createModelUserHub() {
+				return ModelDelegate.getLocalAppUserHub().createSharedHub();
 			}
-*/			
+
+			@Override
+			protected void onSetUsers(Hub<AppUser> hubModelUser, OASessionUser<AppUser> su) {
+				getOA().sessionUser().set(su);
+				getOA().modelUser().setCurrent(hubModelUser);
+			}			
 		};
 		filterUserAccess.setAuthType(OAUserAccessFilter.AuthType.HttpBasic);
 		return filterUserAccess;

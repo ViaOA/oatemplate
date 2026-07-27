@@ -18,6 +18,7 @@ public class TestDelegate {
         if (dg == null) {
             ds = new OADataSourceObjectCache();
             ds.setAssignIdOnCreate(true);
+            OARuntime.datasource().register(ds);
             dg = new DataGenerator();
             try {
                 // OARuntime.graph().internal().objects().callbacks().demoAllowAllToPass(true);

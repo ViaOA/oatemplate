@@ -49,9 +49,9 @@ import com.template.view.client.panel.template.TemplatePanel;
 import com.template.view.client.panel.search.SearchPanel;
 import com.template.view.client.panel.reportDesigner.ReportDesignerPanel;
 import com.template.view.client.panel.server.ServerPanel;
+/*$$End: ClientFrameController.customize0 $$*/
 import com.viaoa.converter.OAConv;
 import com.viaoa.datetime.OADateTime;
-/*$$End: ClientFrameController.customize0 $$*/
 import com.viaoa.jfc.OAJfcUtil;
 import com.viaoa.jfc.control.OAJfcController;
 import com.viaoa.jfc.print.PrintController;
@@ -544,7 +544,7 @@ public abstract class ClientFrameController {
 		sw.execute();
 	}
 
-	// refreshes pet reports
+	// refreshes reports
 	protected void refreshReport(final OAHTMLReport rpt, final boolean bShowStatus) {
 		if (bShowStatus) {
 			setProcessing(true, "Preparing report ...");

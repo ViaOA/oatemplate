@@ -17,6 +17,7 @@ import com.viaoa.datasource.objectcache.OADataSourceObjectCache;
 import com.viaoa.datetime.*;
 import com.viaoa.filter.OAFilter;
 import com.viaoa.hub.*;
+import com.viaoa.hub.merge.HubGroupByMerger;
 import com.viaoa.io.OAFile;
 import com.viaoa.json.OAJson;
 import com.viaoa.lang.OAString;
@@ -118,6 +119,7 @@ public class DataSourceController {
             }
         };
         dsObjectCache.setAssignIdOnCreate(true);
+        OARuntime.datasource().register(dsObjectCache);
     }
 
 	public boolean isUsingDatabase() {

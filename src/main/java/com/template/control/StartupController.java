@@ -6,6 +6,8 @@ import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+
+import com.template.delegate.ModelDelegate;
 import com.template.control.client.ClientController;
 import com.template.control.server.ServerController;
 import com.template.control.single.SingleController;
@@ -47,6 +49,7 @@ public class StartupController {
 		Resource.setRunType(runType);
 
 		OARuntime.createDefaultOA(AppUser.class.getPackage());
+		OARuntime.oa().modelUser().setDefault(ModelDelegate.getLocalAppUserHub());
 		
         // load args[] into runtime properties before using properties
         Resource.loadArguments(args);

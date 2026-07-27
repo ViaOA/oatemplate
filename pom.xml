@@ -178,12 +178,6 @@
           <type>pom</type>
         </dependency>
 
-
-        <dependency>
-        	<groupId>com.oreillyauto.pos</groupId>
-        	<artifactId>oapos</artifactId>
-        	<version>0.0.1</version>
-        </dependency>
 	</dependencies>
 
 	<build>
@@ -198,14 +192,14 @@
 
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5.1</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
+	        	<groupId>org.apache.maven.plugins</groupId>
+	        	<artifactId>maven-compiler-plugin</artifactId>
+	        	<version>3.14.1</version>
+	        	<configuration>
+					<release>21</release>
+					<encoding>UTF-8</encoding>
+  				</configuration>
+	     	</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
