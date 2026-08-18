@@ -77,7 +77,7 @@ public class WebserverController {
         controlJetty = new JettyController();
 
         try {
-            controlJetty.init(jettyPort, jettySSLPort, null);
+            controlJetty.init(jettyPort, jettySSLPort);
             controlJetty.start();
         }
         catch (Exception e) {

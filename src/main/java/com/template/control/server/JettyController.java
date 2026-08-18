@@ -70,12 +70,16 @@ import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
 import org.eclipse.jetty.webapp.Configuration;
 
 import com.template.control.LogController;
+import com.template.delegate.ModelDelegate;
+import com.template.model.oa.AppUser;
 import com.template.resource.Resource;
 import com.template.servlet.HelloServlet;
 import com.viaoa.io.OAFile;
 import com.viaoa.lang.OAStr;
 import com.viaoa.lang.OAString;
+import com.viaoa.oa.OA;
 import com.viaoa.object.OAObject;
+import com.viaoa.runtime.OARuntime;
 import com.viaoa.web.filter.OAUserAccessFilter;
 import com.viaoa.web.servlet.HealthCheckServlet;
 import com.viaoa.web.servlet.ImageServlet;
@@ -140,7 +144,7 @@ public class JettyController {
 		return this.bAlwaysUseHttps;
 	}
 
-	public void init(final int port, final int sslPort, OAUserAccessFilter filterUserAccess) throws Exception {
+	public void init(final int port, final int sslPort) throws Exception {
 		if (server != null) {
 			return;
 		}
@@ -391,28 +395,32 @@ public class JettyController {
 		// Filters
 
 		// OAUserAccessFilter
-		if (filterUserAccess == null) {
-			// wont allow filter servlets to work, since security will not be set up
-			filterUserAccess = new OAUserAccessFilter() {
-				@Override
-				protected OAObject getWebUser(String userId, String password) {
-					return null;
+		OA oa = OARuntime.defaultOA();
+		OAUserAccessFilter<AppUser, AppUser> filterUserAccess = new OAUserAccessFilter<AppUser, AppUser>(oa) {
+			@Override
+			protected AppUser getSessionUser(String userId, String password) {
+				if (OAStr.isEmpty(userId) || OAStr.isEmpty(password)) return null;
+				
+				AppUser appUser = ModelDelegate.getAppUsers().find(AppUser.P_LoginId, userId);
+				try {
+					String sx = appUser.getPassword();
+					if (!password.equals(sx)) return null;
 				}
-
-				@Override
-				protected OAObject getContextUser(OAObject webUser) {
-					return null;
+				catch (Exception e) {
+					LOG.log(Level.WARNING, "Exception in getSessionUser, userId=" + userId, e);
 				}
+				return null;
+			}
 
-/*qqqqqqqqqqqqq todo:				
-				@Override
-				protected OAUserAccess getContextUserAccess(OAObject webUser, OAObject contextUser) {
-					return null;
-				}
-*/				
-			};
-		}
-
+			@Override
+			protected AppUser getModelUser(AppUser appUser) {
+				return appUser;
+			}
+		};
+		filterUserAccess.setAuthType(OAUserAccessFilter.AuthType.HttpBasic);
+		
+		
+		
 		// see: https://stackoverflow.com/questions/14390577/how-to-add-servlet-filter-with-embedded-jetty
 		final String name = "OAUserAccessFilter";
 		FilterHolder filterHolder = new FilterHolder(filterUserAccess);
@@ -430,7 +438,7 @@ public class JettyController {
 		servletContextHandler.addServlet(new ServletHolder(servletHealthCheck), "/servlet/healthcheck");
 
 		// OARest Servlet
-		this.servletRest = new OARestServlet(packageName);
+		this.servletRest = new OARestServlet(OARuntime.defaultOA());
 		servletContextHandler.addServlet(new ServletHolder(servletRest), "/servlet/oarest/*");
 
 		// Json Servlet
@@ -807,7 +815,7 @@ public class JettyController {
 		 * rootClient); */
 
 		JettyController jc = new JettyController();
-		jc.init(8082, 8444, null);
+		jc.init(8082, 8444);
 		jc.start();
 		System.out.println("==============================================");
 		System.out.println("JETTY webserver started on ports " + jc.portHttp + " and " + jc.portHttps + "");

@@ -31,7 +31,6 @@ import com.viaoa.runtime.OARuntime;
 import com.viaoa.runtime.thread.OAThread;
 import com.viaoa.session.OASessionUser;
 import com.viaoa.sync.model.ClientInfo;
-import com.viaoa.web.filter.OAUserAccessFilter;
 
 import com.template.control.LogController;
 import com.template.delegate.CronDelegate;
@@ -69,7 +68,6 @@ public abstract class ServerController {
     private ServerFrameController controlServerFrame;
     private ServerSpellCheckController controlServerSpellCheck;
     private JettyController controlJetty;
-    private OAUserAccessFilter<AppUser, AppUser> filterUserAccess;
     private ConnectionController controlConnection;
     private SpellChecker spellChecker;
 
@@ -300,7 +298,7 @@ public abstract class ServerController {
         int port = Resource.getInt(Resource.APP_JettyPort, 8080);
         int portSSL = Resource.getInt(Resource.APP_JettySSLPort, 0);
         LOG.config("Jetty port=" + port + ", sslPort=" + portSSL);
-        getJettyController().init(port, portSSL, getJettyUserAccessFilter());
+        getJettyController().init(port, portSSL);
         getJettyController().start();
 
         // remove old log files
@@ -362,42 +360,6 @@ public abstract class ServerController {
 		return controlJetty;
 	}
 	
-	public OAUserAccessFilter<AppUser, AppUser> getJettyUserAccessFilter() {
-		if (filterUserAccess != null) {
-			return filterUserAccess;
-		}
-		
-		filterUserAccess = new OAUserAccessFilter<>(OARuntime.defaultOA()) {
-			@Override
-			protected AppUser getLoginSessionObject(String userId, String password) {
-				AppUser user = _getUser(-1, userId, password, "", "");
-				return user;
-			}
-
-			@Override
-			protected OASessionUser<AppUser> createSessionUser(final AppUser obj) {
-				OASessionUser<AppUser> su = new OASessionUser<>(ModelDelegate.getLocalAppUserHub().createSharedHub());
-				Hub<AppUser> hub = su.getHub();
-				if (su != null && !hub.contains(su)) hub.add(obj);
-				hub.setAO(obj);
-				return su;
-			}
-
-			@Override
-			protected Hub<AppUser> createModelUserHub() {
-				return ModelDelegate.getLocalAppUserHub().createSharedHub();
-			}
-
-			@Override
-			protected void onSetUsers(Hub<AppUser> hubModelUser, OASessionUser<AppUser> su) {
-				getOA().sessionUser().set(su);
-				getOA().modelUser().setCurrent(hubModelUser);
-			}			
-		};
-		filterUserAccess.setAuthType(OAUserAccessFilter.AuthType.HttpBasic);
-		return filterUserAccess;
-	}
-
 	class LoaderThread extends Thread {
 		int id;
 		OACascade cascade;
