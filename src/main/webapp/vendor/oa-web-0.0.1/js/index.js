@@ -25,18 +25,19 @@ export { default as OAHtmlSelect } from './OAHtmlSelect.js';
 export { default as OATypeAheadInputText } from './OATypeAheadInputText.js';
 export { default as OAHtmlTextArea } from './OAHtmlTextArea.js';
 export { default as OAInputButton } from './OAInputButton.js';
+export { default as OASplitButton } from './OASplitButton.js';
 export { default as OAInputColor } from './OAInputColor.js';
 export { default as OAInputImage } from './OAInputImage.js';
 
 export { default as OALabel } from './OALabel.js';
 export { default as OAConsole } from './OAConsole.js';
 export { default as OAComboBox } from './OAComboBox.js';
-export { default as OAResizePanel } from './OAResizePanel.js';
+export { default as OATableComboBox } from './OATableComboBox.js';
+export { default as OATreeComboBox } from './OATreeComboBox.js';
 
 
 export { default as OATable } from './OATable.js';
 export { OATableColumn, OATableRow, OATableData  } from './OATable.js';
-
 
 
 export { default as OAVisibleObserverElement } from './OAVisibleObserverElement.js';
@@ -49,4 +50,5 @@ export { default as OAAccordionPanel } from './OAAccordionPanel.js';
 export { default as OAAccordionBar } from './OAAccordionBar.js';
 export { default as OAHtmlButton } from './OAHtmlButton.js';
 export { default as OADialog } from './OADialog.js';
+export { default as OAResizePanel } from './OAResizePanel.js';
 

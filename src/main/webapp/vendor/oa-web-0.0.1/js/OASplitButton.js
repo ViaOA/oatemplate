@@ -1,7 +1,7 @@
 
 import { OAClient } from '@oa-web/index.js';
 
-export default class OAInputImage {
+export default class OASplitButton {
 
     /** @type {HTMLElement} */
     element;
